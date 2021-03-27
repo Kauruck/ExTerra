@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": {
+    "item": "exterra:ruby_ore"
+  },
+  "result": "exterra:ruby",
+  "experience": 1.0,
+  "cookingtime": 200
+}

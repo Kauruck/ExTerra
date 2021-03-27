@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "exterra:block/ruby_block" }
+  }
+}

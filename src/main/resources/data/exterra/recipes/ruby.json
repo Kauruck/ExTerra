@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "exterra:ruby_block"
+    }
+  ],
+  "result": {
+    "item": "exterra:ruby",
+    "count": 9
+  }
+}
