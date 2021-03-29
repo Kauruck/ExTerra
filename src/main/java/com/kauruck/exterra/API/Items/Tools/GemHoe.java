@@ -1,4 +1,4 @@
-package com.kauruck.exterra.Item.Tools;
+package com.kauruck.exterra.API.Items.Tools;
 
 import com.kauruck.exterra.Init.ModTabs;
 import com.kauruck.exterra.Item.GemType;

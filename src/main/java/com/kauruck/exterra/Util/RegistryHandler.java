@@ -6,9 +6,11 @@ import net.minecraft.block.Block;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntityType;
+import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.GatherDataEvent;
 
 import java.util.ArrayList;
 
@@ -19,6 +21,7 @@ public class RegistryHandler {
     public static final ArrayList<Block> BLOCKS = new ArrayList<>();
     public static final ArrayList<TileEntityType<?>> TILE_ENTITY_TYPES = new ArrayList<>();
     public static final ArrayList<ContainerType<?>> CONTAINER_TYPES = new ArrayList<>();
+    public static final ArrayList<GlobalLootModifierSerializer<?>> GLMS = new ArrayList<>();
 
     @SubscribeEvent
     public static  void registerBlocks(RegistryEvent.Register<Block> event) {
@@ -54,6 +57,21 @@ public class RegistryHandler {
         for(ContainerType<?> t : CONTAINER_TYPES){
             event.getRegistry().register(t);
         }
+    }
+
+
+    @SubscribeEvent
+    public static void registerLootModifierSerializers(RegistryEvent.Register<GlobalLootModifierSerializer<?>> event){
+        new ModGlobalLootModifiers();
+        for(GlobalLootModifierSerializer<?> glm : GLMS){
+            event.getRegistry().register(glm);
+        }
+    }
+
+    @SubscribeEvent
+    public static void runData(GatherDataEvent event)
+    {
+        event.getGenerator().addProvider(new ModDataProvider(event.getGenerator(), ExTerra.MOD_ID));
     }
 
 

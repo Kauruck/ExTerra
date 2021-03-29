@@ -1,11 +1,9 @@
-package com.kauruck.exterra.Item.Tools;
+package com.kauruck.exterra.API.Items.Tools;
 
 import com.kauruck.exterra.Init.ModTabs;
 import com.kauruck.exterra.Item.GemType;
 import com.kauruck.exterra.Util.RegistryHandler;
-import net.minecraft.item.IItemTier;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ShovelItem;
 
 public class GemShovel extends ShovelItem {

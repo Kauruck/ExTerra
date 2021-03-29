@@ -1,4 +1,4 @@
-package com.kauruck.exterra.Item.Armor;
+package com.kauruck.exterra.Item;
 
 import com.kauruck.exterra.Util.RegistryHandler;
 import net.minecraft.inventory.EquipmentSlotType;

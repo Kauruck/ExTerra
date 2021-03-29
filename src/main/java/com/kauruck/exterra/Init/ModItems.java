@@ -1,9 +1,9 @@
 package com.kauruck.exterra.Init;
 
-import com.kauruck.exterra.Item.GemItem;
+import com.kauruck.exterra.API.Items.*;
+import com.kauruck.exterra.API.Items.Tools.*;
 import com.kauruck.exterra.Item.GemType;
-import com.kauruck.exterra.Item.Armor.GemArmor;
-import com.kauruck.exterra.Item.Tools.*;
+import com.kauruck.exterra.API.Items.Armor.GemArmor;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
 

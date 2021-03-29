@@ -1,10 +1,14 @@
 package com.kauruck.exterra.Item;
 
 import com.kauruck.exterra.ExTerra;
+import com.kauruck.exterra.API.Gems.IGemAction;
+import com.kauruck.exterra.API.Gems.IGemType;
+import com.kauruck.exterra.Gems.RubyAction;
+import com.kauruck.exterra.Gems.SapphireAction;
+import com.kauruck.exterra.Gems.TourmalineAction;
+import com.kauruck.exterra.Gems.ZirconAction;
 import com.kauruck.exterra.Init.ModItems;
 import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.IArmorMaterial;
-import net.minecraft.item.IItemTier;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.LazyValue;
 import net.minecraft.util.SoundEvent;
@@ -12,13 +16,11 @@ import net.minecraft.util.SoundEvents;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-import java.util.function.Supplier;
-
-public enum GemType  implements IItemTier, IArmorMaterial {
-    Ruby("ruby", 1561,8.0F,3.0F,10, 15, 33, new int[]{3, 6, 8, 3}, SoundEvents.ITEM_ARMOR_EQUIP_DIAMOND, 2, 0.0F),   //Fire Autosmelt
-    Sapphire("sapphire", 1561,8.0F,3.0F,10, 15,33, new int[]{3, 6, 8, 3}, SoundEvents.ITEM_ARMOR_EQUIP_DIAMOND, 2, 0.0F),   //Water Aquainfity
-    Tourmaline("tourmaline", 2031, 7.0F,5.0F,10, 15, 37, new int[]{3, 6, 8, 3}, SoundEvents.ITEM_ARMOR_EQUIP_DIAMOND, 3, 1.0F),   //Earth Heavy
-    Zircon("zircon", 1561, 12.0F,3.0F,10, 15,33, new int[]{3, 6, 8, 3}, SoundEvents.ITEM_ARMOR_EQUIP_DIAMOND, 2, 0.0F);   //Wind Swift
+public enum GemType  implements IGemType {
+    Ruby("ruby", 1561,8.0F,3.0F,10, 15, 33, new int[]{3, 6, 8, 3}, SoundEvents.ITEM_ARMOR_EQUIP_DIAMOND, 2, 0.0F, new RubyAction()),   //Fire Autosmelt
+    Sapphire("sapphire", 1561,8.0F,3.0F,10, 15,33, new int[]{3, 6, 8, 3}, SoundEvents.ITEM_ARMOR_EQUIP_DIAMOND, 2, 0.0F, new SapphireAction()),   //Water Aquainfity
+    Tourmaline("tourmaline", 2031, 7.0F,5.0F,10, 15, 37, new int[]{3, 6, 8, 3}, SoundEvents.ITEM_ARMOR_EQUIP_DIAMOND, 3, 1.0F, new TourmalineAction()),   //Earth Heavy
+    Zircon("zircon", 1561, 12.0F,3.0F,10, 15,33, new int[]{3, 6, 8, 3}, SoundEvents.ITEM_ARMOR_EQUIP_DIAMOND, 2, 0.0F, new ZirconAction());   //Wind Swift
 
     public static int indexOf(GemType gemType){
         int i = 0;
@@ -45,8 +47,9 @@ public enum GemType  implements IItemTier, IArmorMaterial {
     private final SoundEvent se;
     private final float tou;
     private final float kbr;
+    private final IGemAction gemAction;
 
-    private GemType(String name, int uses, float eff, float dmg, int lev, int enc, int durArmor, int[] dra, SoundEvent se, float tou,  float kbr){
+    private GemType(String name, int uses, float eff, float dmg, int lev, int enc, int durArmor, int[] dra, SoundEvent se, float tou,  float kbr, IGemAction gemAction){
         this.name = name;
         this.dmg = dmg;
         this.eff = eff;
@@ -59,6 +62,7 @@ public enum GemType  implements IItemTier, IArmorMaterial {
         this.se = se;
         this.tou = tou;
         this.kbr = kbr;
+        this.gemAction = gemAction;
     }
 
     public String getRegistryName() {
@@ -124,5 +128,10 @@ public enum GemType  implements IItemTier, IArmorMaterial {
     @OnlyIn(Dist.CLIENT)
     public String getName() {
         return ExTerra.MOD_ID + ":" + name;
+    }
+
+    @Override
+    public IGemAction getActionHandler() {
+        return gemAction;
     }
 }
