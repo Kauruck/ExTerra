@@ -2,10 +2,8 @@
   "type": "exterra:autosmelt",
   "conditions": [
     {
-      "condition": "minecraft:match_tool",
-      "predicate": {
-        "tag": "exterra:gems/ruby"
-      }
+      "condition": "exterra:match_gem",
+      "gem": "exterra:ruby"
     }
     ]
 }

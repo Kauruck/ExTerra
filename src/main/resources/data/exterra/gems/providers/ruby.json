@@ -1,0 +1,6 @@
+{
+  "provider" : {
+    "item":"exterra:ruby_gem"
+  },
+  "gemtype" : "exterra:ruby"
+}

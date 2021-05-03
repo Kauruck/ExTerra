@@ -1,0 +1,8 @@
+{
+  "loader" : "exterra:gem_tool",
+  "parent": "forge:item/default-tool",
+  "textures": {
+    "particle": "exterra:items/ruby",
+    "gem_cutout": "exterra:items/ruby_pickaxe_overlay"
+  }
+}

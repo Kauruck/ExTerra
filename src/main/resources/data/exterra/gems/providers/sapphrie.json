@@ -1,0 +1,6 @@
+{
+  "provider" : {
+    "item":"exterra:sapphire_gem"
+  },
+  "gemtype" : "exterra:sapphire"
+}

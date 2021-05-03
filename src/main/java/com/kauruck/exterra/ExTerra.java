@@ -1,10 +1,12 @@
 package com.kauruck.exterra;
 
-import com.kauruck.exterra.Util.RegistryHandler;
+import com.kauruck.exterra.modules.ExTerraGems;
+import com.kauruck.exterra.modules.ExTerraModules;
+import com.kauruck.exterra.modules.ExTerraTools;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -20,21 +22,25 @@ public class ExTerra
     public static final Logger LOGGER = LogManager.getLogger();
 
     public ExTerra() {
-        // Register the setup method for modloading
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
-        // Register the doClientStuff method for modloading
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
+
+        ExTerraModules.createRegistries();
+
+        //Here are all the modules
+        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+
+        bus.register(new ExTerraGems());
+        bus.register(new ExTerraTools());
+
+        ExTerraModules.register();
 
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
-    }
 
-    private void setup(final FMLCommonSetupEvent event)
-    {
+
 
     }
 
-    private void doClientStuff(final FMLClientSetupEvent event) {
-        // do something that can only be done on the client
+    public static ResourceLocation getResource(String name) {
+        return new ResourceLocation(MOD_ID, name);
     }
 }

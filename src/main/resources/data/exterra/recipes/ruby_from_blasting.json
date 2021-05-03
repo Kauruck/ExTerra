@@ -3,7 +3,7 @@
   "ingredient": {
     "item": "exterra:ruby_ore"
   },
-  "result": "exterra:ruby",
+  "result": "exterra:ruby_gem",
   "experience": 1.0,
   "cookingtime": 100
 }

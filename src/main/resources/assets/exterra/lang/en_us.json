@@ -1,10 +1,5 @@
 {
-  "item.exterra.ruby": "Ruby",
-  "item.exterra.ruby_shovel": "Ruby Shovel",
-  "item.exterra.ruby_axe": "Ruby Axe",
-  "item.exterra.ruby_pickaxe": "Ruby Pickaxe",
-  "item.exterra.ruby_hoe": "Ruby Hoe",
-  "item.exterra.ruby_sword": "Ruby Sword",
+  "item.exterra.ruby_gem": "Ruby",
 
   "item.exterra.ruby_helmet": "Ruby Helmet",
   "item.exterra.ruby_chestplate": "Ruby Chestplate",
@@ -15,5 +10,10 @@
   "itemGroup.exterra.Tools": "Ex Terra Tools",
 
   "block.exterra.ruby_ore": "Ruby Ore",
-  "block.exterra.ruby_block" : "Block of Ruby"
+  "block.exterra.ruby_block" : "Block of Ruby",
+
+  "error.exterra.gemtool" : "The tool is not properly working",
+
+  "info.exterra.infused": "Infused",
+  "gem.exterra.ruby" : "Ruby"
 }
