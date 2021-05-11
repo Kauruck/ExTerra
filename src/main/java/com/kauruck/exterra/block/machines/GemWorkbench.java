@@ -28,8 +28,8 @@ import net.minecraftforge.fml.network.NetworkHooks;
 import javax.annotation.Nullable;
 
 public class GemWorkbench extends BlockBase implements IForgeBlock {
-    public GemWorkbench(float hardness, Material material, ItemGroup itemGroup, ToolType harvestTool, int harvestLevel) {
-        super(hardness, material, itemGroup, harvestTool, harvestLevel);
+    public GemWorkbench(float hardness, Material material, ToolType harvestTool, int harvestLevel) {
+        super(hardness, material, harvestTool, harvestLevel);
     }
 
     @Override

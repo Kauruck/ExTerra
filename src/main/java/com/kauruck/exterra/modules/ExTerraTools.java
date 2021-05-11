@@ -57,7 +57,7 @@ public class ExTerraTools {
     public static final RegistryObject<Tool> TOOL_HOE = ExTerraModules.TOOLS.register("tooltype_hoe", () -> new Tool(() -> (BaseGemTool) TOOL_HOE_ITEM.get(), HoeItem.class));
 
     //Machines
-    public static final RegistryObject<Block> GEM_WORKBENCH = ExTerraModules.BLOCKS.register("gem_workbench", () -> new GemWorkbench(3, Material.IRON, ExTerraGems.RESOURCE_TAB, ToolType.PICKAXE, 2));
+    public static final RegistryObject<Block> GEM_WORKBENCH = ExTerraModules.BLOCKS.register("gem_workbench", () -> new GemWorkbench(3, Material.IRON, ToolType.PICKAXE, 2));
     public static final RegistryObject<Item> GEM_WORKBENCH_ITEM = ExTerraModules.ITEMS.register("gem_workbench", () -> new BlockItem(ExTerraTools.GEM_WORKBENCH.get(), new Item.Properties().group(ExTerraTools.TOOLS_TAB)));
     public static final RegistryObject<TileEntityType<GemWorkbenchTileEntity>> GEM_WORKBENCH_TILE_ENTITY = ExTerraModules.TILE_ENTITIES.register("gem_workbench" , () -> ModFactory.createTileEntityType(GemWorkbenchTileEntity::new, GEM_WORKBENCH.get()));
     public static final RegistryObject<ContainerType<GemWorkbenchContainer>> GEM_WORKBENCH_CONTAINER = ExTerraModules.CONTAINERS.register("gem_workbench", () -> ModFactory.createContainerType(GemWorkbenchContainer::new, GemWorkbenchScreen::new));
