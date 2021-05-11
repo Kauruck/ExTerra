@@ -4,10 +4,11 @@ import com.kauruck.exterra.API.item.tool.BaseGemTool;
 import com.kauruck.exterra.API.tooltype.Tool;
 import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.block.machines.GemWorkbench;
+import com.kauruck.exterra.datapacks.GemItemBinding;
 import com.kauruck.exterra.guis.machines.GemWorkbenchContainer;
 import com.kauruck.exterra.guis.machines.GemWorkbenchScreen;
 import com.kauruck.exterra.item.tools.*;
-import com.kauruck.exterra.lootcondtitiontype.ExTerraLootConditionType;
+import com.kauruck.exterra.lootcondtitiontype.ToolCondition;
 import com.kauruck.exterra.lootmodifiers.Autosmelt;
 import com.kauruck.exterra.tabs.ToolsTab;
 import com.kauruck.exterra.tileentities.GemWorkbenchTileEntity;
@@ -16,6 +17,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.item.*;
+import net.minecraft.loot.LootConditionType;
 import net.minecraft.tileentity.TileEntityType;
 import net.minecraft.util.registry.Registry;
 import net.minecraftforge.common.ToolType;
@@ -25,9 +27,17 @@ import net.minecraftforge.fml.RegistryObject;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
+/**
+ * The module of ExTerra containing everything needed for the tools.
+ * This one depends on
+ * @see ExTerraGems
+ *
+ * @author Kauruck
+ */
 @Mod.EventBusSubscriber(modid = ExTerra.MOD_ID, bus = Mod.EventBusSubscriber.Bus.MOD)
 @SuppressWarnings("unused")
 public class ExTerraTools {
+
 
     //Tabs
     public static ItemGroup TOOLS_TAB = new ToolsTab();
@@ -55,13 +65,18 @@ public class ExTerraTools {
     //Loot modifiers
     public static final RegistryObject<GlobalLootModifierSerializer<Autosmelt>> AUTOSMELT = ExTerraModules.GLOBAL_LOOT_MODIFIER_SERIALIZERS.register("autosmelt", Autosmelt.Serializer::new);
 
+    //LootCondition
+    public static final LootConditionType TOOL_CONDITION = new LootConditionType(new ToolCondition.Serializer());
+
+    //DataPacks
+    public static final GemItemBinding GEM_ITEM_BINDING = new GemItemBinding();
 
 
     //Custom loot conditions
     @SubscribeEvent
     public static void registerDataSerializer(FMLCommonSetupEvent event){
         event.enqueueWork(() -> {
-            Registry.register(Registry.LOOT_CONDITION_TYPE, ExTerra.getResource("match_gem"), ExTerraLootConditionType.TOOL_CONDITION);
+            Registry.register(Registry.LOOT_CONDITION_TYPE, ExTerra.getResource("match_gem"), TOOL_CONDITION);
         });
     }
 

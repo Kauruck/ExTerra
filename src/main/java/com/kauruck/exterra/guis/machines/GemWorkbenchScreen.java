@@ -11,10 +11,22 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 
+/**
+ * The screen for the
+ * @see GemWorkbenchContainer .
+ *
+ *  @author Kauruck
+ */
 public class GemWorkbenchScreen extends ContainerScreen<GemWorkbenchContainer> {
 
-    private ResourceLocation GUI = new ResourceLocation(ExTerra.MOD_ID, "textures/gui/gem_workbench.png");
+    private static final ResourceLocation GUI = new ResourceLocation(ExTerra.MOD_ID, "textures/gui/gem_workbench.png");
 
+    /**
+     * Create a new Screen
+     * @param screenContainer The container to show
+     * @param inv The players inventory
+     * @param titleIn The title of the container
+     */
     public GemWorkbenchScreen(GemWorkbenchContainer screenContainer, PlayerInventory inv, ITextComponent titleIn) {
         super(screenContainer, inv, titleIn);
     }

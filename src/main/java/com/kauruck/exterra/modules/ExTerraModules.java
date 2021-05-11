@@ -16,6 +16,11 @@ import net.minecraftforge.registries.RegistryBuilder;
 
 import static com.kauruck.exterra.ExTerra.MOD_ID;
 
+/**
+ * All the registries for ExTerra
+ *
+ * @author Kauruck
+ */
 public class ExTerraModules {
 
     //Objects

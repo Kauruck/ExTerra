@@ -6,6 +6,11 @@ import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.ToolType;
 
+/**
+ * Go dig dig
+ *
+ *  @author Kauruck
+ */
 public class GemShovel extends BaseGemTool {
 
     @Override

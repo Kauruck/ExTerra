@@ -1,4 +1,4 @@
-package com.kauruck.exterra.renderers;
+package com.kauruck.exterra.client.models;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.block.BlockState;
@@ -24,12 +24,22 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Model for the tools
+ *
+ * This renders the baseItem under the baseModel
+ *
+ * You do not need this. Use
+ * @see GemToolLoader .
+ *
+ * @author Kauruck
+ */
 @OnlyIn(Dist.CLIENT)
 public class GemToolBakedModel implements IBakedModel {
 
-    private IBakedModel baseModel;
+    private final IBakedModel baseModel;
 
-    private ItemStack baseItem;
+    private final ItemStack baseItem;
 
     IModelTransform modelTransform;
 
@@ -40,9 +50,16 @@ public class GemToolBakedModel implements IBakedModel {
     }
 
     private final RenderState renderState;
-    private final GemToolRenderer parent;
+    private final GemToolLoader parent;
 
-    public GemToolBakedModel(IBakedModel baseModel, ItemStack baseItem, IModelTransform modelTransform, GemToolRenderer parent) {
+    /**
+     * Creates a model
+     * @param baseModel The base model
+     * @param baseItem The item to render below
+     * @param modelTransform The transform
+     * @param parent The parent
+     */
+    public GemToolBakedModel(IBakedModel baseModel, ItemStack baseItem, IModelTransform modelTransform, GemToolLoader parent) {
         this.baseModel = baseModel;
         this.baseItem = baseItem;
         this.modelTransform = modelTransform;
@@ -50,11 +67,23 @@ public class GemToolBakedModel implements IBakedModel {
         this.parent = parent;
     }
 
-    public GemToolRenderer getParent() {
+    /**
+     * Get the parent loader
+     * @return The parent
+     */
+    public GemToolLoader getParent() {
         return parent;
     }
 
-    public GemToolBakedModel(IBakedModel baseModel, ItemStack baseItem, IModelTransform modelTransform, RenderState renderState, GemToolRenderer parent) {
+    /**
+     * Creates a model for a perspective (Inventory, First Person, Third Person)
+     * @param baseModel The base model
+     * @param baseItem The item to render below
+     * @param modelTransform The transform
+     * @param renderState The perspective
+     * @param parent The parent
+     */
+    public GemToolBakedModel(IBakedModel baseModel, ItemStack baseItem, IModelTransform modelTransform, RenderState renderState, GemToolLoader parent) {
         this.baseModel = baseModel;
         this.baseItem = baseItem;
         this.modelTransform = modelTransform;

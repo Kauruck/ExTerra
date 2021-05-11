@@ -5,6 +5,11 @@ import com.kauruck.exterra.API.item.tool.BaseGemTool;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.item.*;
 
+/**
+ * Just a sword
+ *
+ *  @author Kauruck
+ */
 public class GemSword extends BaseGemTool {
 
     @Override

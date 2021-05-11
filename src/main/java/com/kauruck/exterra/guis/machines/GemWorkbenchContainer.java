@@ -1,6 +1,7 @@
 package com.kauruck.exterra.guis.machines;
 
 import com.kauruck.exterra.modules.ExTerraTools;
+import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.container.Container;
@@ -13,15 +14,30 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.SlotItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
+/**
+ * Container for the GemWorkbench
+ *
+ *  @author Kauruck
+ */
 public class GemWorkbenchContainer extends Container {
 
-    private TileEntity tileEntity;
-    private PlayerEntity playerEntity;
-    private IItemHandler playerInventory;
+    private final TileEntity tileEntity;
+    private final PlayerEntity playerEntity;
+    private final IItemHandler playerInventory;
 
-    private int slotSize = 19;
-    private int margin = 3;
+    private final int slotSize = 19;
+    private final int margin = 3;
 
+    /**
+     * Create the Container
+     * @param windowId The Id
+     * @param world The world
+     * @param pos The position of the TileEntity (there should also be one)
+     * @param playerInventory The inventory of the player
+     * @param player The player
+     */
     public GemWorkbenchContainer(int windowId, World world, BlockPos pos, PlayerInventory playerInventory, PlayerEntity player) {
         super(ExTerraTools.GEM_WORKBENCH_CONTAINER.get(), windowId);
         tileEntity = world.getTileEntity(pos);
@@ -68,6 +84,8 @@ public class GemWorkbenchContainer extends Container {
 
 
     @Override
+    @MethodsReturnNonnullByDefault
+    @ParametersAreNonnullByDefault
     public boolean canInteractWith(PlayerEntity playerIn) {
         return isWithinUsableDistance(IWorldPosCallable.of(tileEntity.getWorld(), tileEntity.getPos()), playerEntity, ExTerraTools.GEM_WORKBENCH.get());
     }

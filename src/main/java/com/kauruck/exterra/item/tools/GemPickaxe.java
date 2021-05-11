@@ -6,6 +6,11 @@ import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.ToolType;
 
+/**
+ * To mine stone and other
+ *
+ *  @author Kauruck
+ */
 public class GemPickaxe extends BaseGemTool {
 
     @Override

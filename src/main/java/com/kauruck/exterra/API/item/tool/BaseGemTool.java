@@ -30,7 +30,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Optional;
 
-public class BaseGemTool extends Item implements IUpgradable<BaseGemTool> {
+public class BaseGemTool extends Item implements IUpgradable {
 
     public static final String TAG_ORIGINAL_ITEM = "org";
     public static final String TAG_GEM_ITEM = "gem";

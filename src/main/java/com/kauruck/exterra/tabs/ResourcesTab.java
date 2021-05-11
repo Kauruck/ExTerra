@@ -6,7 +6,11 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 
 
-
+/**
+ * The class providing the ResourceTab
+ *
+ * @author Kauruck
+ */
 public class ResourcesTab extends ItemGroup {
 
 

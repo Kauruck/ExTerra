@@ -1,4 +1,4 @@
-package com.kauruck.exterra.renderers;
+package com.kauruck.exterra.client.models;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -35,8 +35,17 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+/**
+ * The loader for the gem tool.
+ * Use this for the item model with
+ * "loader" : "exterra:gem_tool"
+ *
+ * This requires the particle texture and a "gem_cutout" as a layout for the GemTexture
+ *
+ * @author Kauruck
+ */
 @OnlyIn(Dist.CLIENT)
-public class GemToolRenderer implements IModelGeometry<GemToolRenderer> {
+public class GemToolLoader implements IModelGeometry<GemToolLoader> {
 
     private static final float NORTH_Z_COVER = 7.496f / 16f;
     private static final float SOUTH_Z_COVER = 8.504f / 16f;
@@ -46,13 +55,13 @@ public class GemToolRenderer implements IModelGeometry<GemToolRenderer> {
     private Item parent = null;
     private final ResourceLocation gemTexture;
 
-    public GemToolRenderer( Item parent, ResourceLocation gemTexture){
+    public GemToolLoader(Item parent, ResourceLocation gemTexture){
         this.parent = parent;
         this.gemTexture = gemTexture;
 
     }
 
-    public GemToolRenderer(){
+    public GemToolLoader(){
         parent = Items.BUCKET;
         gemTexture = new ResourceLocation("minecraft", "blocks/stone");
     }
@@ -105,13 +114,13 @@ public class GemToolRenderer implements IModelGeometry<GemToolRenderer> {
         return texs;
     }
 
-    public GemToolRenderer forItem(Item parent, Gem gem){
+    public GemToolLoader forItem(Item parent, Gem gem){
         if(gem == null)
-            return new GemToolRenderer();
-        return new GemToolRenderer(parent, gem.getTexture());
+            return new GemToolLoader();
+        return new GemToolLoader(parent, gem.getTexture());
     }
 
-    public enum Loader implements IModelLoader<GemToolRenderer>
+    public enum Loader implements IModelLoader<GemToolLoader>
     {
         INSTANCE;
 
@@ -134,9 +143,9 @@ public class GemToolRenderer implements IModelGeometry<GemToolRenderer> {
         }
 
         @Override
-        public GemToolRenderer read(JsonDeserializationContext deserializationContext, JsonObject modelContents)
+        public GemToolLoader read(JsonDeserializationContext deserializationContext, JsonObject modelContents)
         {
-            return new GemToolRenderer();
+            return new GemToolLoader();
         }
     }
 
@@ -173,7 +182,7 @@ public class GemToolRenderer implements IModelGeometry<GemToolRenderer> {
                 name = stack.getItem().getDefaultInstance().getTag().getString(BaseGemTool.TAG_ORIGINAL_ITEM);
             }
             if (!cache.containsKey(name)) {
-                GemToolRenderer unbaked = ((GemToolBakedModel)originalModel).getParent().forItem(ForgeRegistries.ITEMS.getValue(new ResourceLocation(name)), stack.getItem() instanceof BaseGemTool ? ((BaseGemTool)stack.getItem()).getGemType(stack) : null);
+                GemToolLoader unbaked = ((GemToolBakedModel)originalModel).getParent().forItem(ForgeRegistries.ITEMS.getValue(new ResourceLocation(name)), stack.getItem() instanceof BaseGemTool ? ((BaseGemTool)stack.getItem()).getGemType(stack) : null);
                 IBakedModel bakedModel = unbaked.bake(owner, bakery, ModelLoader.defaultTextureGetter(), ModelRotation.X0_Y0, this, new ResourceLocation("exterra:gem_tool_override"));
                 cache.put(name, bakedModel);
                 return bakedModel;

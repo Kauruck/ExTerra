@@ -12,15 +12,27 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 
-// The value here should match an entry in the META-INF/mods.toml file
+/**
+ * The main class for ExTerra.
+ *
+ * @author Kauruck
+ */
 @Mod("exterra")
 public class ExTerra
 {
+    /**
+     * The mod id
+     */
     public static final String MOD_ID = "exterra";
 
-    // Directly reference a log4j logger.
+    /**
+     * The logger for ExTerra
+     */
     public static final Logger LOGGER = LogManager.getLogger();
 
+    /**
+     * Creates the mod (only Forge should calle this)
+     */
     public ExTerra() {
 
         ExTerraModules.createRegistries();
@@ -40,6 +52,11 @@ public class ExTerra
 
     }
 
+    /**
+     * Get a resource for ExTerra
+     * @param name The name of the resource
+     * @return The ResourceLocation with the ModId ExTerra and the path with the name
+     */
     public static ResourceLocation getResource(String name) {
         return new ResourceLocation(MOD_ID, name);
     }

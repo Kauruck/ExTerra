@@ -6,6 +6,11 @@ import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.ToolType;
 
+/**
+ * For the farmer
+ *
+ *  @author Kauruck
+ */
 public class GemHoe extends BaseGemTool {
 
     @Override

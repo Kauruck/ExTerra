@@ -20,6 +20,15 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * This one handles binding an Item (or multiple) to a Gem.
+ * Locate in gems/providers
+ *
+ * It needs an CraftingProvider (something like an item, tag, etc.)
+ * and a Gem
+ *
+ * @author Kauruck
+ */
 public class GemItemBinding extends JsonReloadListener {
     public static final String FOLDER = "gems/providers";
     public static Gson GSON = (new GsonBuilder())
@@ -35,11 +44,21 @@ public class GemItemBinding extends JsonReloadListener {
 
     private Map<Ingredient, Gem> bindings = Collections.emptyMap();
 
+    /**
+     * Weather we have a gem for that ItemStack
+     * @param provider The ItemStack to test
+     * @return Weather we have a binding
+     */
     public boolean contains(ItemStack provider) {
         return bindings.entrySet().stream()
                 .anyMatch(current -> current.getKey().test(provider));
     }
 
+    /**
+     * Returns the corresponding Gem for the ItemStack or null if it does not exists
+     * @param provider The ItemStack
+     * @return The GemType for that ItemStack
+     */
     public Gem get(ItemStack provider) {
         return bindings.entrySet().stream()
                 .filter(current -> current.getKey().test(provider))
@@ -48,11 +67,22 @@ public class GemItemBinding extends JsonReloadListener {
                 .orElse(null);
     }
 
+    /**
+     * Weather the ItemStack is bound to the GemType
+     * @param gem The GemType
+     * @param provider The ItemStack which should be tested against
+     * @return Weather the Stack is valid for the GemType
+     */
     public boolean isValidForType(Gem gem, ItemStack provider) {
         return bindings.entrySet().stream()
                 .anyMatch(current -> current.getKey().test(provider) && current.getValue() == gem);
     }
 
+    /**
+     * Get all Ingredients which can provide the GemType
+     * @param gem The GemType
+     * @return A Collection of Ingredients for that GemType
+     */
     public Collection<Ingredient> getProviderForType(Gem gem) {
         return bindings.entrySet().stream()
                 .filter(current -> current.getValue().equals(gem))
@@ -79,6 +109,7 @@ public class GemItemBinding extends JsonReloadListener {
     }
 
     private Pair<Ingredient, Gem> loadFromJson(JsonObject json){
+        //TODO ERROR?
         return Pair.of(CraftingHelper.getIngredient(json.get("provider")), ExTerraRegistries.GEM_REGISTRY.get().getValue(GSON.fromJson(json.get("gemtype"), ResourceLocation.class))) ;
     }
 

@@ -6,6 +6,7 @@ import com.google.gson.JsonSerializationContext;
 import com.kauruck.exterra.API.gem.Gem;
 import com.kauruck.exterra.API.item.tool.BaseGemTool;
 import com.kauruck.exterra.ExTerraRegistries;
+import com.kauruck.exterra.modules.ExTerraTools;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.ILootSerializer;
 import net.minecraft.loot.LootConditionType;
@@ -14,9 +15,15 @@ import net.minecraft.loot.LootParameters;
 import net.minecraft.loot.conditions.ILootCondition;
 import net.minecraft.util.ResourceLocation;
 
+/**
+ * The Condition for filtering ExTerra tools.
+ * Use "condition" : "exterra:match_gem" with "gem": [the gem]
+ *
+ * @author Kauruck
+ */
 public class ToolCondition implements ILootCondition {
 
-    private Gem filter;
+    private final Gem filter;
 
     public ToolCondition(Gem filter){
         this.filter = filter;
@@ -24,7 +31,7 @@ public class ToolCondition implements ILootCondition {
 
     @Override
     public LootConditionType func_230419_b_() {
-        return null;
+        return ExTerraTools.TOOL_CONDITION;
     }
 
     @Override

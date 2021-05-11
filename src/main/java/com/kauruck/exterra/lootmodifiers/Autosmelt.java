@@ -22,6 +22,12 @@ import net.minecraftforge.items.ItemHandlerHelper;
 import javax.annotation.Nonnull;
 import java.util.*;
 
+/**
+ * The LootModifier for Autosmelting things.
+ * It takes the Items dropped original and uses, if exiting, a furnace recipe on it.
+ *
+ * @author Kauruck
+ */
 public class Autosmelt extends LootModifier {
     public Autosmelt(ILootCondition[] conditionsIn) {
         super(conditionsIn);

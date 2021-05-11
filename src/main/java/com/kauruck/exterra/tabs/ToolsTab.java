@@ -8,6 +8,11 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 
+/**
+ * The class providing the ToolTab
+ *
+ * @author Kauruck
+ */
 public class ToolsTab extends ItemGroup {
     public ToolsTab() {
         super(ExTerra.MOD_ID + ".Tools");

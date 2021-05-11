@@ -1,7 +1,6 @@
 package com.kauruck.exterra.tileentities;
 
-import com.kauruck.exterra.datapacks.DataPackProviders;
-import com.kauruck.exterra.modregistreys.ExTerraRegistry;
+import com.kauruck.exterra.crafting.ToolUpgrading;
 import com.kauruck.exterra.modules.ExTerraTools;
 import net.minecraft.block.BlockState;
 import net.minecraft.item.ItemStack;
@@ -17,11 +16,15 @@ import net.minecraftforge.items.ItemStackHandler;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * The TileEntity for the GemWorkbench
+ * @author Kauruck
+ */
 public class GemWorkbenchTileEntity extends TileEntity {
 
-    private ItemStackHandler itemStackHandler = createHandler();
+    private final ItemStackHandler itemStackHandler = createHandler();
 
-    private LazyOptional<IItemHandler> handler = LazyOptional.of(() -> itemStackHandler);
+    private final LazyOptional<IItemHandler> handler = LazyOptional.of(() -> itemStackHandler);
 
     public GemWorkbenchTileEntity() {
         super(ExTerraTools.GEM_WORKBENCH_TILE_ENTITY.get());
@@ -51,10 +54,10 @@ public class GemWorkbenchTileEntity extends TileEntity {
             public ItemStack insertItem(int slot, @Nonnull ItemStack stack, boolean simulate) {
                 switch (slot){
                     case 0:
-                        if(DataPackProviders.GEM_ITEM_BINDING.contains(stack))
+                        if(ExTerraTools.GEM_ITEM_BINDING.contains(stack))
                             return super.insertItem(slot, stack, simulate);
                     case 1:
-                        if(ExTerraRegistry.CRAFTING.TOOL_UPGRADING.isUpgradable(stack))
+                        if(ToolUpgrading.INSTANCE.isUpgradable(stack))
                             return super.insertItem(slot, stack, simulate);
                     case 2:
                         return stack;
@@ -67,9 +70,9 @@ public class GemWorkbenchTileEntity extends TileEntity {
             public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
                 switch (slot){
                     case 0:
-                        return DataPackProviders.GEM_ITEM_BINDING.contains(stack);
+                        return ExTerraTools.GEM_ITEM_BINDING.contains(stack);
                     case 1:
-                        return ExTerraRegistry.CRAFTING.TOOL_UPGRADING.isUpgradable(stack);
+                        return ToolUpgrading.INSTANCE.isUpgradable(stack);
                     case 2:
                         return false;
                     default:
@@ -86,7 +89,7 @@ public class GemWorkbenchTileEntity extends TileEntity {
                     ItemStack gem = this.getStackInSlot(0);
                     ItemStack tool = this.getStackInSlot(1);
                     if (!gem.isEmpty() && !tool.isEmpty()) {
-                        this.setStackInSlot(2, ExTerraRegistry.CRAFTING.TOOL_UPGRADING.getUpgrade(tool, gem));
+                        this.setStackInSlot(2, ToolUpgrading.INSTANCE.getUpgrade(tool, gem));
                         craftable = true;
                     }
                     else{
