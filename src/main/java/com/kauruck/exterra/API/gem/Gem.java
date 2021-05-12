@@ -1,9 +1,12 @@
 package com.kauruck.exterra.API.gem;
 
+import com.google.gson.*;
 import com.kauruck.exterra.API.tooltype.Tool;
 import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.registries.ForgeRegistryEntry;
+
+import java.lang.reflect.Type;
 
 public class Gem extends ForgeRegistryEntry<Gem>{
 
@@ -98,6 +101,37 @@ public class Gem extends ForgeRegistryEntry<Gem>{
         public Properties setMaxDamageModifier(int maxDamageModifier) {
             this.maxDamageModifier = maxDamageModifier;
             return this;
+        }
+    }
+
+    public static class PropertiesSerializer implements JsonDeserializer<PropertiesSerializer>, JsonSerializer<PropertiesSerializer>{
+
+        @Override
+        public PropertiesSerializer deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+            Properties out = new Properties();
+            if(json.isJsonObject()){
+                JsonObject obj = json.getAsJsonObject();
+                if(obj.has("miningSpeedModifier")){
+                    out.setMiningSpeedModifier(obj.get("miningSpeedModifier").getAsFloat());
+                }
+                if(obj.has("attackSpeedModifier")){
+                    out.setAttackSpeedModifier(obj.get("attackSpeedModifier").getAsFloat());
+                }
+                if(obj.has("attackDamageModifier")){
+                    out.setAttackDamageModifier(obj.get("attackDamageModifier").getAsFloat());
+                }
+                if(obj.has("attackDamageModifier")){
+                    out.setAttackDamageModifier(obj.get("attackDamageModifier").getAsFloat());
+                }
+
+            }
+
+            return out;
+        }
+
+        @Override
+        public JsonElement serialize(PropertiesSerializer src, Type typeOfSrc, JsonSerializationContext context) {
+            return null;
         }
     }
 
