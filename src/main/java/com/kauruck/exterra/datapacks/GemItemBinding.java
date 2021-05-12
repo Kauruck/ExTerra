@@ -8,13 +8,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.profiler.IProfiler;
 import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.JSONUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 import org.apache.commons.lang3.tuple.Pair;
 
-import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -109,24 +107,13 @@ public class GemItemBinding extends JsonReloadListener {
     }
 
     private Pair<Ingredient, Gem> loadFromJson(JsonObject json){
-        //TODO ERROR?
-        return Pair.of(CraftingHelper.getIngredient(json.get("provider")), ExTerraRegistries.GEM_REGISTRY.get().getValue(GSON.fromJson(json.get("gemtype"), ResourceLocation.class))) ;
+        Gem gemType = ExTerraRegistries.GEM_REGISTRY.get().getValue(GSON.fromJson(json.get("gemtype"), ResourceLocation.class));
+        Ingredient ingredient =  CraftingHelper.getIngredient(json.get("provider"));
+        if(gemType == null)
+            throw new IllegalArgumentException("GemType corresponding to: " + json.get("gemtype") + " does not exits");
+        return Pair.of(ingredient, gemType);
     }
 
 
-
-
-    //Copied straight form TinkersConstruct https://github.com/SlimeKnights/TinkersConstruct/blob/a4161f0d2dd9689801675f6ff5b97c3dd13e3b8c/src/main/java/slimeknights/tconstruct/library/materials/MaterialManager.java#L206
-    private static class ConditionSerializer implements JsonDeserializer<ICondition>, JsonSerializer<ICondition> {
-        @Override
-        public ICondition deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
-            return CraftingHelper.getCondition(JSONUtils.getJsonObject(json, "condition"));
-        }
-
-        @Override
-        public JsonElement serialize(ICondition condition, Type type, JsonSerializationContext context) {
-            return CraftingHelper.serialize(condition);
-        }
-    }
 }
 

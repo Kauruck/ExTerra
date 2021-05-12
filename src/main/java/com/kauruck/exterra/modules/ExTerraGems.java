@@ -33,7 +33,7 @@ public class ExTerraGems {
     public static final RegistryObject<Item> SAPPHIRE_GEM = ExTerraModules.ITEMS.register("sapphire_gem", () -> new Item(new Item.Properties().group(RESOURCE_TAB)));
 
     //Blocks for the gems
-    public static final RegistryObject<Block> RUBY_BLOCK = ExTerraModules.BLOCKS.register("ruby_block", () -> new BlockBase(5,Material.IRON, ToolType.PICKAXE, 2));
+    public static final RegistryObject<Block> RUBY_BLOCK = ExTerraModules.BLOCKS.register("ruby_block", () -> new BlockBase(5f,Material.IRON, ToolType.PICKAXE, 2));
     public static final RegistryObject<Item> RUBY_BLOCK_ITEM = ExTerraModules.ITEMS.register("ruby_block", () -> new BlockItem(RUBY_BLOCK.get(), new Item.Properties().group(RESOURCE_TAB)));
     public static final RegistryObject<Block> SAPPHIRE_BLOCK = ExTerraModules.BLOCKS.register("sapphire_block", () -> new BlockBase(5, Material.IRON, ToolType.PICKAXE, 2));
     public static final RegistryObject<Item> SAPPHIRE_BLOCK_ITEM = ExTerraModules.ITEMS.register("sapphire_block", () -> new BlockItem(SAPPHIRE_BLOCK.get(), new Item.Properties().group(RESOURCE_TAB)));
