@@ -21,5 +21,6 @@ public class DataPackEvents {
     @SubscribeEvent
     public static void addDataPackListeners(AddReloadListenerEvent event){
         event.addListener(ExTerraTools.GEM_ITEM_BINDING);
+        event.addListener(ExTerraTools.GEM_STATES);
     }
 }

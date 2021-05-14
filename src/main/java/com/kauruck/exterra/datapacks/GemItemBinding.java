@@ -2,6 +2,7 @@ package com.kauruck.exterra.datapacks;
 
 import com.google.gson.*;
 import com.kauruck.exterra.API.gem.Gem;
+import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.ExTerraRegistries;
 import net.minecraft.client.resources.JsonReloadListener;
 import net.minecraft.item.ItemStack;
@@ -16,6 +17,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -95,6 +97,7 @@ public class GemItemBinding extends JsonReloadListener {
         this.bindings = objectIn.values().stream()
                 .filter(JsonElement::isJsonObject)
                 .map(jsonElement -> loadFromJson(jsonElement.getAsJsonObject()))
+                .filter(Objects::nonNull)
                 .filter(current -> current.getLeft() != null && current.getRight() != null)
                 .collect(Collectors.toMap(
                         Pair::getLeft,
@@ -109,8 +112,10 @@ public class GemItemBinding extends JsonReloadListener {
     private Pair<Ingredient, Gem> loadFromJson(JsonObject json){
         Gem gemType = ExTerraRegistries.GEM_REGISTRY.get().getValue(GSON.fromJson(json.get("gemtype"), ResourceLocation.class));
         Ingredient ingredient =  CraftingHelper.getIngredient(json.get("provider"));
-        if(gemType == null)
-            throw new IllegalArgumentException("GemType corresponding to: " + json.get("gemtype") + " does not exits");
+        if(gemType == null) {
+            ExTerra.LOGGER.warn("GemType corresponding to: " + json.get("gemtype") + " does not exits");
+            return null;
+        }
         return Pair.of(ingredient, gemType);
     }
 

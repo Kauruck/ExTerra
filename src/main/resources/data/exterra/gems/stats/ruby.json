@@ -1,0 +1,8 @@
+{
+  "priority": 0,
+  "miningSpeedModifier": 2,
+  "attackSpeedModifier": 2,
+  "attackDamageModifier": 5,
+  "maxDamageModifier": 1000,
+  "enchantebilityModifier": 5
+}

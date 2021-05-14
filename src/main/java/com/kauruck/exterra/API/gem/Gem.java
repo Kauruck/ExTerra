@@ -15,6 +15,7 @@ public class Gem extends ForgeRegistryEntry<Gem>{
     private float attackSpeedModifier;
     private float attackDamageModifier;
     private int maxDamageModifier;
+    private int priority;
 
     public Gem(Properties properties){
         this.miningSpeedModifier = properties.miningSpeedModifier;
@@ -22,6 +23,7 @@ public class Gem extends ForgeRegistryEntry<Gem>{
         this.attackSpeedModifier = properties.attackSpeedModifier;
         this.attackDamageModifier = properties.attackDamageModifier;
         this.maxDamageModifier = properties.maxDamageModifier;
+        this.priority = properties.priority;
     }
 
     public String getTranslationKey() {
@@ -29,6 +31,9 @@ public class Gem extends ForgeRegistryEntry<Gem>{
     }
 
     public void fromProperties(Properties properties){
+        //Do not update, we are set from a higher priority
+        if(properties.priority <= this.priority)
+            return;
         this.miningSpeedModifier = properties.miningSpeedModifier;
         this.itemEnchantantebilityModifier = properties.itemEnchantantebilityModifier;;
         this.attackSpeedModifier = properties.attackSpeedModifier;
@@ -76,6 +81,7 @@ public class Gem extends ForgeRegistryEntry<Gem>{
         private float attackSpeedModifier = 0;
         private float attackDamageModifier = 0;
         private int maxDamageModifier = 0;
+        private int priority = -1;
 
 
         public Properties setMiningSpeedModifier(float value){
@@ -83,7 +89,12 @@ public class Gem extends ForgeRegistryEntry<Gem>{
             return this;
         }
 
-        public Properties setItemEnchantantebilityModifier(int itemEnchantantebilityModifier) {
+        public Properties setPriority(int priority) {
+            this.priority = priority;
+            return this;
+        }
+
+        public Properties setItemEnchantebilityModifier(int itemEnchantantebilityModifier) {
             this.itemEnchantantebilityModifier = itemEnchantantebilityModifier;
             return this;
         }
@@ -104,13 +115,16 @@ public class Gem extends ForgeRegistryEntry<Gem>{
         }
     }
 
-    public static class PropertiesSerializer implements JsonDeserializer<PropertiesSerializer>, JsonSerializer<PropertiesSerializer>{
+    public static class PropertiesSerializer implements JsonDeserializer<Properties>, JsonSerializer<Properties>{
 
         @Override
-        public PropertiesSerializer deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+        public Properties deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
             Properties out = new Properties();
             if(json.isJsonObject()){
                 JsonObject obj = json.getAsJsonObject();
+                if(obj.has("priority")){
+                    out.setPriority(obj.get("priority").getAsInt());
+                }
                 if(obj.has("miningSpeedModifier")){
                     out.setMiningSpeedModifier(obj.get("miningSpeedModifier").getAsFloat());
                 }
@@ -120,8 +134,11 @@ public class Gem extends ForgeRegistryEntry<Gem>{
                 if(obj.has("attackDamageModifier")){
                     out.setAttackDamageModifier(obj.get("attackDamageModifier").getAsFloat());
                 }
-                if(obj.has("attackDamageModifier")){
-                    out.setAttackDamageModifier(obj.get("attackDamageModifier").getAsFloat());
+                if(obj.has("maxDamageModifier")){
+                    out.setMaxDamageModifier(obj.get("maxDamageModifier").getAsInt());
+                }
+                if(obj.has("enchantebilityModifier")){
+                    out.setItemEnchantebilityModifier(obj.get("enchantebilityModifier").getAsInt());
                 }
 
             }
@@ -130,8 +147,15 @@ public class Gem extends ForgeRegistryEntry<Gem>{
         }
 
         @Override
-        public JsonElement serialize(PropertiesSerializer src, Type typeOfSrc, JsonSerializationContext context) {
-            return null;
+        public JsonElement serialize(Properties src, Type typeOfSrc, JsonSerializationContext context) {
+            JsonObject obj = new JsonObject();
+            obj.add("priority", new JsonPrimitive(src.priority));
+            obj.add("miningSpeedModifier", new JsonPrimitive(src.miningSpeedModifier));
+            obj.add("attackSpeedModifier", new JsonPrimitive(src.attackSpeedModifier));
+            obj.add("attackDamageModifier", new JsonPrimitive(src.attackDamageModifier));
+            obj.add("maxDamageModifier", new JsonPrimitive(src.maxDamageModifier));
+            obj.add("enchantebilityModifier", new JsonPrimitive(src.itemEnchantantebilityModifier));
+            return obj;
         }
     }
 

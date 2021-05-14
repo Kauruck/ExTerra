@@ -5,6 +5,7 @@ import com.kauruck.exterra.API.tooltype.Tool;
 import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.block.machines.GemWorkbench;
 import com.kauruck.exterra.datapacks.GemItemBinding;
+import com.kauruck.exterra.datapacks.GemStates;
 import com.kauruck.exterra.guis.machines.GemWorkbenchContainer;
 import com.kauruck.exterra.guis.machines.GemWorkbenchScreen;
 import com.kauruck.exterra.item.tools.*;
@@ -70,6 +71,7 @@ public class ExTerraTools {
 
     //DataPacks
     public static final GemItemBinding GEM_ITEM_BINDING = new GemItemBinding();
+    public static final GemStates GEM_STATES = new GemStates();
 
 
     //Custom loot conditions
