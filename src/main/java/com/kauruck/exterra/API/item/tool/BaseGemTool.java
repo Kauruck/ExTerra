@@ -30,6 +30,13 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Optional;
 
+/**
+ * Base tool for the Gem
+ *
+ * Extend this class
+ *
+ * @author Kauruck
+ */
 public class BaseGemTool extends Item implements IUpgradable {
 
     public static final String TAG_ORIGINAL_ITEM = "org";
@@ -61,6 +68,11 @@ public class BaseGemTool extends Item implements IUpgradable {
     }
 
 
+    /**
+     * Get the gem for a stack
+     * @param stack The stack
+     * @return The gem
+     */
     public Gem getGemType(ItemStack stack){
         CompoundNBT nbt;
         if(!stack.hasTag())
@@ -74,6 +86,12 @@ public class BaseGemTool extends Item implements IUpgradable {
         return ExTerraRegistries.GEM_REGISTRY.get().getValue(new ResourceLocation(gem));
     }
 
+    /**
+     * Create ItemStack for a tool
+     * @param tool The tool
+     * @param gem The gem to apply
+     * @return The new tool
+     */
     public ItemStack forTool(ItemStack tool, Gem gem){
         ItemStack out = new ItemStack(this, 1);
         CompoundNBT nbt;
@@ -87,6 +105,11 @@ public class BaseGemTool extends Item implements IUpgradable {
         return out;
     }
 
+    /**
+     * Get the base tool for a stack
+     * @param tool The stack
+     * @return The tool
+     */
     public Item getBase(ItemStack tool){
         CompoundNBT nbt;
         if(tool.hasTag())
@@ -121,6 +144,11 @@ public class BaseGemTool extends Item implements IUpgradable {
         return true;
     }
 
+    /**
+     * Get the attack damage for a stack
+     * @param stack The stack
+     * @return The attack damage
+     */
     public float getAttackDamage(ItemStack stack){
         Multimap<Attribute, AttributeModifier> attributes = getParentsAttributes(stack);
         if(attributes == null || !attributes.containsKey(Attributes.ATTACK_DAMAGE))
@@ -131,6 +159,11 @@ public class BaseGemTool extends Item implements IUpgradable {
         return gem.getAttackDamageModifier() + (float) attributes.get(Attributes.ATTACK_DAMAGE).stream().findFirst().get().getAmount();
     }
 
+    /**
+     * Get the attack speed for a stack
+     * @param stack The stack
+     * @return The attack speed
+     */
     public float getAttackSpeed(ItemStack stack){
         Multimap<Attribute, AttributeModifier> attributes = getParentsAttributes(stack);
         if(attributes == null || !attributes.containsKey(Attributes.ATTACK_SPEED))
@@ -142,6 +175,11 @@ public class BaseGemTool extends Item implements IUpgradable {
         return (float) (gem.getAttackSpeedModifier() + baseSpeed);
     }
 
+    /**
+     * Get the attributes of the parent
+     * @param stack The stack
+     * @return The map of attributes
+     */
     public Multimap<Attribute, AttributeModifier> getParentsAttributes(ItemStack stack){
         Item base = this.getBase(stack);
         if(base == null)
@@ -149,6 +187,12 @@ public class BaseGemTool extends Item implements IUpgradable {
         return base.getAttributeModifiers(EquipmentSlotType.MAINHAND, base.getDefaultInstance());
     }
 
+    /**
+     * Get the value of an attribute of the parent
+     * @param stack The stack
+     * @param attribute The attribute
+     * @return The value
+     */
     public Optional<Double> getPatentsAttributeValue(ItemStack stack, Attribute attribute){
         Multimap<Attribute, AttributeModifier> attributes = getParentsAttributes(stack);
         if(!attributes.containsKey(attribute))
@@ -159,6 +203,12 @@ public class BaseGemTool extends Item implements IUpgradable {
         return Optional.of(attributes.get(attribute).stream().findFirst().get().getAmount());
     }
 
+    /**
+     * Get the parent attributes of the parent for a given stack and slot
+     * @param stack The stack
+     * @param slot The slot
+     * @return The map of attributes
+     */
     public Multimap<Attribute, AttributeModifier> getParentsAttributes(ItemStack stack, EquipmentSlotType slot){
         Item base = this.getBase(stack);
         if(base == null)

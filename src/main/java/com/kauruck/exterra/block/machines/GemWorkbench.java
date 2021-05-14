@@ -11,7 +11,6 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.ItemGroup;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
@@ -27,6 +26,9 @@ import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 
+/**
+ * The block for the GemWorkbench
+ */
 public class GemWorkbench extends BlockBase implements IForgeBlock {
     public GemWorkbench(float hardness, Material material, ToolType harvestTool, int harvestLevel) {
         super(hardness, material, harvestTool, harvestLevel);
@@ -43,6 +45,8 @@ public class GemWorkbench extends BlockBase implements IForgeBlock {
         return ExTerraTools.GEM_WORKBENCH_TILE_ENTITY.get().create();
     }
 
+
+    @SuppressWarnings("deprecation")
     @Override
     public ActionResultType onBlockActivated(BlockState state, World worldIn, BlockPos pos, PlayerEntity player, Hand handIn, BlockRayTraceResult hit) {
         if(!worldIn.isRemote()){
@@ -54,7 +58,6 @@ public class GemWorkbench extends BlockBase implements IForgeBlock {
                         return new TranslationTextComponent("screen.exterra.gem_workbench");
                     }
 
-                    @Nullable
                     @Override
                     public Container createMenu(int i, PlayerInventory playerInventory, PlayerEntity playerEntity) {
                         return new GemWorkbenchContainer(i, worldIn, pos, playerInventory, playerEntity);
@@ -63,7 +66,7 @@ public class GemWorkbench extends BlockBase implements IForgeBlock {
                 NetworkHooks.openGui((ServerPlayerEntity) player, containerProvider, te.getPos());
             }
             else {
-                throw new IllegalStateException("Something went wrong: Error Code GW:66");
+                throw new IllegalStateException("Something went wrong: Error Code GW:69");
             }
         }
 

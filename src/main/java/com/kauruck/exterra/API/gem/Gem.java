@@ -8,6 +8,15 @@ import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import java.lang.reflect.Type;
 
+/**
+ * The gem.
+ * This represents a gem with all its stats and attributes.
+ *
+ *  It needs to be registered to the GemRegistry:
+ * @see com.kauruck.exterra.ExTerraRegistries
+ *
+ *  @author Kauruck
+ */
 public class Gem extends ForgeRegistryEntry<Gem>{
 
     private float miningSpeedModifier;
@@ -17,6 +26,10 @@ public class Gem extends ForgeRegistryEntry<Gem>{
     private int maxDamageModifier;
     private int priority;
 
+    /**
+     * Create a new Gem form the properties
+     * @param properties The properties
+     */
     public Gem(Properties properties){
         this.miningSpeedModifier = properties.miningSpeedModifier;
         this.itemEnchantantebilityModifier = properties.itemEnchantantebilityModifier;;
@@ -26,13 +39,23 @@ public class Gem extends ForgeRegistryEntry<Gem>{
         this.priority = properties.priority;
     }
 
+    /**
+     * Get the translation key for the gem
+     * @return The translation key
+     */
     public String getTranslationKey() {
         return "gem." + this.getRegistryName().getNamespace() + "." + this.getRegistryName().getPath();
     }
 
+    /**
+     * Load the stats form properties.
+     *
+     * It only loads if the property is higher or equal
+     * @param properties The new properties
+     */
     public void fromProperties(Properties properties){
         //Do not update, we are set from a higher priority
-        if(properties.priority <= this.priority)
+        if(properties.priority < this.priority)
             return;
         this.miningSpeedModifier = properties.miningSpeedModifier;
         this.itemEnchantantebilityModifier = properties.itemEnchantantebilityModifier;;
@@ -42,38 +65,58 @@ public class Gem extends ForgeRegistryEntry<Gem>{
     }
 
 
+    /**
+     * Get the speed modifier for mining
+     * @return The speed modifier for mining
+     */
     public float getMiningSpeedModifier(){
         return miningSpeedModifier;
     }
 
-    public int getItemEnchantabilityModifier(){
+    /**
+     * Get the enchantebility modifier
+     * @return The encahtebility modifier
+     */
+    public int getItemEnchantebilityModifier(){
         return itemEnchantantebilityModifier;
     }
 
+    /**
+     * Get the speed modifier for attacking
+     * @return The speed modifier for attacking
+     */
     public float getAttackSpeedModifier(){
         return attackSpeedModifier;
     }
 
+    /**
+     * Get the attack damage modifier
+     * @return The attack damage modifier
+     */
     public float getAttackDamageModifier(){
         return attackDamageModifier;
     }
 
-    public Item getTool(Tool toolTag){
-        return null;
+    /**
+     * Get the max damage modifier
+     * @return The max damage modifier
+     */
+    public int getMaxDamageModifier(){
+        return maxDamageModifier;
     }
 
+    /**
+     * Get the resource location for the texture of the gem
+     * @return The resource location
+     */
     public ResourceLocation getTexture(){
         return new ResourceLocation(this.getRegistryName().getNamespace(), "gems/" + this.getRegistryName().getPath());
     }
 
 
-    public int getMaxDamageModifier(){
-        return maxDamageModifier;
-    }
-
-
-
-
+    /**
+     * Properties for the gem
+     */
     public static class Properties{
 
         private float miningSpeedModifier = 0;
@@ -84,37 +127,70 @@ public class Gem extends ForgeRegistryEntry<Gem>{
         private int priority = -1;
 
 
+        /**
+         * Set the mining speed modifier
+         * @param value The value
+         * @return this
+         */
         public Properties setMiningSpeedModifier(float value){
             this.miningSpeedModifier = value;
             return this;
         }
 
+        /**
+         * Set the priority for loading the property
+         * @param priority The value
+         * @return this
+         */
         public Properties setPriority(int priority) {
             this.priority = priority;
             return this;
         }
 
+        /**
+         * Set the enchantebility modifier
+         * @param itemEnchantantebilityModifier The value
+         * @return this
+         */
         public Properties setItemEnchantebilityModifier(int itemEnchantantebilityModifier) {
             this.itemEnchantantebilityModifier = itemEnchantantebilityModifier;
             return this;
         }
 
+        /**
+         * Set the attack speed modifier
+         * @param attackSpeedModifier The
+         * @return this
+         */
         public Properties setAttackSpeedModifier(float attackSpeedModifier) {
             this.attackSpeedModifier = attackSpeedModifier;
             return this;
         }
 
+        /**
+         * Set the attack damage modifier
+         * @param attackDamageModifier The value
+         * @return this
+         */
         public Properties setAttackDamageModifier(float attackDamageModifier) {
             this.attackDamageModifier = attackDamageModifier;
             return this;
         }
 
+        /**
+         * Set the max damage modifier
+         * @param maxDamageModifier The value
+         * @return this
+         */
         public Properties setMaxDamageModifier(int maxDamageModifier) {
             this.maxDamageModifier = maxDamageModifier;
             return this;
         }
     }
 
+    /**
+     * Serializer for the properties
+     */
     public static class PropertiesSerializer implements JsonDeserializer<Properties>, JsonSerializer<Properties>{
 
         @Override
