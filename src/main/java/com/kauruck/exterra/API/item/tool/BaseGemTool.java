@@ -10,6 +10,7 @@ import com.kauruck.exterra.item.tools.GemShovel;
 import com.kauruck.exterra.modules.ExTerraTools;
 import com.kauruck.exterra.util.ToolHelper;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
@@ -19,9 +20,12 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.*;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.util.ActionResultType;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -216,6 +220,19 @@ public class BaseGemTool extends Item implements IUpgradable {
         return base.getAttributeModifiers(slot, base.getDefaultInstance());
     }
 
+    @Override
+    public ActionResultType onItemUse(ItemUseContext context) {
+            Item base = getBase(context.getItem());
+            ItemStack testStack = base.getDefaultInstance();
+            int startDurability = testStack.getDamage();
+            ItemUseContext testContext = new ItemUseContext(context.getWorld(), context.getPlayer(), context.getHand(), testStack, new BlockRayTraceResult(context.getHitVec(), context.getFace(), context.getPos(), false));
+            ActionResultType parentResult = base.onItemUse(testContext);
+            int deltaDurability = testStack.getDamage() - startDurability;
+            context.getItem().damageItem(deltaDurability, context.getPlayer(), (entity) -> {
+                entity.sendBreakAnimation(EquipmentSlotType.MAINHAND);
+            });
+            return parentResult;
+    }
 
     @Override
     public ITextComponent getDisplayName(ItemStack stack) {
