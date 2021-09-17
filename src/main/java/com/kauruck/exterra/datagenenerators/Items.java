@@ -30,5 +30,11 @@ public class Items extends ItemModelProvider {
 
         this.withExistingParent(ExTerraCore.COMPOUND_BRICKS.get().getRegistryName().getPath(),
                 ExTerra.getResource("block/compound_bricks"));
+
+        this.withExistingParent(ExTerraCore.COMPOUND_BRICKS_SLAB.get().getRegistryName().getPath(),
+                ExTerra.getResource("block/compound_bricks_slab"));
+
+        this.withExistingParent(ExTerraCore.COMPOUND_BRICKS_STAIR.get().getRegistryName().getPath(),
+                ExTerra.getResource("block/compound_bricks_stair"));
     }
 }
