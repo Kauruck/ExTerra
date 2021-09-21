@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "exterra",
+  "ingredients": [
+    {
+      "item": "exterra:compound"
+    },
+    {
+      "tag": "forge:glass"
+    }
+  ],
+  "result": {
+    "item": "exterra:compound_framed_glass"
+  }
+}

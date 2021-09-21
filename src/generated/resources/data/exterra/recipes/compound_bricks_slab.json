@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "exterra",
+  "pattern": [
+    "   ",
+    "   ",
+    "xxx"
+  ],
+  "key": {
+    "x": {
+      "item": "exterra:compound_bricks"
+    }
+  },
+  "result": {
+    "item": "exterra:compound_bricks_slab",
+    "count": 6
+  }
+}

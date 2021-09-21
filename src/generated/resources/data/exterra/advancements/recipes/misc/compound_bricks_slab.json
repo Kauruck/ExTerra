@@ -1,0 +1,34 @@
+{
+  "parent": "minecraft:recipes/root",
+  "rewards": {
+    "recipes": [
+      "exterra:compound_bricks_slab"
+    ]
+  },
+  "criteria": {
+    "compound_bricks": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "exterra:compound_bricks"
+            ]
+          }
+        ]
+      }
+    },
+    "has_the_recipe": {
+      "trigger": "minecraft:recipe_unlocked",
+      "conditions": {
+        "recipe": "exterra:compound_bricks_slab"
+      }
+    }
+  },
+  "requirements": [
+    [
+      "compound_bricks",
+      "has_the_recipe"
+    ]
+  ]
+}

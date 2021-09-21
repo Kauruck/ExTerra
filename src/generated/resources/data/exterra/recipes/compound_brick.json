@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:smelting",
+  "group": "exterra",
+  "ingredient": {
+    "item": "exterra:compound"
+  },
+  "result": "exterra:compound_brick",
+  "experience": 1.0,
+  "cookingtime": 1
+}

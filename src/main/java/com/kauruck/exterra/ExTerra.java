@@ -23,8 +23,12 @@ public class ExTerra
 
     public ExTerra() {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+        //Modules
         bus.register(new ExTerraCore());
         bus.register(new ExTerraPower());
+
+        //Client Listners
+        bus.addListener(ExTerraClient::clientSetupEvent);
 
         RegistryManger.doRegistry();
     }

@@ -20,6 +20,11 @@ public class Items extends ItemModelProvider {
                 "layer0",
                 ExTerra.getResource("item/test"));
 
+        this.singleTexture(ExTerraCore.COMPOUND.get().getRegistryName().getPath(),
+                new ResourceLocation("item/generated"),
+                "layer0",
+                ExTerra.getResource("item/compound"));
+
         this.singleTexture(ExTerraCore.COMPOUND_BRICK.get().getRegistryName().getPath(),
                 new ResourceLocation("item/generated"),
                 "layer0",
@@ -36,5 +41,8 @@ public class Items extends ItemModelProvider {
 
         this.withExistingParent(ExTerraCore.COMPOUND_BRICKS_STAIR.get().getRegistryName().getPath(),
                 ExTerra.getResource("block/compound_bricks_stair"));
+
+        this.withExistingParent(ExTerraCore.COMPOUND_FRAMED_GLASS.get().getRegistryName().getPath(),
+                ExTerra.getResource("block/compound_framed_glass"));
     }
 }

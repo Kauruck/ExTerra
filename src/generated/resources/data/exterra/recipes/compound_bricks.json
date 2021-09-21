@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "group": "exterra",
+  "pattern": [
+    "bb ",
+    "bb ",
+    "   "
+  ],
+  "key": {
+    "b": {
+      "item": "exterra:compound_brick"
+    }
+  },
+  "result": {
+    "item": "exterra:compound_bricks"
+  }
+}
