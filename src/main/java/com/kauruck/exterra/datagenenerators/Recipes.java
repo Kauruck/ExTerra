@@ -30,7 +30,7 @@ public class Recipes extends RecipeProvider {
                 .unlockedBy("clay", InventoryChangeTrigger.TriggerInstance.hasItems(Items.CLAY))
                 .save(consumer);
 
-        SimpleCookingRecipeBuilder.smelting(Ingredient.of(ExTerraCore.COMPOUND.get()), ExTerraCore.COMPOUND_BRICK.get(), 1.0f, 1)
+        SimpleCookingRecipeBuilder.smelting(Ingredient.of(ExTerraCore.COMPOUND.get()), ExTerraCore.COMPOUND_BRICK.get(), 0.3f, 200)
                         .group("exterra")
                         .unlockedBy("compound", InventoryChangeTrigger.TriggerInstance.hasItems(ExTerraCore.COMPOUND.get()))
                         .save(consumer);

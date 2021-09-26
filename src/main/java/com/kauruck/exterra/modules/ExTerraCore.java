@@ -10,6 +10,7 @@ import static com.kauruck.exterra.modules.RegistryManger.ITEMS_REGISTRY;
 
 public class ExTerraCore {
 
+    //Test Stuff
     public static final RegistryObject<Item> TEST_ITEM = ITEMS_REGISTRY.register("test", () -> new Item(ExTerraShared.DEFAULT_PROPERTIES_ITEM));
 
     //Compound
