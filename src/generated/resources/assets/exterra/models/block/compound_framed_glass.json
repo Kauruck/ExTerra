@@ -1,4 +1,5 @@
 {
+  "loader": "exterra:connected_textures",
   "parent": "minecraft:block/cube_all",
   "textures": {
     "all": "exterra:block/compound_framed_glass"
