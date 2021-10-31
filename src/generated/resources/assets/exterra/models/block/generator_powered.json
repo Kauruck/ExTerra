@@ -1,0 +1,11 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "down": "exterra:block/compound_bricks",
+    "up": "exterra:block/compound_bricks",
+    "north": "exterra:block/generator_front_on",
+    "south": "exterra:block/compound_bricks",
+    "east": "exterra:block/compound_bricks",
+    "west": "exterra:block/compound_bricks"
+  }
+}

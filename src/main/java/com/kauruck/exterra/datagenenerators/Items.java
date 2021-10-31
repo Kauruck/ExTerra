@@ -2,6 +2,7 @@ package com.kauruck.exterra.datagenenerators;
 
 import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.modules.ExTerraCore;
+import com.kauruck.exterra.modules.ExTerraPower;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.model.generators.ItemModelProvider;
@@ -30,8 +31,8 @@ public class Items extends ItemModelProvider {
                 "layer0",
                 ExTerra.getResource("item/compound_brick"));
 
-        /*this.withExistingParent(ExTerraPower.GENERATOR.get().getRegistryName().getPath(),
-                ExTerra.getResource("block/generator"));*/
+        this.withExistingParent(ExTerraPower.GENERATOR.get().getRegistryName().getPath(),
+                ExTerra.getResource("block/generator"));
 
         this.withExistingParent(ExTerraCore.COMPOUND_BRICKS.get().getRegistryName().getPath(),
                 ExTerra.getResource("block/compound_bricks"));
@@ -44,5 +45,12 @@ public class Items extends ItemModelProvider {
 
         this.withExistingParent(ExTerraCore.COMPOUND_FRAMED_GLASS.get().getRegistryName().getPath(),
                 ExTerra.getResource("block/compound_framed_glass"));
+
+        this.singleTexture(ExTerraCore.CALCITE_DUST_ITEM.get().getRegistryName().getPath(),
+                new ResourceLocation("item/generated"),
+                "layer0",
+                ExTerra.getResource("item/calcite_dust"));
+
+
     }
 }

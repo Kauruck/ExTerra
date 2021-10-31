@@ -2,13 +2,14 @@ package com.kauruck.exterra;
 
 import com.kauruck.exterra.client.ConnectedTextureGeometry;
 import com.kauruck.exterra.modules.ExTerraCore;
+import com.kauruck.exterra.modules.ExTerraPower;
+import com.kauruck.exterra.screens.GeneratorScreen;
+import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.world.level.block.Block;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -21,7 +22,9 @@ public class ExTerraClient {
     public static void clientSetupEvent(final FMLClientSetupEvent e){
         e.enqueueWork(() -> {
             ItemBlockRenderTypes.setRenderLayer(ExTerraCore.COMPOUND_FRAMED_GLASS.get(), RenderType.translucent());
+            ItemBlockRenderTypes.setRenderLayer(ExTerraCore.CALCITE_DUST.get(), RenderType.cutout());
         });
+        MenuScreens.register(ExTerraPower.GENERATOR_CONTAINER.get(), GeneratorScreen::new);
     }
 
     @SubscribeEvent
