@@ -2,13 +2,13 @@
   "type": "minecraft:block",
   "pools": [
     {
-      "name": "compound_bricks",
+      "name": "calcite_dust",
       "rolls": 1.0,
       "bonus_rolls": 0.0,
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "exterra:compound_bricks"
+          "name": "exterra:calcite_dust"
         }
       ]
     }

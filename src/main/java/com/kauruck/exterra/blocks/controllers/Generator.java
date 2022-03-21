@@ -1,8 +1,11 @@
 package com.kauruck.exterra.blocks.controllers;
 
+import com.kauruck.exterra.api.rituals.IRitualProvider;
 import com.kauruck.exterra.containers.GeneratorContainer;
+import com.kauruck.exterra.modules.ExTerraShared;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -28,12 +31,10 @@ import net.minecraftforge.fmllegacy.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 
-public class Generator extends Block implements EntityBlock {
+public class Generator extends Block implements EntityBlock, IRitualProvider {
 
     public Generator() {
-        super(Properties.of(Material.METAL)
-                .sound(SoundType.METAL)
-                .strength(2.0f));
+        super(ExTerraShared.DEFAULT_PROPERTIES_STONE);
     }
 
     @Override
@@ -92,4 +93,8 @@ public class Generator extends Block implements EntityBlock {
     }
 
 
+    @Override
+    public String getComponentName() {
+        return "Generator";
+    }
 }

@@ -18,6 +18,7 @@ import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.CopyNameFunction;
 import net.minecraft.world.level.storage.loot.functions.CopyNbtFunction;
 import net.minecraft.world.level.storage.loot.functions.SetContainerContents;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
@@ -31,6 +32,7 @@ public class LootTables extends LootTableProvider {
 
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
     private final DataGenerator generator;
+    Map<ResourceLocation, LootTable> tables = new HashMap<>();
 
     public LootTables(DataGenerator pGenerator) {
         super(pGenerator);
@@ -39,13 +41,21 @@ public class LootTables extends LootTableProvider {
 
     @Override
     public void run(HashCache cache) {
-        Map<ResourceLocation, LootTable> tables = new HashMap<>();
+        tables = new HashMap<>();
 
         tables.put(ExTerraPower.GENERATOR.get().getLootTable(), createGeneratorTable("generator", ExTerraPower.GENERATOR.get()).setParamSet(LootContextParamSets.BLOCK).build());
-        tables.put(ExTerraCore.COMPOUND_BRICKS.get().getLootTable(), createDefaultTable("mud_bricks", ExTerraCore.COMPOUND_BRICKS.get()).setParamSet(LootContextParamSets.BLOCK).build());
+        registerDefaultForBlock(ExTerraCore.COMPOUND_BRICKS.get());
+        registerDefaultForBlock(ExTerraCore.COMPOUND_BRICKS_SLAB.get());
+        registerDefaultForBlock(ExTerraCore.COMPOUND_BRICKS_STAIR.get());
+        registerDefaultForBlock(ExTerraCore.COMPOUND_FRAMED_GLASS.get());
+        registerDefaultForBlock(ExTerraCore.CALCITE_DUST.get());
 
 
         writeTables(cache, tables);
+    }
+
+    private void registerDefaultForBlock(Block block){
+        tables.put(block.getLootTable(), createDefaultTable(block.getRegistryName().getPath(), block).setParamSet(LootContextParamSets.BLOCK).build());
     }
 
     protected LootTable.Builder createDefaultTable(String name, Block block){

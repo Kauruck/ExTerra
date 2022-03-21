@@ -21,8 +21,9 @@ public class ExTerraShared {
         return false;
     }
 
-    public static final BlockBehaviour.Properties DEFAULT_PROPERTIES_STONE = BlockBehaviour.Properties.of(Material.STONE).sound(SoundType.STONE).strength(2.0f);
-    public static final BlockBehaviour.Properties DEFAULT_PROPERTIES_GLASS = BlockBehaviour.Properties.of(Material.GLASS).strength(0.3F).sound(SoundType.GLASS).noOcclusion().isValidSpawn(ExTerraShared::never).isRedstoneConductor(ExTerraShared::never).isSuffocating(ExTerraShared::never).isViewBlocking(ExTerraShared::never);
+    public static final BlockBehaviour.Properties DEFAULT_PROPERTIES_STONE = BlockBehaviour.Properties.of(Material.STONE).sound(SoundType.STONE).strength(2.0f).requiresCorrectToolForDrops();
+    public static final BlockBehaviour.Properties DEFAULT_PROPERTIES_DUST = BlockBehaviour.Properties.of(Material.DECORATION).instabreak().noCollission();
+    public static final BlockBehaviour.Properties DEFAULT_PROPERTIES_GLASS = BlockBehaviour.Properties.of(Material.GLASS).strength(0.3F).sound(SoundType.GLASS).noOcclusion().isValidSpawn(ExTerraShared::never).isRedstoneConductor(ExTerraShared::never).isSuffocating(ExTerraShared::never).isViewBlocking(ExTerraShared::never).requiresCorrectToolForDrops();
 
     public static final Item.Properties DEFAULT_PROPERTIES_ITEM = new Item.Properties().tab(CreativeModeTab.TAB_MISC);
 

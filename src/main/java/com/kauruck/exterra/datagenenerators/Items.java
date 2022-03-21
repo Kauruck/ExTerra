@@ -51,6 +51,11 @@ public class Items extends ItemModelProvider {
                 "layer0",
                 ExTerra.getResource("item/calcite_dust"));
 
+        this.singleTexture(ExTerraCore.RITUAL_MAP.get().getRegistryName().getPath(),
+                new ResourceLocation("item/generated"),
+                "layer0",
+                ExTerra.getResource("item/ritual_map"));
+
 
     }
 }

@@ -2,13 +2,13 @@
   "type": "minecraft:block",
   "pools": [
     {
-      "name": "compound_bricks",
+      "name": "compound_framed_glass",
       "rolls": 1.0,
       "bonus_rolls": 0.0,
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "exterra:compound_bricks"
+          "name": "exterra:compound_framed_glass"
         }
       ]
     }
