@@ -7,6 +7,7 @@ import com.kauruck.exterra.geometry.ShapeCollection;
 import com.kauruck.exterra.modules.ExTerraShared;
 import com.kauruck.exterra.modules.ExTerraTags;
 import com.kauruck.exterra.util.NBTUtil;
+import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -66,11 +67,22 @@ public class RitualMap extends Item {
                     if (!current.containsPoint(blockPosToAdd)) {
                         current.addPoint(blockPosToAdd);
                         currentShapeIndex = shapes.getShapes().indexOf(current);
+                        interactionResult = InteractionResult.SUCCESS;
                     } else {
-                        currentShapeIndex = shapes.getShapes().size();
-                        tag.putBoolean(TAG_SELECT_MODE, false);
+                        //Close the Shape, test weather it is valid
+                        if(current.end()) {
+                            currentShapeIndex = shapes.getShapes().size();
+                            tag.putBoolean(TAG_SELECT_MODE, false);
+                            interactionResult = InteractionResult.SUCCESS;
+                        }
+                        else{
+                            pContext.getPlayer().sendMessage(new TextComponent("Invalid Shape"), Util.NIL_UUID);
+                            //Remove invalid shape
+                            shapes.getShapes().remove(currentShapeIndex);
+                            currentShapeIndex = shapes.getShapes().size();
+                            interactionResult = InteractionResult.FAIL;
+                        }
                     }
-                    interactionResult = InteractionResult.SUCCESS;
                 }
             }
             else if(clicked.getBlock() instanceof RitualStone && pContext.getPlayer().isCrouching()){

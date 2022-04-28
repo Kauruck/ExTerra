@@ -1,10 +1,10 @@
 package com.kauruck.exterra;
 
+import com.kauruck.exterra.geometry.GeometryParts;
 import com.kauruck.exterra.modules.ExTerraCore;
 import com.kauruck.exterra.modules.ExTerraPower;
 import com.kauruck.exterra.modules.RegistryManger;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.model.obj.OBJLoader;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -28,8 +28,10 @@ public class ExTerra
         bus.register(new ExTerraCore());
         bus.register(new ExTerraPower());
 
-        //Client Listners
+        //Client Listeners
         bus.addListener(ExTerraClient::clientSetupEvent);
+        //Add GeometricTests
+        GeometryParts.initInbuilt();
 
         RegistryManger.doRegistry();
     }

@@ -1,5 +1,7 @@
 package com.kauruck.exterra.geometry;
 
+import com.kauruck.exterra.data.ShapeData;
+import com.kauruck.exterra.data.loader.ShapeReloadListener;
 import com.kauruck.exterra.util.NBTUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -12,7 +14,11 @@ import java.util.stream.Collectors;
 
 public class Shape {
 
+    public static String TAG_SHAPE_DATA = "shapeData";
+
     List<BlockPos> positions = new ArrayList<>();
+
+    private ShapeData shapeData;
 
     public Shape(){
 
@@ -20,6 +26,18 @@ public class Shape {
 
     public Shape(CompoundTag nbt){
         this.fromNBT(nbt);
+    }
+
+    public boolean end(){
+        for(String currentKey : ShapeReloadListener.shapes.keySet()){
+            ShapeData currentShape = ShapeReloadListener.shapes.get(currentKey);
+            BlockPosHolder holder = new BlockPosHolder(this.positions.toArray(new BlockPos[0]));
+            if(currentShape.test(holder)){
+                shapeData = currentShape;
+                return true;
+            }
+        }
+        return false;
     }
 
     public void addPoint(BlockPos point){
@@ -32,7 +50,10 @@ public class Shape {
 
     @Override
     public String toString() {
-        return "contains: " + positions.size() + " positions";
+        if(shapeData == null)
+            return "contains: " + positions.size() + " positions";
+        else
+            return shapeData.getName();
     }
 
     public void fromNBT(CompoundTag tag){
@@ -41,6 +62,11 @@ public class Shape {
         for(int i = 0; i < size; i++){
             BlockPos pos = NBTUtil.blockPosFromNBT(tag.getCompound(Integer.toString(i)));
             this.positions.add(pos);
+        }
+        if(tag.contains(TAG_SHAPE_DATA)){
+            String shapeName = tag.getString(TAG_SHAPE_DATA);
+            if(ShapeReloadListener.shapes.containsKey(shapeName))
+                shapeData = ShapeReloadListener.shapes.get(shapeName);
         }
     }
 
@@ -51,6 +77,8 @@ public class Shape {
         for(int i = 0; i < positions.size(); i++){
             tag.put(Integer.toString(i), NBTUtil.blockPosToNBT(positions.get(i)));
         }
+        if(shapeData != null)
+            tag.putString(TAG_SHAPE_DATA, shapeData.getName());
         return tag;
     }
 
