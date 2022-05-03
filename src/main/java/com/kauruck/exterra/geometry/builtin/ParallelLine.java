@@ -37,10 +37,30 @@ public class ParallelLine extends GeometricRule {
         float C_dy = blockPos.getBlockPos('C').getY() - blockPos.getBlockPos('D').getY();
         float C_dz = blockPos.getBlockPos('C').getZ() - blockPos.getBlockPos('D').getZ();
         //Parallel test
-        float nx = A_dx == 0 && C_dx == 0 ? 0 : Math.min(A_dx%C_dx, C_dx%A_dx);
-        float ny = A_dy == 0 && C_dy == 0 ? 0 : Math.min(A_dy%C_dy, C_dy%A_dy);
-        float nz = A_dz == 0 && C_dz == 0 ? 0 : Math.min(A_dz%C_dz, C_dz%A_dz);
-        return MathHelpers.almostEqual(0, nx, this.epsilon) && MathHelpers.almostEqual(0, ny, this.epsilon) && MathHelpers.almostEqual(0, nz, this.epsilon);
+        float nx = A_dx/C_dx;
+        float ny = A_dy/C_dy;
+        float nz = A_dz/C_dz;
+        //Test weather the both of the parts are zero
+        if(A_dx == 0 && C_dx == 0){
+            if((A_dy == 0 && C_dy == 0) || (A_dz == 0 && C_dz == 0))
+                return true;
+            //Ignore the x component
+            return MathHelpers.almostEqual(ny, nz, this.epsilon);
+        }
+        if(A_dy == 0 ||  C_dy == 0) {
+            if((A_dx == 0 && C_dx == 0) || (A_dz == 0 && C_dz == 0))
+                return true;
+            //Ignore the y component
+            return MathHelpers.almostEqual(nx, nz, this.epsilon);
+        }
+        if(A_dz == 0 || C_dz == 0){
+            if((A_dy == 0 && C_dy == 0) || (A_dx == 0 && C_dx == 0))
+                return true;
+            //Ignore the z component
+            return MathHelpers.almostEqual(ny, nx, this.epsilon);
+        }
+        //If no component is zero, all most be (almost) equal
+        return MathHelpers.almostEqual(nx, ny, this.epsilon) && MathHelpers.almostEqual(nx, nz, this.epsilon);
     }
 
     @Override

@@ -13,6 +13,7 @@ public class ShapeProvider extends ShapeDataProvider {
 
     @Override
     public void registerShapes() {
+        //TODO Find out why the Shape needs to be registered out of order
         this.registerShape("square",4)
                 .parallel('A', 'B', 'C', 'D')
                 .parallel('A', 'C', 'B', 'D');
