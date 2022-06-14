@@ -1,11 +1,10 @@
 package com.kauruck.exterra.geometry.builtin;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.api.geometry.GeometricRule;
 import com.kauruck.exterra.geometry.BlockPosHolder;
-import com.kauruck.exterra.helpers.MathHelpers;
-import net.minecraft.core.BlockPos;
+import com.kauruck.exterra.util.MathUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,27 +39,34 @@ public class ParallelLine extends GeometricRule {
         float nx = A_dx/C_dx;
         float ny = A_dy/C_dy;
         float nz = A_dz/C_dz;
+        boolean parallel = false;
         //Test weather the both of the parts are zero
         if(A_dx == 0 && C_dx == 0){
             if((A_dy == 0 && C_dy == 0) || (A_dz == 0 && C_dz == 0))
-                return true;
+                parallel = true;
+            else
             //Ignore the x component
-            return MathHelpers.almostEqual(ny, nz, this.epsilon);
+                parallel = MathUtil.almostEqual(ny, nz, this.epsilon);
         }
         if(A_dy == 0 ||  C_dy == 0) {
             if((A_dx == 0 && C_dx == 0) || (A_dz == 0 && C_dz == 0))
-                return true;
+                parallel = true;
+            else
             //Ignore the y component
-            return MathHelpers.almostEqual(nx, nz, this.epsilon);
+                parallel = MathUtil.almostEqual(nx, nz, this.epsilon);
         }
         if(A_dz == 0 || C_dz == 0){
             if((A_dy == 0 && C_dy == 0) || (A_dx == 0 && C_dx == 0))
-                return true;
+                parallel =  true;
+            else
             //Ignore the z component
-            return MathHelpers.almostEqual(ny, nx, this.epsilon);
+                parallel = MathUtil.almostEqual(ny, nx, this.epsilon);
         }
+        if(!parallel)
         //If no component is zero, all most be (almost) equal
-        return MathHelpers.almostEqual(nx, ny, this.epsilon) && MathHelpers.almostEqual(nx, nz, this.epsilon);
+            parallel =  MathUtil.almostEqual(nx, ny, this.epsilon) && MathUtil.almostEqual(nx, nz, this.epsilon);
+
+        return parallel;
     }
 
     @Override

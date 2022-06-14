@@ -1,8 +1,10 @@
 package com.kauruck.exterra.geometry;
 
+import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.data.ShapeData;
 import com.kauruck.exterra.data.loader.ShapeReloadListener;
 import com.kauruck.exterra.util.NBTUtil;
+import com.kauruck.exterra.util.PositionsUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import org.lwjgl.system.CallbackI;

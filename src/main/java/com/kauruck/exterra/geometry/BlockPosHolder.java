@@ -1,5 +1,6 @@
 package com.kauruck.exterra.geometry;
 
+import com.kauruck.exterra.util.PositionsUtil;
 import net.minecraft.core.BlockPos;
 
 import java.util.Arrays;
@@ -20,13 +21,7 @@ public class BlockPosHolder {
 
 
     public BlockPos getBlockPos(Character blockPosName){
-        //Force all characters to be uppercase
-        blockPosName = Character.toUpperCase(blockPosName);
-        //convert it to an int
-        int index = blockPosName - 65;
-        //ensure it is in range
-        if(index >= 90 || index < 0)
-            throw new IllegalArgumentException("The argument can only be A-Z");
+        int index = PositionsUtil.arrayIndexFromName(blockPosName);
 
         if(index >= blockPoss.length)
             throw new IndexOutOfBoundsException("Index " + index + " is out of bounds for length " + blockPoss.length);
@@ -41,8 +36,7 @@ public class BlockPosHolder {
 
     public BlockPosHolder subHolder(Character... blockPosNames){
         BlockPos[] subPoss = Arrays.stream(blockPosNames)
-                .map((c) -> c - 65)
-                .filter((i) -> i >= 0 && i <= blockPoss.length && i < 90)
+                .map(PositionsUtil::arrayIndexFromName)
                 .map((i) -> blockPoss[i])
                 .toArray(BlockPos[]::new);
         return new BlockPosHolder(subPoss);

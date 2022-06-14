@@ -1,12 +1,10 @@
 package com.kauruck.exterra.geometry.builtin;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.kauruck.exterra.api.geometry.GeometricRule;
 import com.kauruck.exterra.geometry.BlockPosHolder;
-import com.kauruck.exterra.helpers.MathHelpers;
-import net.minecraft.core.BlockPos;
+import com.kauruck.exterra.util.MathUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,7 +41,7 @@ public class IntersectAngle extends GeometricRule {
 
         float angle = (float) Math.acos(dotProduct/(distanceA * distanceB));
 
-        return MathHelpers.almostEqual(angle, this.angle, this.epsilon);
+        return MathUtil.almostEqual(angle, this.angle, this.epsilon);
 
     }
 

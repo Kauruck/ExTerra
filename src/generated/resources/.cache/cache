@@ -47,7 +47,7 @@ e337a58e786bb81b66c35ca6de50923d36347a11 data/exterra/recipes/compound_bricks.js
 cc61ab3d39fb0ad355913731d9aa6fd5a9d03b21 data/exterra/recipes/compound_bricks_slab.json
 d1d20c10e045fb14dedf708ace12e8db382c44a0 data/exterra/recipes/compound_bricks_stair.json
 2313233d6bcdc53b6839102965f5530f18f3bcdc data/exterra/recipes/compound_framed_glass.json
-b0f98d31bfec9874f26983ebc61164e90e010c5d data/exterra/shapes/square.json
+adc9ecfc47f1fadfb221807a0d5de23df9d65b0b data/exterra/shapes/square.json
 086b847874a173499d843310af6c74ac5e2384c4 data/exterra/tags/blocks/rituals/tier_i.json
 b61a27345965ba3eda890298f3d248581c573b5b data/minecraft/tags/blocks/mineable/pickaxe.json
 b61a27345965ba3eda890298f3d248581c573b5b data/minecraft/tags/blocks/needs_iron_tool.json
