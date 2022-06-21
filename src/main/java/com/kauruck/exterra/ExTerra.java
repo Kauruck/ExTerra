@@ -3,6 +3,7 @@ package com.kauruck.exterra;
 import com.kauruck.exterra.geometry.GeometryParts;
 import com.kauruck.exterra.modules.ExTerraCore;
 import com.kauruck.exterra.modules.ExTerraPower;
+import com.kauruck.exterra.modules.ExTerraRegistries;
 import com.kauruck.exterra.modules.RegistryManger;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -23,6 +24,8 @@ public class ExTerra
     public static final String MOD_ID = "exterra";
 
     public ExTerra() {
+        //Make the registries
+        ExTerraRegistries.makeRegistries();
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
         //Modules
         bus.register(new ExTerraCore());

@@ -1,5 +1,6 @@
 package com.kauruck.exterra.modules;
 
+import com.kauruck.exterra.api.matter.Matter;
 import com.kauruck.exterra.blockentities.RitualStoneEntity;
 import com.kauruck.exterra.blocks.DustBlock;
 import com.kauruck.exterra.blocks.RitualStone;
@@ -10,12 +11,15 @@ import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.fmllegacy.RegistryObject;
 
+import java.awt.*;
+
 import static com.kauruck.exterra.modules.RegistryManger.*;
 
 public class ExTerraCore {
 
     //Test Stuff
     public static final RegistryObject<Item> TEST_ITEM = ITEM_REGISTRY.register("test", () -> new Item(ExTerraShared.DEFAULT_PROPERTIES_ITEM));
+    public static final RegistryObject<Matter> TEST_MATTER = MATTER_REGISTRY.register("test_matter", () -> new Matter(new Matter.MatterProperties().setEnergy(1).setParticleColor(Color.RED)));
 
     //Compound
     public static final RegistryObject<Item> COMPOUND = ITEM_REGISTRY.register("compound",() -> new Item(ExTerraShared.DEFAULT_PROPERTIES_ITEM));
