@@ -1,29 +1,37 @@
 package com.kauruck.exterra.blocks;
 
-import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.blockentities.RitualStoneEntity;
 import com.kauruck.exterra.geometry.ShapeCollection;
 import com.kauruck.exterra.items.RitualMap;
-import com.kauruck.exterra.modules.ExTerraShared;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
 
-public class RitualStone extends Block implements EntityBlock {
+public class RitualStone extends RitualPlateBlock implements EntityBlock {
+
     public RitualStone() {
-        super(ExTerraShared.DEFAULT_PROPERTIES_STONE);
+        super(BlockBehaviour.Properties.of(Material.STONE).
+                sound(SoundType.STONE)
+                .strength(2.0f)
+                .requiresCorrectToolForDrops());
     }
+
+
+
 
     @Nullable
     @Override

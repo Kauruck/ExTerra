@@ -4,6 +4,7 @@
 8ae9f5fcd47733b8aa3e93df8026036d32a8dc06 assets/exterra/blockstates/compound_bricks_stair.json
 d511a1c33b303dc8c9afd90831db7204d89197f2 assets/exterra/blockstates/compound_framed_glass.json
 63d27c87a0b4036d29aab9fd874dd27b9ab8d7df assets/exterra/blockstates/generator.json
+b58eb4c83d1d2f712d12ced7fa5e14d73c818490 assets/exterra/blockstates/ritual_stone.json
 d5907270e56d329ab48acad84fb8624ada05bc80 assets/exterra/models/block/calcite_dust_dot.json
 0ecf7217d1f7ff1dc589f1b7062caef124d3ecb8 assets/exterra/models/block/calcite_dust_side0.json
 00b0f744e5bf4da111a1cb45c687d31a7d5af8ac assets/exterra/models/block/calcite_dust_side1.json
@@ -28,6 +29,7 @@ a15ff931224957ac7e0215684ccb2d54ab57840d assets/exterra/models/item/compound_bri
 bf4a8b5267de90b1dc4011fa784277536cd92817 assets/exterra/models/item/compound_framed_glass.json
 b81aa64a90e376d60ec0d072ee938661af9a7329 assets/exterra/models/item/generator.json
 441762e231f92deb93fd09d359381a2da9ad5d9c assets/exterra/models/item/ritual_map.json
+4c8bae080fc1ec2f0a65171fb816d3b68d34926e assets/exterra/models/item/ritual_stone.json
 3fdd00a7f490bb79d2406664bcfb545778ac0fde assets/exterra/models/item/test.json
 9e3d6f0ceda420cf30f47ab5a32b10892221425f data/exterra/advancements/recipes/misc/compound.json
 f4f8d7c0c0bb98d6c3ef33ef17f11e60ef29d4bc data/exterra/advancements/recipes/misc/compound_brick.json

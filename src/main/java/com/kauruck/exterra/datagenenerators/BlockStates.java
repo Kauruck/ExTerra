@@ -22,8 +22,10 @@ import java.util.function.Function;
 
 public class BlockStates extends BlockStateProvider {
 
+    private final ExistingFileHelper existingFileHelper;
     public BlockStates(DataGenerator gen, ExistingFileHelper exFileHelper) {
         super(gen, ExTerra.MOD_ID, exFileHelper);
+        existingFileHelper = exFileHelper;
     }
 
     @Override
@@ -33,6 +35,7 @@ public class BlockStates extends BlockStateProvider {
         this.slabBlock((SlabBlock) ExTerraCore.COMPOUND_BRICKS_SLAB.get(), ExTerra.getResource("block/compound_bricks"), ExTerra.getResource("block/compound_bricks"));
         this.connectedTexture(ExTerraCore.COMPOUND_FRAMED_GLASS.get(), ExTerra.getResource("block/compound_framed_glass"));
         this.dustBlock(ExTerraCore.CALCITE_DUST.get(), new ResourceLocation("block/redstone_dust_dot"),new ResourceLocation("block/redstone_dust_line0") , new ResourceLocation("block/redstone_dust_line1"),new ResourceLocation("block/redstone_dust_overlay"));
+        this.simpleBlock(ExTerraCore.RITUAL_STONE.get(), new ModelFile.ExistingModelFile(ExTerra.getResource("block/ritual_stone"), existingFileHelper));
     }
 
     private void connectedTexture(Block block, ResourceLocation allTextures){
