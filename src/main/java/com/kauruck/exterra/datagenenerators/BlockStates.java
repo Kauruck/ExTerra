@@ -3,12 +3,10 @@ package com.kauruck.exterra.datagenenerators;
 import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.client.ConnectedTextureLoader;
 import com.kauruck.exterra.modules.ExTerraCore;
-import com.kauruck.exterra.modules.ExTerraPower;
 import net.minecraft.core.Direction;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -16,6 +14,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.RedstoneSide;
 import net.minecraftforge.client.model.generators.*;
 import net.minecraftforge.common.data.ExistingFileHelper;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.function.Function;
 
@@ -33,28 +32,27 @@ public class BlockStates extends BlockStateProvider {
         this.simpleBlock(ExTerraCore.COMPOUND_BRICKS.get());
         this.stairsBlock((StairBlock) ExTerraCore.COMPOUND_BRICKS_STAIR.get(), ExTerra.getResource("block/compound_bricks"));
         this.slabBlock((SlabBlock) ExTerraCore.COMPOUND_BRICKS_SLAB.get(), ExTerra.getResource("block/compound_bricks"), ExTerra.getResource("block/compound_bricks"));
-        this.connectedTexture(ExTerraCore.COMPOUND_FRAMED_GLASS.get(), ExTerra.getResource("block/compound_framed_glass"));
+        this.connectedTextureGlass(ExTerraCore.COMPOUND_FRAMED_GLASS.get(), ExTerra.getResource("block/compound_framed_glass"));
         this.dustBlock(ExTerraCore.CALCITE_DUST.get(), new ResourceLocation("block/redstone_dust_dot"),new ResourceLocation("block/redstone_dust_line0") , new ResourceLocation("block/redstone_dust_line1"),new ResourceLocation("block/redstone_dust_overlay"));
         this.simpleBlock(ExTerraCore.RITUAL_STONE.get(), new ModelFile.ExistingModelFile(ExTerra.getResource("block/ritual_stone"), existingFileHelper));
     }
 
-    private void connectedTexture(Block block, ResourceLocation allTextures){
+    private void connectedTextureGlass(Block block, ResourceLocation allTextures){
         BlockModelBuilder model = this.models()
-                .withExistingParent(block.getRegistryName().getPath(), "cube_all")
-                .texture("all", allTextures);
+                .withExistingParent(ForgeRegistries.BLOCKS.getKey(block).getPath(), "cube_all")
+                .texture("all", allTextures)
+                .renderType(new ResourceLocation("translucent"));
         model.customLoader(ConnectedTextureLoader::begin);
         this.getVariantBuilder(block)
                 .partialState()
                 .setModels(new ConfiguredModel(model));
-
-        this.registerMachineBlock(ExTerraPower.GENERATOR.get(), ExTerra.getResource("block/compound_bricks"), ExTerra.getResource("block/generator_front_off"), ExTerra.getResource("block/generator_front_on"));
     }
 
 
     private void registerMachineBlock(Block block, ResourceLocation side, ResourceLocation front_off, ResourceLocation front_on) {
-        BlockModelBuilder modelOff= models().cube(block.getRegistryName().getPath(),
+        BlockModelBuilder modelOff= models().cube(ForgeRegistries.BLOCKS.getKey(block).getPath(),
                 side, side, front_off, side, side, side);
-        BlockModelBuilder modelOn = models().cube(block.getRegistryName().getPath() + "_powered",
+        BlockModelBuilder modelOn = models().cube(ForgeRegistries.BLOCKS.getKey(block).getPath()+ "_powered",
                 side, side, front_on, side, side, side);
         orientedBlock(block, state -> {
             if (state.getValue(BlockStateProperties.POWERED)) {
@@ -78,7 +76,7 @@ public class BlockStates extends BlockStateProvider {
     }
 
     private void dustBlock(Block block, ResourceLocation dot, ResourceLocation line0,  ResourceLocation line1, ResourceLocation overlay){
-        String baseName = block.getRegistryName().getPath();
+        String baseName = ForgeRegistries.BLOCKS.getKey(block).getPath();
         getMultipartBuilder(block)
                 .part()
                 .modelFile(dotModel( baseName + "_dot", dot, overlay))

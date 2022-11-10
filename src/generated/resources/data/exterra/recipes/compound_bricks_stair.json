@@ -1,18 +1,18 @@
 {
   "type": "minecraft:crafting_shaped",
   "group": "exterra",
-  "pattern": [
-    "x  ",
-    "xx ",
-    "xxx"
-  ],
   "key": {
     "x": {
       "item": "exterra:compound_bricks"
     }
   },
+  "pattern": [
+    "x  ",
+    "xx ",
+    "xxx"
+  ],
   "result": {
-    "item": "exterra:compound_bricks_stair",
-    "count": 4
+    "count": 4,
+    "item": "exterra:compound_bricks_stair"
   }
 }

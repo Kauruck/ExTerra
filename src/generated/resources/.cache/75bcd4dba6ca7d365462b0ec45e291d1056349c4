@@ -1,0 +1,4 @@
+// 1.19.2	2022-11-08T18:18:41.88618	Tags for minecraft:block
+0675519271b85497269a08edfb5f91a897c2362f data/exterra/tags/blocks/rituals/tier_i.json
+b174f5ebdcc7c499df29683abb7e5dd6a2ff9f2f data/minecraft/tags/blocks/mineable/pickaxe.json
+b174f5ebdcc7c499df29683abb7e5dd6a2ff9f2f data/minecraft/tags/blocks/needs_iron_tool.json

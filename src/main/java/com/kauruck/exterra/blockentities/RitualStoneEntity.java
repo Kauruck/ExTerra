@@ -10,7 +10,7 @@ import com.kauruck.exterra.util.NBTUtil;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -45,11 +45,12 @@ public class RitualStoneEntity extends BlockEntity {
     }
 
     @Override
-    public CompoundTag save(CompoundTag tag) {
+    protected void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
         tag.put("shapes", new ShapeCollection(shapes).toNBT());
         tag.put("shapesPositions", NBTUtil.blockPosListToNBT(shapesPos));
-        return super.save(tag);
     }
+
 
     private void validateMultiblock(){
         //Check the positions of the shapes
@@ -87,9 +88,9 @@ public class RitualStoneEntity extends BlockEntity {
 
 
     public void infoToPlayer(Player player){
-        player.sendMessage(new TextComponent(Integer.toString(shapes.size())), Util.NIL_UUID);
+        player.sendSystemMessage(Component.literal(Integer.toString(shapes.size())));
         for(Shape current : shapes){
-            player.sendMessage(new TextComponent(current.toString()), Util.NIL_UUID);
+            player.sendSystemMessage(Component.literal(current.toString()));
         }
     }
 

@@ -1,7 +1,5 @@
 {
-  "replace": false,
   "values": [
-    "exterra:generator",
     "exterra:compound_framed_glass",
     "exterra:compound_bricks_slab",
     "exterra:compound_bricks_stair",

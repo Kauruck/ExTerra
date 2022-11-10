@@ -1,9 +1,11 @@
 package com.kauruck.exterra.data.provider;
 
+import com.google.common.hash.HashCode;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.data.ShapeData;
+import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.HashCache;
@@ -13,6 +15,7 @@ import net.minecraft.server.packs.PackType;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -40,22 +43,15 @@ public abstract class GenericDataProvider implements DataProvider {
         this.mod_id = mod_id;
     }
 
-    //Copied from Tinkers Construct: https://github.com/SlimeKnights/TinkersConstruct/blob/1.16/src/main/java/slimeknights/tconstruct/library/data/GenericDataProvider.java
-    @SuppressWarnings("UnstableApiUsage")
-    protected void saveThing(HashCache cache, String path, Object objectJson){
+    //Copied and Modified for 1.19 from Tinkers Construct: https://github.com/SlimeKnights/TinkersConstruct/blob/1.16/src/main/java/slimeknights/tconstruct/library/data/GenericDataProvider.java
+    protected void saveThing(CachedOutput cache, String path, Object objectJson){
         try {
             String json = GenericDataProvider.GSON.toJson(objectJson);
             Path cPath = this.dataGenerator.getOutputFolder().resolve(Paths.get(resourceType.getDirectory(), mod_id, folder, path + ".json"));
-            String hash = SHA1.hashUnencodedChars(json).toString();
-            if(!Objects.equals(cache.getHash(cPath), hash) || !Files.exists(cPath)){
-                Files.createDirectories(cPath.getParent());
-
-                try (BufferedWriter bufferedWriter = Files.newBufferedWriter(cPath)){
-                    bufferedWriter.write(json);
-                }
-            }
-
-            cache.putNew(cPath, hash);
+            if(json.length()%2 != 0)
+                json += " ";
+            HashCode hash = HashCode.fromBytes(json.getBytes(StandardCharsets.UTF_8));
+            cache.writeIfNeeded(cPath, json.getBytes(StandardCharsets.UTF_8), hash);
         } catch (IOException e) {
             ExTerra.LOGGER.error("Couldn't create data for mod {} {}", mod_id, path, e);
         }

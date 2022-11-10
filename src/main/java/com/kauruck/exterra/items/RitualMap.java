@@ -11,7 +11,6 @@ import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -76,7 +75,7 @@ public class RitualMap extends Item {
                             interactionResult = InteractionResult.SUCCESS;
                         }
                         else{
-                            pContext.getPlayer().sendMessage(new TextComponent("Invalid Shape"), Util.NIL_UUID);
+                            pContext.getPlayer().sendSystemMessage(Component.literal("Invalid Shape"));
                             //Remove invalid shape
                             shapes.getShapes().remove(currentShapeIndex);
                             currentShapeIndex = shapes.getShapes().size();
@@ -107,7 +106,7 @@ public class RitualMap extends Item {
         if(tag != null) {
             ShapeCollection shapes = new ShapeCollection(tag.getCompound(TAG_SHAPES));
             for (Shape shape : shapes.getShapes())
-                pTooltipComponents.add(new TextComponent(shape.toString()));
+                pTooltipComponents.add(Component.literal(shape.toString()));
         }
     }
 }

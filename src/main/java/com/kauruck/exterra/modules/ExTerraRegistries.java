@@ -13,9 +13,7 @@ public class ExTerraRegistries {
     public static Supplier<IForgeRegistry<Matter>> MATTER;
 
     public static void makeRegistries(){
-        MATTER = RegistryManger.MATTER_REGISTRY.makeRegistry("matter", () -> new RegistryBuilder<Matter>()
-                .setType(Matter.class)
-                .setName(ExTerra.getResource("matter"))
-        );
+        MATTER = RegistryManger.MATTER_REGISTRY.makeRegistry(() -> new RegistryBuilder<Matter>()
+                .hasTags());
     }
 }

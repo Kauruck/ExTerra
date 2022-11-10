@@ -1,10 +1,9 @@
 package com.kauruck.exterra.api.matter;
 
-import net.minecraftforge.registries.ForgeRegistryEntry;
 
 import java.awt.*;
 
-public class Matter extends ForgeRegistryEntry<Matter> {
+public class Matter{
 
     protected final Color particleColor;
     protected final int energy;

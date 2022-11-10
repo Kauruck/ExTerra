@@ -1,11 +1,6 @@
 {
   "type": "minecraft:crafting_shaped",
   "group": "exterra",
-  "pattern": [
-    "cg ",
-    "s  ",
-    "   "
-  ],
   "key": {
     "c": {
       "item": "minecraft:clay"
@@ -17,8 +12,13 @@
       "tag": "forge:sand"
     }
   },
+  "pattern": [
+    "cg ",
+    "s  ",
+    "   "
+  ],
   "result": {
-    "item": "exterra:compound",
-    "count": 4
+    "count": 4,
+    "item": "exterra:compound"
   }
 }

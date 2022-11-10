@@ -2,6 +2,7 @@ package com.kauruck.exterra.data.provider;
 
 
 import com.kauruck.exterra.data.ShapeData;
+import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.HashCache;
 import net.minecraft.server.packs.PackType;
@@ -25,7 +26,7 @@ public abstract class ShapeDataProvider extends GenericDataProvider {
     }
 
     @Override
-    public void run(HashCache pCache) throws IOException {
+    public void run(CachedOutput pCache) throws IOException {
         shapes.clear();
         registerShapes();
         for(String currentName : shapes.keySet()){

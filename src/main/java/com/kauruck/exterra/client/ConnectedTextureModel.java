@@ -2,50 +2,67 @@ package com.kauruck.exterra.client;
 
 import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.model.data.IDynamicBakedModel;
-import net.minecraftforge.client.model.data.IModelData;
+import net.minecraftforge.client.ChunkRenderTypeSet;
+import net.minecraftforge.client.extensions.IForgeBakedModel;
+import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.client.model.data.ModelProperty;
-import org.lwjgl.system.CallbackI;
+import net.minecraftforge.registries.ForgeRegistries;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.*;
+import java.util.function.Predicate;
 
-public class ConnectedTextureModel implements IDynamicBakedModel {
+public class ConnectedTextureModel implements BakedModel, IForgeBakedModel {
 
+    //ModelProperties
+    public static final ModelProperty<DirectionData> PROPERTY_NORTH = new ModelProperty<>(new SideModelDataPredicate(Direction.NORTH));
+    public static final ModelProperty<DirectionData> PROPERTY_SOUTH = new ModelProperty<>(new SideModelDataPredicate(Direction.SOUTH));
+    public static final ModelProperty<DirectionData> PROPERTY_WEST = new ModelProperty<>(new SideModelDataPredicate(Direction.WEST));
+    public static final ModelProperty<DirectionData> PROPERTY_EAST = new ModelProperty<>(new SideModelDataPredicate(Direction.EAST));
+    public static final ModelProperty<DirectionData> PROPERTY_UP = new ModelProperty<>(new SideModelDataPredicate(Direction.UP));
+    public static final ModelProperty<DirectionData> PROPERTY_DOWN= new ModelProperty<>(new SideModelDataPredicate(Direction.DOWN));
     private static final FaceBakery BAKERY = new FaceBakery();
+
+    private final ChunkRenderTypeSet renderTypes;
 
     //Why 2 idk
     public static final float BLOCK_UV_DISTANCE = 2f;
 
     private final Map<Direction, TextureAtlasSprite> textures;
 
-    public ConnectedTextureModel(Map<Direction, TextureAtlasSprite> textures) {
+    public ConnectedTextureModel(Map<Direction, TextureAtlasSprite> textures, ChunkRenderTypeSet renderTypes) {
         this.textures = textures;
+        this.renderTypes = renderTypes;
     }
 
     @Nonnull
     @Override
-    public IModelData getModelData(@Nonnull BlockAndTintGetter world, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull IModelData tileData) {
-        ConnectedModelData modelData = new ConnectedModelData();
-        for(Direction current : Direction.values()){
-            modelData.setSide(current, generateSideDataForSide(current, pos,state,world));
-        }
-        return modelData;
+    public ModelData getModelData(@Nonnull BlockAndTintGetter level, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull ModelData modelData) {
+        return  ModelData.builder().
+                with(PROPERTY_NORTH, generateSideDataForSide(Direction.NORTH, pos, state, level)).
+                with(PROPERTY_SOUTH, generateSideDataForSide(Direction.SOUTH, pos, state, level)).
+                with(PROPERTY_WEST, generateSideDataForSide(Direction.WEST, pos, state, level)).
+                with(PROPERTY_EAST, generateSideDataForSide(Direction.EAST, pos, state, level)).
+                with(PROPERTY_UP, generateSideDataForSide(Direction.UP, pos, state, level)).
+                with(PROPERTY_DOWN, generateSideDataForSide(Direction.DOWN, pos, state, level)).
+                build();
     }
 
-    private ConnectedModelSideData generateSideDataForSide(Direction side, BlockPos pos, BlockState state, BlockAndTintGetter world){
+    private DirectionData generateSideDataForSide(Direction side, BlockPos pos, BlockState state, BlockAndTintGetter world){
 
-        ConnectedModelSideData data = new ConnectedModelSideData();
+        DirectionData data = new DirectionData();
+        data.direction = side;
 
         if(side == Direction.UP){
 
@@ -186,16 +203,16 @@ public class ConnectedTextureModel implements IDynamicBakedModel {
         return data;
     }
 
-    @Nonnull
-    @Override
-    public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, @Nonnull Random rand, @Nonnull IModelData extraData) {
-        if(side == null)
-            return Collections.emptyList();
 
-        return Collections.singletonList(this.createQuadForSide(side,extraData));
+
+
+    protected BakedQuad createQuadForSide(Direction side, ModelData data){
+        BlockElementFace face = new BlockElementFace(side, 0, "", new BlockFaceUV(this.getUV(side, data), 0));
+        BakedQuad quad = BAKERY.bakeQuad(new Vector3f(0,0,0), new Vector3f(16,16,16), face, getTexture(side), side, BlockModelRotation.X0_Y0, null, true, null);
+        return quad;
     }
 
-    protected BakedQuad createQuadForSide(Direction side, IModelData data){
+    protected BakedQuad createQuadForSide(Direction side, DirectionData data){
         BlockElementFace face = new BlockElementFace(side, 0, "", new BlockFaceUV(this.getUV(side, data), 0));
         BakedQuad quad = BAKERY.bakeQuad(new Vector3f(0,0,0), new Vector3f(16,16,16), face, getTexture(side), side, BlockModelRotation.X0_Y0, null, true, null);
         return quad;
@@ -205,10 +222,12 @@ public class ConnectedTextureModel implements IDynamicBakedModel {
         return textures.get(side);
     }
 
-    protected float[] getUV(Direction side, IModelData modelData){
-        if(!(modelData instanceof ConnectedModelData))
-            return getUVForPosition(0,0);
-        ConnectedModelSideData data = ((ConnectedModelData) modelData).getSide(side);
+    protected float[] getUV(Direction direction, ModelData modelData){
+        DirectionData data = modelData.get(getPropertyForDirection(direction));
+        return getUV(direction, data);
+    }
+
+    protected float[] getUV(Direction direction, DirectionData data){
 
         if(!data.up && !data.down && !data.left && !data.right)
             return getUVForPosition(0,0);
@@ -360,13 +379,41 @@ public class ConnectedTextureModel implements IDynamicBakedModel {
         return getUVForPosition(0,0);
     }
 
+    private ModelProperty<DirectionData> getPropertyForDirection(Direction direction){
+        return switch (direction){
+            case DOWN -> PROPERTY_DOWN;
+            case UP -> PROPERTY_UP;
+            case NORTH -> PROPERTY_NORTH;
+            case SOUTH -> PROPERTY_SOUTH;
+            case WEST -> PROPERTY_WEST;
+            case EAST -> PROPERTY_EAST;
+        };
+    }
+
     @Override
     public ItemTransforms getTransforms() {
-        return Minecraft.getInstance().getModelManager().getModel(new ModelResourceLocation(Blocks.STONE.getRegistryName(), "")).getTransforms();
+        return Minecraft.getInstance().getModelManager().getModel(new ModelResourceLocation(ForgeRegistries.BLOCKS.getKey(Blocks.STONE), "")).getTransforms();
     }
 
     private float[] getUVForPosition(int x, int y){
         return new float[]{BLOCK_UV_DISTANCE * x,BLOCK_UV_DISTANCE * y, BLOCK_UV_DISTANCE + BLOCK_UV_DISTANCE * x, BLOCK_UV_DISTANCE + BLOCK_UV_DISTANCE * y};
+    }
+
+
+    @Override
+    public List<BakedQuad> getQuads(@org.jetbrains.annotations.Nullable BlockState state, @org.jetbrains.annotations.Nullable Direction direction, @NotNull RandomSource rand, @NotNull ModelData data, @org.jetbrains.annotations.Nullable RenderType renderType) {
+        if(direction == null)
+            return Collections.emptyList();
+
+        return Collections.singletonList(this.createQuadForSide(direction,data));
+    }
+
+    @Override
+    public List<BakedQuad> getQuads(@org.jetbrains.annotations.Nullable BlockState pState, @org.jetbrains.annotations.Nullable Direction direction, RandomSource pRandom) {
+        if(direction == null)
+            return Collections.emptyList();
+
+        return Collections.singletonList(this.createQuadForSide(direction, DirectionData.noneForDirection(direction)));
     }
 
     @Override
@@ -390,6 +437,11 @@ public class ConnectedTextureModel implements IDynamicBakedModel {
     }
 
     @Override
+    public ChunkRenderTypeSet getRenderTypes(@NotNull BlockState state, @NotNull RandomSource rand, @NotNull ModelData data) {
+        return this.renderTypes;
+    }
+
+    @Override
     public TextureAtlasSprite getParticleIcon() {
         return this.getTexture(Direction.NORTH);
     }
@@ -399,37 +451,36 @@ public class ConnectedTextureModel implements IDynamicBakedModel {
         return ItemOverrides.EMPTY;
     }
 
-    public static class ConnectedModelData implements IModelData {
+    public static class SideModelDataPredicate implements Predicate<DirectionData>{
 
-        public Map<Direction, ConnectedModelSideData> sideDatas = new HashMap<>();
-
-        public void setSide(Direction side, ConnectedModelSideData sideData){
-            this.sideDatas.put(side, sideData);
-        }
-
-        public ConnectedModelSideData getSide(Direction side){
-            return this.sideDatas.get(side);
+        private final Direction direction;
+        public SideModelDataPredicate(Direction direction){
+            this.direction = direction;
         }
 
         @Override
-        public boolean hasProperty(ModelProperty<?> prop) {
-            return false;
-        }
-
-        @Nullable
-        @Override
-        public <T> T getData(ModelProperty<T> prop) {
-            return null;
-        }
-
-        @Nullable
-        @Override
-        public <T> T setData(ModelProperty<T> prop, T data) {
-            return null;
+        public boolean test(DirectionData directionData) {
+            return directionData.direction == this.direction;
         }
     }
-
-    public static class ConnectedModelSideData {
+    
+    public static class DirectionData {
+        
+        public static DirectionData noneForDirection(Direction direction){
+            DirectionData date = new DirectionData();
+            date.direction = direction;
+            date.up = false;
+            date.down = false;
+            date.left = false;
+            date.right = false;
+            date.up_left = false;
+            date.up_right = false;
+            date.down_left = false;
+            date.down_right = false;
+            return date;
+        }
+        
+        public Direction direction;
         public boolean left;
         public boolean right;
         public boolean up;

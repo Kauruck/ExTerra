@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.modules.ExTerraCore;
 import com.kauruck.exterra.modules.ExTerraPower;
+import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider;
 import net.minecraft.data.HashCache;
@@ -22,6 +23,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSet;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.providers.nbt.ContextNbtProvider;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -40,10 +42,9 @@ public class LootTables extends LootTableProvider {
     }
 
     @Override
-    public void run(HashCache cache) {
+    public void run(CachedOutput cache) {
         tables = new HashMap<>();
 
-        tables.put(ExTerraPower.GENERATOR.get().getLootTable(), createGeneratorTable("generator", ExTerraPower.GENERATOR.get()).setParamSet(LootContextParamSets.BLOCK).build());
         registerDefaultForBlock(ExTerraCore.COMPOUND_BRICKS.get());
         registerDefaultForBlock(ExTerraCore.COMPOUND_BRICKS_SLAB.get());
         registerDefaultForBlock(ExTerraCore.COMPOUND_BRICKS_STAIR.get());
@@ -55,43 +56,27 @@ public class LootTables extends LootTableProvider {
     }
 
     private void registerDefaultForBlock(Block block){
-        tables.put(block.getLootTable(), createDefaultTable(block.getRegistryName().getPath(), block).setParamSet(LootContextParamSets.BLOCK).build());
+        tables.put(block.getLootTable(), createDefaultTable(ForgeRegistries.BLOCKS.getKey(block).getPath(), block).setParamSet(LootContextParamSets.BLOCK).build());
     }
 
     protected LootTable.Builder createDefaultTable(String name, Block block){
         LootPool.Builder builder = LootPool.lootPool()
                 .name(name)
                 .setRolls(ConstantValue.exactly(1))
-                .add(LootItem.lootTableItem(block))
-                .apply(SetContainerContents.setContents()
+                .add(LootItem.lootTableItem(block));
+                /*.apply(SetContainerContents.setContents()
                         .withEntry(DynamicLoot.dynamicEntry(new ResourceLocation("minecraft", "contents")))
-                );
+                );*/
 
         return LootTable.lootTable().withPool(builder);
     }
 
-    protected LootTable.Builder createGeneratorTable(String name, Block block){
-        LootPool.Builder builder = LootPool.lootPool()
-                .name(name)
-                .setRolls(ConstantValue.exactly(1))
-                .add(LootItem.lootTableItem(block)
-                        .apply(CopyNameFunction.copyName(CopyNameFunction.NameSource.BLOCK_ENTITY))
-                        .apply(CopyNbtFunction.copyData(ContextNbtProvider.BLOCK_ENTITY)
-                                .copy("inv", "BlockEntityTab.inv", CopyNbtFunction.MergeStrategy.REPLACE)
-                                .copy("energy", "BlockEntityTag.energy", CopyNbtFunction.MergeStrategy.REPLACE))
-                        .apply(SetContainerContents.setContents()
-                                .withEntry(DynamicLoot.dynamicEntry(new ResourceLocation("minecraft", "contents"))))
-                );
-
-        return LootTable.lootTable().withPool(builder);
-    }
-
-    private void writeTables(HashCache cache, Map<ResourceLocation, LootTable> tables){
+    private void writeTables(CachedOutput cache, Map<ResourceLocation, LootTable> tables){
         Path outputFolder = this.generator.getOutputFolder();
         tables.forEach((key, lootTable) -> {
             Path path = outputFolder.resolve("data/" + key.getNamespace() + "/loot_tables/" + key.getPath() + ".json");
             try{
-                DataProvider.save(GSON, cache, net.minecraft.world.level.storage.loot.LootTables.serialize(lootTable), path);
+                DataProvider.saveStable(cache, net.minecraft.world.level.storage.loot.LootTables.serialize(lootTable), path);
             } catch (IOException e){
                 ExTerra.LOGGER.error("Couldn't write loot table {}", path, e);
             }

@@ -15,9 +15,9 @@ public class RegistryManger {
 
     public static final DeferredRegister<Item> ITEM_REGISTRY = DeferredRegister.create(ForgeRegistries.ITEMS, ExTerra.MOD_ID);
     public static final DeferredRegister<Block> BLOCK_REGISTRY = DeferredRegister.create(ForgeRegistries.BLOCKS, ExTerra.MOD_ID);
-    public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_REGISTRY = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITIES, ExTerra.MOD_ID);
-    public static final DeferredRegister<MenuType<?>> CONTAINER_REGISTRY = DeferredRegister.create(ForgeRegistries.CONTAINERS, ExTerra.MOD_ID);
-    public static final DeferredRegister<Matter> MATTER_REGISTRY = DeferredRegister.create(Matter.class, ExTerra.MOD_ID);
+    public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITY_TYPE_REGISTRY = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, ExTerra.MOD_ID);
+    public static final DeferredRegister<MenuType<?>> MENU_TYPE_REGISTRY = DeferredRegister.create(ForgeRegistries.MENU_TYPES, ExTerra.MOD_ID);
+    public static final DeferredRegister<Matter> MATTER_REGISTRY = DeferredRegister.create(ExTerra.getResource("matter"), ExTerra.MOD_ID);
 
     public static void doRegistry(){
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
@@ -25,10 +25,10 @@ public class RegistryManger {
         ExTerra.LOGGER.info("Registered {} Items", ITEM_REGISTRY.getEntries().size());
         BLOCK_REGISTRY.register(bus);
         ExTerra.LOGGER.info("Registered {} Blocks", BLOCK_REGISTRY.getEntries().size());
-        BLOCK_ENTITY_REGISTRY.register(bus);
-        ExTerra.LOGGER.info("Registered {} Blockentities", BLOCK_ENTITY_REGISTRY.getEntries().size());
-        CONTAINER_REGISTRY.register(bus);
-        ExTerra.LOGGER.info("Registered {} Containers", CONTAINER_REGISTRY.getEntries().size());
+        BLOCK_ENTITY_TYPE_REGISTRY.register(bus);
+        ExTerra.LOGGER.info("Registered {} Blockentities", BLOCK_ENTITY_TYPE_REGISTRY.getEntries().size());
+        MENU_TYPE_REGISTRY.register(bus);
+        ExTerra.LOGGER.info("Registered {} Containers", MENU_TYPE_REGISTRY.getEntries().size());
         MATTER_REGISTRY.register(bus);
         ExTerra.LOGGER.info("Registered {} Matters", MATTER_REGISTRY.getEntries().size());
     }

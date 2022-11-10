@@ -9,7 +9,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraftforge.fmllegacy.RegistryObject;
+import net.minecraftforge.registries.RegistryObject;
 
 import java.awt.*;
 
@@ -47,7 +47,7 @@ public class ExTerraCore {
     //Rituals
     public static final RegistryObject<Block> RITUAL_STONE = BLOCK_REGISTRY.register("ritual_stone", RitualStone::new);
     public static final RegistryObject<Item> RITUAL_STONE_ITEM = ITEM_REGISTRY.register("ritual_stone", () -> new BlockItem(RITUAL_STONE.get(), ExTerraShared.DEFAULT_PROPERTIES_ITEM));
-    public static final RegistryObject<BlockEntityType<RitualStoneEntity>> RITUAL_STONE_ENTITY = BLOCK_ENTITY_REGISTRY.register("ritual_stone", () -> BlockEntityType.Builder.of(RitualStoneEntity::new, RITUAL_STONE.get()).build(null));
+    public static final RegistryObject<BlockEntityType<RitualStoneEntity>> RITUAL_STONE_ENTITY = BLOCK_ENTITY_TYPE_REGISTRY.register("ritual_stone", () -> BlockEntityType.Builder.of(RitualStoneEntity::new, RITUAL_STONE.get()).build(null));
 
     public static final RegistryObject<Item> RITUAL_MAP = ITEM_REGISTRY.register("ritual_map", RitualMap::new);
 

@@ -1,103 +1,103 @@
 {
   "multipart": [
     {
+      "apply": {
+        "model": "exterra:block/calcite_dust_dot"
+      },
       "when": {
         "OR": [
           {
-            "north": "none",
             "east": "none",
+            "north": "none",
             "south": "none",
             "west": "none"
           },
           {
-            "north": "side|up",
-            "east": "side|up"
+            "east": "side|up",
+            "north": "side|up"
           },
           {
-            "south": "side|up",
-            "east": "side|up"
+            "east": "side|up",
+            "south": "side|up"
           },
           {
             "south": "side|up",
             "west": "side|up"
           },
           {
-            "west": "side|up",
-            "north": "side|up"
+            "north": "side|up",
+            "west": "side|up"
           }
         ]
-      },
-      "apply": {
-        "model": "exterra:block/calcite_dust_dot"
       }
     },
     {
-      "when": {
-        "north": "up|side"
-      },
       "apply": {
         "model": "exterra:block/calcite_dust_side0"
+      },
+      "when": {
+        "north": "up|side"
       }
     },
     {
-      "when": {
-        "south": "up|side"
-      },
       "apply": {
         "model": "exterra:block/calcite_dust_side_alt0"
+      },
+      "when": {
+        "south": "up|side"
       }
     },
     {
-      "when": {
-        "east": "up|side"
-      },
       "apply": {
         "model": "exterra:block/calcite_dust_side_alt1",
         "y": 270
+      },
+      "when": {
+        "east": "up|side"
       }
     },
     {
-      "when": {
-        "west": "up|side"
-      },
       "apply": {
         "model": "exterra:block/calcite_dust_side1",
         "y": 270
+      },
+      "when": {
+        "west": "up|side"
       }
     },
     {
-      "when": {
-        "north": "up"
-      },
       "apply": {
         "model": "exterra:block/calcite_dust_up"
+      },
+      "when": {
+        "north": "up"
       }
     },
     {
-      "when": {
-        "east": "up"
-      },
       "apply": {
         "model": "exterra:block/calcite_dust_up",
         "y": 90
+      },
+      "when": {
+        "east": "up"
       }
     },
     {
-      "when": {
-        "south": "up"
-      },
       "apply": {
         "model": "exterra:block/calcite_dust_up",
         "y": 180
+      },
+      "when": {
+        "south": "up"
       }
     },
     {
-      "when": {
-        "west": "up"
-      },
       "apply": {
         "model": "exterra:block/calcite_dust_up",
         "y": 270
+      },
+      "when": {
+        "west": "up"
       }
     }
   ]

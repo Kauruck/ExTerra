@@ -2,15 +2,15 @@
   "type": "minecraft:block",
   "pools": [
     {
-      "name": "compound_bricks_slab",
-      "rolls": 1.0,
       "bonus_rolls": 0.0,
       "entries": [
         {
           "type": "minecraft:item",
           "name": "exterra:compound_bricks_slab"
         }
-      ]
+      ],
+      "name": "compound_bricks_slab",
+      "rolls": 1.0
     }
   ]
 }
