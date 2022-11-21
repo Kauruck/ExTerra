@@ -2,7 +2,6 @@ package com.kauruck.exterra.datagenenerators;
 
 import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.modules.ExTerraCore;
-import com.kauruck.exterra.modules.ExTerraPower;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -62,6 +61,10 @@ public class Items extends ItemModelProvider {
                 "layer0",
                 ExTerra.getResource("item/ritual_stone_item"));
 
+        this.singleTexture(getPathOf(ExTerraCore.DEBUG_LENS.get()),
+                new ResourceLocation("item/generated"),
+                "layer0",
+                ExTerra.getResource("item/debug_lens"));
 
     }
 

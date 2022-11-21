@@ -1,19 +1,26 @@
 package com.kauruck.exterra.blockentities;
 
 import com.kauruck.exterra.ExTerra;
+import com.kauruck.exterra.fx.ParticleHelper;
+import com.kauruck.exterra.fx.VectorHelper;
 import com.kauruck.exterra.geometry.Shape;
 import com.kauruck.exterra.api.rituals.IRitualProvider;
 import com.kauruck.exterra.geometry.ShapeCollection;
 import com.kauruck.exterra.modules.ExTerraCore;
 import com.kauruck.exterra.modules.ExTerraTags;
 import com.kauruck.exterra.util.NBTUtil;
+import com.mojang.math.Vector3f;
 import net.minecraft.Util;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraftforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,6 +88,7 @@ public class RitualStoneEntity extends BlockEntity {
             if(!allPositions){
                 shapes.remove(current);
                 ExTerra.LOGGER.info("Removing Shape");
+                //TODO Send packet
                 this.setChanged();
             }
         }
@@ -91,6 +99,23 @@ public class RitualStoneEntity extends BlockEntity {
         player.sendSystemMessage(Component.literal(Integer.toString(shapes.size())));
         for(Shape current : shapes){
             player.sendSystemMessage(Component.literal(current.toString()));
+        }
+    }
+
+    public void clientTick(ClientLevel clientLevel){
+        //Spawn Particles
+        for(Shape current : shapes){
+            for(int index = 0; index < current.length(); index++){
+                BlockPos start = current.get(index);
+                BlockPos end;
+                if(index < current.length() - 1){
+                    end = current.get(index + 1);
+                }
+                else{
+                    end = current.get(0);
+                }
+                ParticleHelper.spawnLineWithColor(clientLevel, VectorHelper.blockPosToVector(start), VectorHelper.blockPosToVector(end), new Vector3f(1,1,1), 1,1,1);
+            }
         }
     }
 
@@ -116,6 +141,20 @@ public class RitualStoneEntity extends BlockEntity {
             validateMultiblock();
     }
 
+    @Override
+    public CompoundTag getUpdateTag() {
+        CompoundTag out = super.getUpdateTag();
+        out.put("shapes", new ShapeCollection(this.shapes).toNBT());
+        return out;
+    }
+
+    @Override
+    public void handleUpdateTag(CompoundTag tag) {
+        super.handleUpdateTag(tag);
+        ShapeCollection collection = new ShapeCollection(tag.getCompound("shapes"));
+        this.shapes = collection.getShapes();
+    }
+
     public List<IRitualProvider> getRitualProviders() {
         return ritualProviders;
     }
@@ -126,7 +165,9 @@ public class RitualStoneEntity extends BlockEntity {
 
     public void setShapes(ShapeCollection shapes){
         this.shapes = shapes.getShapes();
+        this.setChanged();
     }
+
 
     public void buildRitual(){
         if(!toCheck.isEmpty())

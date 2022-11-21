@@ -21,6 +21,9 @@ public class ExTerraCore {
     public static final RegistryObject<Item> TEST_ITEM = ITEM_REGISTRY.register("test", () -> new Item(ExTerraShared.DEFAULT_PROPERTIES_ITEM));
     public static final RegistryObject<Matter> TEST_MATTER = MATTER_REGISTRY.register("test_matter", () -> new Matter(new Matter.MatterProperties().setEnergy(1).setParticleColor(Color.RED)));
 
+    //Debut
+    public static final RegistryObject<Item> DEBUG_LENS = ITEM_REGISTRY.register("debug_glass", () -> new Item(ExTerraShared.DEFAULT_PROPERTIES_ITEM));
+
     //Compound
     public static final RegistryObject<Item> COMPOUND = ITEM_REGISTRY.register("compound",() -> new Item(ExTerraShared.DEFAULT_PROPERTIES_ITEM));
 

@@ -3,6 +3,7 @@ package com.kauruck.exterra.blocks;
 import com.kauruck.exterra.blockentities.RitualStoneEntity;
 import com.kauruck.exterra.geometry.ShapeCollection;
 import com.kauruck.exterra.items.RitualMap;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -43,7 +44,11 @@ public class RitualStone extends RitualPlateBlock implements EntityBlock {
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         if(level.isClientSide()){
-            return null;
+            return (level1, pos, state1, tile) -> {
+                if(tile instanceof RitualStoneEntity ritualStoneEntity){
+                    ritualStoneEntity.clientTick((ClientLevel) level1);
+                }
+            };
         }else{
             return (level1, pos, state1, tile) -> {
                 if (tile instanceof RitualStoneEntity ritualStoneEntity) {

@@ -7,14 +7,16 @@ import com.kauruck.exterra.util.NBTUtil;
 import com.kauruck.exterra.util.PositionsUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.system.CallbackI;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Shape {
+public class Shape implements Iterable<BlockPos>{
 
     public static String TAG_SHAPE_DATA = "shapeData";
 
@@ -93,4 +95,19 @@ public class Shape {
         }
         return out;
     }
+
+    public BlockPos get(int index){
+        return positions.get(index);
+    }
+
+    public int length(){
+        return positions.size();
+    }
+
+    @NotNull
+    @Override
+    public Iterator<BlockPos> iterator() {
+        return this.positions.iterator();
+    }
+
 }
