@@ -10,20 +10,21 @@ import com.kauruck.exterra.modules.ExTerraCore;
 import com.kauruck.exterra.modules.ExTerraTags;
 import com.kauruck.exterra.util.NBTUtil;
 import com.mojang.math.Vector3f;
-import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraftforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+
+import static com.kauruck.exterra.fx.MathHelper.clamp;
 
 public class RitualStoneEntity extends BlockEntity {
 
@@ -103,20 +104,41 @@ public class RitualStoneEntity extends BlockEntity {
     }
 
     public void clientTick(ClientLevel clientLevel){
-        //Spawn Particles
-        for(Shape current : shapes){
-            for(int index = 0; index < current.length(); index++){
-                BlockPos start = current.get(index);
-                BlockPos end;
-                if(index < current.length() - 1){
-                    end = current.get(index + 1);
+        if(Minecraft.getInstance().player.getMainHandItem().getItem() == ExTerraCore.DEBUG_LENS.get()) {
+            int i = 0;
+            int r = 100;
+            int g = 100;
+            int b = 100;
+            int step = (int) (155 * (1f/this.getShapes().size()));
+            //Spawn Particles
+            for (Shape current : shapes) {
+                List<BlockPos> worldPos = current.getActualPositions(this.getBlockPos());
+                for (int index = 0; index < worldPos.size(); index++) {
+                    BlockPos start = worldPos.get(index);
+                    BlockPos end;
+                    if (index < worldPos.size() - 1) {
+                        end = worldPos.get(index + 1);
+                    } else {
+                        end = worldPos.get(0);
+                    }
+                    ParticleHelper.emitParticlesOnLine(clientLevel, VectorHelper.blockPosToVector(start), VectorHelper.blockPosToVector(end), new Vector3f(r/255f, g/255f, b/255f), 1F);
                 }
-                else{
-                    end = current.get(0);
+                switch (i%3){
+                    case 0: r += step;
+                    case 1: g += step;
+                    case 2: b += step;
                 }
-                ParticleHelper.spawnLineWithColor(clientLevel, VectorHelper.blockPosToVector(start), VectorHelper.blockPosToVector(end), new Vector3f(1,1,1), 1,1,1);
+                r = clamp(r, 0, 255);
+                g = clamp(g, 0, 255);
+                b = clamp(b, 0, 255);
+                i++;
             }
         }
+    }
+
+    //TODO Just leave this hear, as we do need it for the dust lines
+    public void animationTick(ClientLevel clientLevel, RandomSource random){
+
     }
 
     public void serverTick(){

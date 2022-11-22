@@ -19,6 +19,10 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
 
 import java.awt.*;
+
+import static com.kauruck.exterra.fx.MathHelper.clamp;
+
+//TODO Do I need this
 public class RitualStoneBlockEntityRender implements BlockEntityRenderer<RitualStoneEntity> {
 
     //From Industrial Forgoing
@@ -42,10 +46,11 @@ public class RitualStoneBlockEntityRender implements BlockEntityRenderer<RitualS
 
     @Override
     public void render(RitualStoneEntity blockEntity, float pPartialTick, PoseStack stack, MultiBufferSource bufferSource, int pPackedLight, int pPackedOverlay) {
-        Player player = Minecraft.getInstance().player;
+        // Currently not renderting anything
+        /*Player player = Minecraft.getInstance().player;
         if(player.getItemInHand(InteractionHand.MAIN_HAND).getItem() == ExTerraCore.DEBUG_LENS.get() || player.getItemInHand(InteractionHand.OFF_HAND).getItem() == ExTerraCore.DEBUG_LENS.get()){
             renderDebug(blockEntity, stack, bufferSource, pPackedLight, pPackedOverlay);
-        }
+        }*/
     }
 
 
@@ -75,11 +80,7 @@ public class RitualStoneBlockEntityRender implements BlockEntityRenderer<RitualS
         }
     }
 
-    //From StackOverflow: https://stackoverflow.com/questions/16656651/does-java-have-a-clamp-function
-    //Why does java not have this?
-    public static int clamp(int val, int min, int max) {
-        return Math.max(min, Math.min(max, val));
-    }
+
 
     //From Tinkers Construct
     private void drawCubeAtBlock(PoseStack stack,BlockPos tilePos, BlockPos blockPos, Color color, MultiBufferSource renderTypeBuffer){

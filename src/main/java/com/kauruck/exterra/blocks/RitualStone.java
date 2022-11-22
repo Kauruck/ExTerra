@@ -5,6 +5,7 @@ import com.kauruck.exterra.geometry.ShapeCollection;
 import com.kauruck.exterra.items.RitualMap;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -40,12 +41,20 @@ public class RitualStone extends RitualPlateBlock implements EntityBlock {
         return new RitualStoneEntity(pPos, pState);
     }
 
+    @Override
+    public void animateTick(BlockState pState, Level pLevel, BlockPos pPos, RandomSource pRandom) {
+        BlockEntity entity = pLevel.getBlockEntity(pPos);
+        if(entity instanceof RitualStoneEntity ritualStoneEntity){
+            ritualStoneEntity.animationTick((ClientLevel) pLevel, pRandom);
+        }
+    }
+
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         if(level.isClientSide()){
             return (level1, pos, state1, tile) -> {
-                if(tile instanceof RitualStoneEntity ritualStoneEntity){
+                if (tile instanceof RitualStoneEntity ritualStoneEntity) {
                     ritualStoneEntity.clientTick((ClientLevel) level1);
                 }
             };
