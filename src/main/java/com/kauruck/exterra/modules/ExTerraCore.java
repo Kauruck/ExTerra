@@ -1,17 +1,26 @@
 package com.kauruck.exterra.modules;
 
 import com.kauruck.exterra.api.matter.Matter;
+import com.kauruck.exterra.blockentities.MatterEmitterEntity;
+import com.kauruck.exterra.blockentities.MatterReceiverEntity;
 import com.kauruck.exterra.blockentities.RitualStoneEntity;
 import com.kauruck.exterra.blocks.DustBlock;
 import com.kauruck.exterra.blocks.RitualStone;
+import com.kauruck.exterra.blocks.TestEmitterBlock;
+import com.kauruck.exterra.blocks.TestReceiverBlock;
+import com.kauruck.exterra.geometry.Shape;
 import com.kauruck.exterra.items.RitualMap;
+import com.kauruck.exterra.networking.BlockEntityProperty;
+import com.kauruck.exterra.networks.matter.MatterNetwork;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.RegistryObject;
 
-import java.awt.*;
+import java.awt.Color;
 
 import static com.kauruck.exterra.modules.RegistryManger.*;
 
@@ -52,6 +61,26 @@ public class ExTerraCore {
     public static final RegistryObject<Item> RITUAL_STONE_ITEM = ITEM_REGISTRY.register("ritual_stone", () -> new BlockItem(RITUAL_STONE.get(), ExTerraShared.DEFAULT_PROPERTIES_ITEM));
     public static final RegistryObject<BlockEntityType<RitualStoneEntity>> RITUAL_STONE_ENTITY = BLOCK_ENTITY_TYPE_REGISTRY.register("ritual_stone", () -> BlockEntityType.Builder.of(RitualStoneEntity::new, RITUAL_STONE.get()).build(null));
 
+    //-- Emitter
+    public static final RegistryObject<Block> EMITTER_BLOCK = BLOCK_REGISTRY.register("emitter_block", TestEmitterBlock::new);
+    public static final RegistryObject<Item> EMITTER_BLOCK_ITEM = ITEM_REGISTRY.register("emitter_block", () -> new BlockItem(EMITTER_BLOCK.get(), ExTerraShared.DEFAULT_PROPERTIES_ITEM));
+    public static final RegistryObject<BlockEntityType<MatterEmitterEntity>> EMITTER_BLOCK_ENTITY = BLOCK_ENTITY_TYPE_REGISTRY.register("emitter_block", () -> BlockEntityType.Builder.of(MatterEmitterEntity::new, EMITTER_BLOCK.get()).build(null));
+
+    //-- Receiver
+    public static final RegistryObject<Block> RECEIVER_BLOCK = BLOCK_REGISTRY.register("receiver_block", TestReceiverBlock::new);
+    public static final RegistryObject<Item> RECEIVER_BLOCK_ITEM = ITEM_REGISTRY.register("receiver_block", () -> new BlockItem(RECEIVER_BLOCK.get(), ExTerraShared.DEFAULT_PROPERTIES_ITEM));
+    public static final RegistryObject<BlockEntityType<MatterReceiverEntity>> RECEIVER_BLOCK_ENTITY = BLOCK_ENTITY_TYPE_REGISTRY.register("receiver_block", () -> BlockEntityType.Builder.of(MatterReceiverEntity::new, RECEIVER_BLOCK.get()).build(null));
+
+
     public static final RegistryObject<Item> RITUAL_MAP = ITEM_REGISTRY.register("ritual_map", RitualMap::new);
+
+    // Initialize with functions
+    static {
+        BlockEntityProperty.TO_NBTS.put(Shape.class, (data) -> ((Shape) data).toNBT());
+        BlockEntityProperty.FROM_NBTS.put(Shape.class, (tag) -> new Shape((CompoundTag) tag));
+
+        BlockEntityProperty.TO_NBTS.put(MatterNetwork.class, (data) -> ((MatterNetwork) data).saveTag());
+        BlockEntityProperty.FROM_NBTS.put(MatterNetwork.class, (tag) -> MatterNetwork.loadTag((CompoundTag) tag));
+    }
 
 }
