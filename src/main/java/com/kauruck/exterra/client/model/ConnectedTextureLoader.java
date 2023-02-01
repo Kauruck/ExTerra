@@ -1,7 +1,6 @@
-package com.kauruck.exterra.client;
+package com.kauruck.exterra.client.model;
 
 import com.kauruck.exterra.ExTerra;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.client.model.generators.CustomLoaderBuilder;
 import net.minecraftforge.client.model.generators.ModelBuilder;
 import net.minecraftforge.common.data.ExistingFileHelper;

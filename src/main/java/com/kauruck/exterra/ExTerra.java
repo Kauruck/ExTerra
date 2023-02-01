@@ -5,6 +5,7 @@ import com.kauruck.exterra.modules.ExTerraCore;
 import com.kauruck.exterra.modules.ExTerraPower;
 import com.kauruck.exterra.modules.ExTerraRegistries;
 import com.kauruck.exterra.modules.RegistryManger;
+import com.kauruck.exterra.networking.ExTerraNetworking;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
@@ -37,6 +38,9 @@ public class ExTerra
         GeometryParts.initInbuilt();
 
         RegistryManger.doRegistry();
+
+        //Network
+        ExTerraNetworking.init();
     }
 
     public static ResourceLocation getResource(String path){

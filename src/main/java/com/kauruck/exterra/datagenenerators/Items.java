@@ -61,6 +61,16 @@ public class Items extends ItemModelProvider {
                 "layer0",
                 ExTerra.getResource("item/ritual_stone_item"));
 
+        this.singleTexture(getPathOf(ExTerraCore.RECEIVER_BLOCK_ITEM.get()),
+                new ResourceLocation("item/generated"),
+                "layer0",
+                ExTerra.getResource("item/receiver_stone_item"));
+
+        this.singleTexture(getPathOf(ExTerraCore.EMITTER_BLOCK_ITEM.get()),
+                new ResourceLocation("item/generated"),
+                "layer0",
+                ExTerra.getResource("item/emitter_stone_item"));
+
         this.singleTexture(getPathOf(ExTerraCore.DEBUG_LENS.get()),
                 new ResourceLocation("item/generated"),
                 "layer0",

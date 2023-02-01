@@ -1,9 +1,11 @@
-// 1.19.2	2022-11-08T18:24:40.208858	Block States: exterra
+// 1.19.2	2022-12-01T09:56:05.41767	Block States: exterra
 2eb043c1f488b461fcda465d3886be5365ae3c78 assets/exterra/blockstates/calcite_dust.json
 1e10ef6fa0aa60dec71cfaa7cd5fc9e789ac96e6 assets/exterra/blockstates/compound_bricks.json
 7082e19beb011543095fbd4e2a74da674d43f700 assets/exterra/blockstates/compound_bricks_slab.json
 a087f7af0e562479342f0e53405f9c5067b55362 assets/exterra/blockstates/compound_bricks_stair.json
 b0ccaaf574c22e589857e0bf132f05ed363cd281 assets/exterra/blockstates/compound_framed_glass.json
+750078e9ad76c2a9fa8577ea3d22a3b4dd3e8da9 assets/exterra/blockstates/emitter_block.json
+6cfd2cb88c7ee610684f60156cbcf3bf4e8e687f assets/exterra/blockstates/receiver_block.json
 0307fce55a54a1630658525c0d47212d27be411d assets/exterra/blockstates/ritual_stone.json
 1482114f8b5560faabff9155cae132fd86117b0e assets/exterra/models/block/calcite_dust_dot.json
 6b60dfcb78b9d97ae547147cb8f9196f7ac4759d assets/exterra/models/block/calcite_dust_side0.json
@@ -18,3 +20,6 @@ e15767d413a177158d7e969da84c566786751600 assets/exterra/models/block/compound_br
 b628ab26fc196b6922eb30f75acbe7089f0c6f0b assets/exterra/models/block/compound_bricks_stair_inner.json
 3616b9d5204cf85ae654aef224e7477c2f5d208f assets/exterra/models/block/compound_bricks_stair_outer.json
 8a074153cbb7c754866cc1f907def3871cda8b32 assets/exterra/models/block/compound_framed_glass.json
+5ea6229b0bba1332191bb261aba1d8b30a32c524 assets/exterra/models/block/emitter_block.json
+e6c719369881692a45bdf147e220825612fecfb1 assets/exterra/models/block/receiver_block.json
+2cd1705e216e8c2abc6ff302a9ba2a277fbc9d30 assets/exterra/models/block/ritual_stone.json

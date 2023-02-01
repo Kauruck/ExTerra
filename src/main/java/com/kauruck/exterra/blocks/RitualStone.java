@@ -5,6 +5,8 @@ import com.kauruck.exterra.geometry.ShapeCollection;
 import com.kauruck.exterra.items.RitualMap;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -74,7 +76,11 @@ public class RitualStone extends RitualPlateBlock implements EntityBlock {
             if (be instanceof RitualStoneEntity ritualStoneEntity) {
                 if (!pPlayer.isCrouching()) {
                     if(pPlayer.getInventory().getSelected().getItem().getClass().equals(RitualMap.class)) {
-                        ritualStoneEntity.setShapes(new ShapeCollection(pPlayer.getInventory().getSelected().getTag().getCompound(RitualMap.TAG_SHAPES)));
+                        CompoundTag tag = pPlayer.getInventory().getSelected().getTag();
+                        if(tag != null)
+                            ritualStoneEntity.setShapes(new ShapeCollection(tag.getCompound(RitualMap.TAG_SHAPES)));
+                        else
+                            ritualStoneEntity.setShapes(new ShapeCollection());
                         ritualStoneEntity.buildRitual();
                         return InteractionResult.SUCCESS;
                     }

@@ -1,4 +1,4 @@
-package com.kauruck.exterra.client;
+package com.kauruck.exterra.client.model;
 
 import com.google.common.collect.Sets;
 import com.google.gson.JsonDeserializationContext;
@@ -11,8 +11,6 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.*;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.world.level.block.Block;
 import net.minecraftforge.client.ChunkRenderTypeSet;
 import net.minecraftforge.client.model.geometry.IGeometryBakingContext;
 import net.minecraftforge.client.model.geometry.IGeometryLoader;

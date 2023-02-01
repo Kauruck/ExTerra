@@ -1,7 +1,7 @@
 package com.kauruck.exterra.datagenenerators;
 
 import com.kauruck.exterra.ExTerra;
-import com.kauruck.exterra.client.ConnectedTextureLoader;
+import com.kauruck.exterra.client.model.ConnectedTextureLoader;
 import com.kauruck.exterra.modules.ExTerraCore;
 import net.minecraft.core.Direction;
 import net.minecraft.data.DataGenerator;
@@ -34,7 +34,21 @@ public class BlockStates extends BlockStateProvider {
         this.slabBlock((SlabBlock) ExTerraCore.COMPOUND_BRICKS_SLAB.get(), ExTerra.getResource("block/compound_bricks"), ExTerra.getResource("block/compound_bricks"));
         this.connectedTextureGlass(ExTerraCore.COMPOUND_FRAMED_GLASS.get(), ExTerra.getResource("block/compound_framed_glass"));
         this.dustBlock(ExTerraCore.CALCITE_DUST.get(), new ResourceLocation("block/redstone_dust_dot"),new ResourceLocation("block/redstone_dust_line0") , new ResourceLocation("block/redstone_dust_line1"),new ResourceLocation("block/redstone_dust_overlay"));
-        this.simpleBlock(ExTerraCore.RITUAL_STONE.get(), new ModelFile.ExistingModelFile(ExTerra.getResource("block/ritual_stone"), existingFileHelper));
+        this.plateBlock(ExTerraCore.RITUAL_STONE.get(), ExTerra.getResource("block/ritual_slab_top"), new ResourceLocation("minecraft","block/smooth_stone"));
+        this.plateBlock(ExTerraCore.RECEIVER_BLOCK.get(), ExTerra.getResource("block/receiver_slab_top"), new ResourceLocation("minecraft","block/smooth_stone"));
+        this.plateBlock(ExTerraCore.EMITTER_BLOCK.get(), ExTerra.getResource("block/emitter_slab_top"), new ResourceLocation("minecraft", "block/smooth_stone"));
+    }
+
+
+    private void plateBlock(Block block, ResourceLocation topTexture, ResourceLocation slabTexture){
+        BlockModelBuilder builder = this.models()
+                .withExistingParent(getPathOf(block), ExTerra.getResource("block/plate_block"))
+                .texture("slab", slabTexture)
+                .texture("top", topTexture)
+                .texture("particle", slabTexture);
+        this.getVariantBuilder(block)
+                .partialState()
+                .setModels(new ConfiguredModel(builder));
     }
 
     private void connectedTextureGlass(Block block, ResourceLocation allTextures){
@@ -73,6 +87,10 @@ public class BlockStates extends BlockStateProvider {
                             .rotationY(dir.getAxis() != Direction.Axis.Y ? ((dir.get2DDataValue() + 2) % 4) * 90 : 0)
                             .build();
                 });
+    }
+
+    private String getPathOf(Block block){
+        return ForgeRegistries.BLOCKS.getKey(block).getPath();
     }
 
     private void dustBlock(Block block, ResourceLocation dot, ResourceLocation line0,  ResourceLocation line1, ResourceLocation overlay){

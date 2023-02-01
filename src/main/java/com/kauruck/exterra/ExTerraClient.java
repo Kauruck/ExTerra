@@ -1,7 +1,8 @@
 package com.kauruck.exterra;
 
+import com.kauruck.exterra.blockentityrenderer.MatterReceiverEntityRenderer;
 import com.kauruck.exterra.blockentityrenderer.RitualStoneBlockEntityRender;
-import com.kauruck.exterra.client.ConnectedTextureGeometry;
+import com.kauruck.exterra.client.model.ConnectedTextureGeometry;
 import com.kauruck.exterra.modules.ExTerraCore;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
@@ -25,6 +26,7 @@ public class ExTerraClient {
         });
         //MenuScreens.register(ExTerraPower.GENERATOR_CONTAINER.get(), GeneratorScreen::new);
         BlockEntityRenderers.register(ExTerraCore.RITUAL_STONE_ENTITY.get(), RitualStoneBlockEntityRender::new);
+        BlockEntityRenderers.register(ExTerraCore.RECEIVER_BLOCK_ENTITY.get(), MatterReceiverEntityRenderer::new);
     }
 
     @SubscribeEvent

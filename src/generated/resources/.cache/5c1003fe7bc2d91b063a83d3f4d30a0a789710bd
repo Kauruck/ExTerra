@@ -1,4 +1,4 @@
-// 1.19.2	2022-11-21T17:03:12.674575	Item Models: exterra
+// 1.19.2	2022-12-01T09:56:05.415987	Item Models: exterra
 05eb14268ad7296b599999e4d620bd3ac024c21e assets/exterra/models/item/calcite_dust.json
 43ab4c148d5c1af04073d9e486a16392aeb22784 assets/exterra/models/item/compound.json
 239ab807d526e0cccd3049bc6966830e35e9dbdc assets/exterra/models/item/compound_brick.json
@@ -7,6 +7,8 @@ ef1b374f01b8658c98ba1c0119d2729e9db555c4 assets/exterra/models/item/compound_bri
 17b74d21eeb3580f98a0f7e0afd7b78ff30b84e3 assets/exterra/models/item/compound_bricks_stair.json
 31d2ea9b01f6591f2aad7408c8ae8ad2313b1b34 assets/exterra/models/item/compound_framed_glass.json
 86146aeabd15ef3c597c2169664071af9d861b69 assets/exterra/models/item/debug_glass.json
+bec70c0fe4ba987a88279408fe6893d974c38a07 assets/exterra/models/item/emitter_block.json
+a83bb6f36e7a183deff1958a70fad7149a50c3da assets/exterra/models/item/receiver_block.json
 de5f4709c550553f2e0fd097ed98f9f3c5122c72 assets/exterra/models/item/ritual_map.json
 9cb94ec872f64f3a05681bb76ea26c15f3c8b622 assets/exterra/models/item/ritual_stone.json
 2ff234bcb539fdb790a0890e06b39b44f86014bb assets/exterra/models/item/test.json

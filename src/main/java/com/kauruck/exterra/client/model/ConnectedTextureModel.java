@@ -1,4 +1,4 @@
-package com.kauruck.exterra.client;
+package com.kauruck.exterra.client.model;
 
 import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
