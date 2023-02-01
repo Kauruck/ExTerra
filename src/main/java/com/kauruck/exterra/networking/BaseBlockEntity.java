@@ -21,7 +21,6 @@ public abstract class BaseBlockEntity extends BlockEntity {
     private final Map<String, BlockEntityProperty<?>> properties = new HashMap<>();
     public BaseBlockEntity(BlockEntityType<?> pType, BlockPos pPos, BlockState pBlockState) {
         super(pType, pPos, pBlockState);
-
     }
 
     //---Saving/Loading
@@ -106,6 +105,22 @@ public abstract class BaseBlockEntity extends BlockEntity {
         }
     }
 
+    @Override
+    public CompoundTag getUpdateTag() {
+        CompoundTag out = super.getUpdateTag();
+        CompoundTag syncTag = new CompoundTag();
+        for (BlockEntityProperty<?> current : properties.values()) {
+            if (current.getSide() == BlockEntityPropertySide.Synced)
+                out.put(current.getName(), current.toNBT());
+            else if (current.getSide() == BlockEntityPropertySide.Requestable)
+                syncTag.putBoolean(current.getName(), true);
+            out.put("syncTag", syncTag);
+        }
+        return out;
+    }
+
+
+
     private CompoundTag generateUpdateTag(){
         CompoundTag out = new CompoundTag();
         CompoundTag syncTag = new CompoundTag();
@@ -119,6 +134,16 @@ public abstract class BaseBlockEntity extends BlockEntity {
         }
         out.put("syncTag", syncTag);
         return out;
+    }
+
+    @Override
+    public void handleUpdateTag(CompoundTag tag) {
+        super.load(tag);
+        for(String key : tag.getAllKeys()){
+            if(properties.containsKey(key)){
+                properties.get(key).setFromTag(tag.get(key));
+            }
+        }
     }
 
     public void handelClientUpdateTag(CompoundTag update){
