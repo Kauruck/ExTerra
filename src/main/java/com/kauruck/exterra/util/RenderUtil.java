@@ -66,17 +66,18 @@ public class RenderUtil {
         pMatrixStack.popPose();
     }
 
-    public static void renderFloatingTextOverBlock( String pText, PoseStack pMatrixStack,int pPackedLight) {
+    public static void renderFloatingTextOverBlock(BlockPos offset, BlockEntityRendererProvider.Context context, String pText, PoseStack pMatrixStack, MultiBufferSource pBuffer, int pPackedLight) {
         float f2 = (float)(-FONT.width(pText) / 2);
         float f = 0.6F;
         pMatrixStack.pushPose();
         pMatrixStack.translate(0.5D, (double)f, 0.5D);
-        pMatrixStack.mulPose(getCameraRotation());
+        pMatrixStack.translate(offset.getX(), offset.getY(), offset.getZ());
+        pMatrixStack.mulPose(context.getEntityRenderer().cameraOrientation());
         pMatrixStack.scale(-0.025F, -0.025F, 0.025F);
         Matrix4f matrix4f = pMatrixStack.last().pose();
         float f1 = Minecraft.getInstance().options.getBackgroundOpacity(0.9F);
         int j = (int)(f1 * 255.0F) << 24;
-        FONT.drawInBatch(pText, f2, 0f, 553648127, false, matrix4f, getMainBufferSource(), false, j, pPackedLight);
+        FONT.drawInBatch(pText, f2, 0f, 553648127, false, matrix4f, pBuffer, false, j, pPackedLight);
         pMatrixStack.popPose();
     }
 

@@ -25,9 +25,9 @@ public class RitualStoneBlockEntityRender implements BlockEntityRenderer<RitualS
         }
         else {
             Player player = Minecraft.getInstance().player;
-            if(player.getMainHandItem().getItem() == ExTerraCore.DEBUG_LENS.get() || player.getOffhandItem().getItem() == ExTerraCore.DEBUG_LENS.get() ){
+            if(player.getMainHandItem().getItem() == ExTerraCore.RITUAL_LENS.get()){
                 for(Shape currentShape : blockEntity.getShapes()){
-                    RenderUtil.renderFloatingTextOverBlock(context, currentShape.toString(), stack, bufferSource, pPackedLight);
+                    RenderUtil.renderFloatingTextOverBlock(currentShape.get(0).offset(0,1,0),context, currentShape.toString(), stack, bufferSource, pPackedLight);
                 }
             }
         }

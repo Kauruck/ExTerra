@@ -44,8 +44,18 @@ public class ParticleHelper {
         Vector3f delta = end.copy();
         delta.sub(start);
         delta.normalize();
-        for(Vector3f currentPos = start.copy(); VectorHelper.OverShotOnLine(start, end, currentPos); currentPos.add(delta)){
-                spawnParticlesAlongLine(particleOptions, level, null, currentPos, Direction.DOWN, Direction.UP, 0F, .5F);
+        if(VectorHelper.allZero(delta)){
+            spawnParticlesAlongLine(particleOptions, level, null, start, Direction.DOWN, Direction.UP, 0F, .5F);
         }
+        else{
+            for(Vector3f currentPos = start.copy(); VectorHelper.OverShotOnLine(start, end, currentPos); currentPos.add(delta)){
+                spawnParticlesAlongLine(particleOptions, level, null, currentPos, Direction.DOWN, Direction.UP, 0F, .5F);
+            }
+        }
+    }
+
+    public static void emitParticlePoint(ClientLevel level, Vector3f point, Vector3f color, float scale){
+        ParticleOptions particleOptions = new DustParticleOptions(color, scale);
+        level.addParticle(particleOptions, (double)point.x() +0.5, (double)point.y() + 1, (double)point.z() + 0.5, 0.0D, 0.0D, 0.0D);
     }
 }

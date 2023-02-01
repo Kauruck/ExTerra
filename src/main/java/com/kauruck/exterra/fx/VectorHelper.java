@@ -12,6 +12,10 @@ public class VectorHelper {
         return new Vector3f(pos.getX() + .5f, pos.getY() + .5f, pos.getZ() + .5f);
     }
 
+    public static boolean allZero(Vector3f vec){
+        return vec.x() == 0 && vec.y() == 0 && vec.z() == 0;
+    }
+
     public static boolean OverShotOnLine(Vector3f start, Vector3f end, Vector3f test){
         return distance(start, end) >= distance(start, test);
     }

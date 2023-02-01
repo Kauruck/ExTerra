@@ -71,7 +71,7 @@ public class Items extends ItemModelProvider {
                 "layer0",
                 ExTerra.getResource("item/emitter_stone_item"));
 
-        this.singleTexture(getPathOf(ExTerraCore.DEBUG_LENS.get()),
+        this.singleTexture(getPathOf(ExTerraCore.RITUAL_LENS.get()),
                 new ResourceLocation("item/generated"),
                 "layer0",
                 ExTerra.getResource("item/debug_lens"));

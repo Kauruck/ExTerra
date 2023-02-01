@@ -68,7 +68,7 @@ public class RitualStoneEntity extends BaseBlockEntity {
 
     public void clientTick(ClientLevel clientLevel){
         if(!broken.get()) {
-            if (Minecraft.getInstance().player.getMainHandItem().getItem() == ExTerraCore.DEBUG_LENS.get() || Minecraft.getInstance().player.getOffhandItem().getItem() == ExTerraCore.DEBUG_LENS.get()) {
+            if (Minecraft.getInstance().player.getMainHandItem().getItem() == ExTerraCore.RITUAL_LENS.get()) {
                 int i = 0;
                 int r = 100;
                 int g = 100;

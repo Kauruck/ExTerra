@@ -4,6 +4,7 @@ import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.geometry.Shape;
 import com.kauruck.exterra.blocks.RitualStone;
 import com.kauruck.exterra.geometry.ShapeCollection;
+import com.kauruck.exterra.modules.ExTerraCore;
 import com.kauruck.exterra.modules.ExTerraShared;
 import com.kauruck.exterra.modules.ExTerraTags;
 import com.kauruck.exterra.util.NBTUtil;
@@ -12,6 +13,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -108,5 +112,13 @@ public class RitualMap extends Item {
             for (Shape shape : shapes.getShapes())
                 pTooltipComponents.add(Component.literal(shape.toString()));
         }
+    }
+
+    @Override
+    public boolean canAttackBlock(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer) {
+        if(pState.getBlock() == ExTerraCore.RECEIVER_BLOCK.get()){
+            return false;
+        }
+        return super.canAttackBlock(pState, pLevel, pPos, pPlayer);
     }
 }

@@ -9,11 +9,11 @@ import com.kauruck.exterra.blocks.RitualStone;
 import com.kauruck.exterra.blocks.TestEmitterBlock;
 import com.kauruck.exterra.blocks.TestReceiverBlock;
 import com.kauruck.exterra.geometry.Shape;
+import com.kauruck.exterra.items.RitualLensItem;
 import com.kauruck.exterra.items.RitualMap;
 import com.kauruck.exterra.networking.BlockEntityProperty;
 import com.kauruck.exterra.networks.matter.MatterNetwork;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.*;
@@ -30,8 +30,8 @@ public class ExTerraCore {
     public static final RegistryObject<Item> TEST_ITEM = ITEM_REGISTRY.register("test", () -> new Item(ExTerraShared.DEFAULT_PROPERTIES_ITEM));
     public static final RegistryObject<Matter> TEST_MATTER = MATTER_REGISTRY.register("test_matter", () -> new Matter(new Matter.MatterProperties().setEnergy(1).setParticleColor(Color.RED)));
 
-    //Debut
-    public static final RegistryObject<Item> DEBUG_LENS = ITEM_REGISTRY.register("debug_glass", () -> new Item(ExTerraShared.DEFAULT_PROPERTIES_ITEM));
+    //Ritual Lense
+    public static final RegistryObject<Item> RITUAL_LENS = ITEM_REGISTRY.register("ritual_lens", () -> new RitualLensItem());
 
     //Compound
     public static final RegistryObject<Item> COMPOUND = ITEM_REGISTRY.register("compound",() -> new Item(ExTerraShared.DEFAULT_PROPERTIES_ITEM));
