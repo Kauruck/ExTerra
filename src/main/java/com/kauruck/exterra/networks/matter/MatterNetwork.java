@@ -1,13 +1,17 @@
 package com.kauruck.exterra.networks.matter;
 
+import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.api.exceptions.UnexpectedBehaviorException;
 import com.kauruck.exterra.api.networks.matter.INetworkMember;
 import com.kauruck.exterra.util.NBTUtil;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -25,14 +29,27 @@ public class MatterNetwork {
         this.linked = linked;
     }
 
-    private void addEdge(Vertex a, Vertex b){
-        Edge edge = new Edge(a,b,edge_id);
+    private void addEdge(Vertex a, Vertex b, Wire wire){
+        Edge edge = new Edge(a,b,edge_id, wire);
         a.addEdge(edge);
         b.addEdge(edge);
         if(edges.contains(edge))
             return;
         edges.add(edge);
         edge_id ++;
+    }
+
+    public void addEdge(Wire wire){
+        Vertex a = vertices.stream()
+                .filter(vertex -> vertex.getPosition().equals(wire.getTerminalA()))
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException(wire.getTerminalA().toString()));
+
+        Vertex b = vertices.stream()
+                .filter(vertex -> vertex.getPosition().equals(wire.getTerminalB()))
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException(wire.getTerminalB().toString()));
+        this.addEdge(a, b, wire);
     }
 
     public void reset(){
@@ -45,10 +62,9 @@ public class MatterNetwork {
         if(vertex.getLevel().getBlockEntity(vertex.getPosition()) instanceof INetworkMember){
             vertex.loadFromWorld();
             vertices.add(vertex);
-            //TODO Remove this later, it ist just for test purposes
-            vertices.stream()
-                    .filter(e -> e != vertex)
-                    .forEach(e -> addEdge(vertex, e));
+        }
+        else {
+            ExTerra.LOGGER.info("Block at {} is not an INetworkMember", vertex.getPosition());
         }
     }
 
@@ -79,7 +95,7 @@ public class MatterNetwork {
         return linked;
     }
 
-    public void link(){
+    public void link(Grid grid){
         this.vertices.forEach(vertex -> {
             try {
                 vertex.link(this);
@@ -87,7 +103,7 @@ public class MatterNetwork {
                 throw new RuntimeException(e);
             }
         });
-        this.edges.forEach(edge -> edge.link(this));
+        this.edges.forEach(edge -> edge.link(this, grid));
         this.linked = true;
     }
 
@@ -112,4 +128,20 @@ public class MatterNetwork {
         edges.forEach(Edge::serverTick);
         vertices.forEach(Vertex::postServerTick);
     }
+
+    public void animationsTick(ClientLevel level, RandomSource random){
+        edges.forEach((edge -> edge.animationsTick(level, random)));
+    }
+
+    public void addRangeVertices(Collection<BlockPos> vertices, Level level) throws UnexpectedBehaviorException {
+        for(BlockPos current : vertices)
+            this.addVertex(current, level);
+    }
+
+    public void addRangeEdge(Collection<Wire> wires){
+        for(Wire current : wires)
+            this.addEdge(current);
+    }
+
+
 }

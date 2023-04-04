@@ -72,7 +72,7 @@ public class MatterEmitterEntity extends BlockEntity implements INetworkMember {
 
     @Override
     public void applyBackpressure(MatterStack[] matters) {
-        ExTerra.LOGGER.info("Voiding matter: {}", Arrays.toString(matters));
+        //ExTerra.LOGGER.info("Voiding matter: {}", Arrays.toString(matters));
         // Just void them I don't care
     }
 }

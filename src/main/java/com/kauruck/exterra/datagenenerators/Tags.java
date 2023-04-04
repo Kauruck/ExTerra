@@ -25,8 +25,8 @@ public class Tags extends BlockTagsProvider {
         this.tagWoodPickaxe(ExTerraCore.COMPOUND_BRICKS_SLAB.get());
         this.tagWoodPickaxe(ExTerraCore.COMPOUND_BRICKS_STAIR.get());
         this.tagWoodPickaxe(ExTerraCore.COMPOUND_BRICKS.get());
-        //TODO Move Namespace to exterra
         this.tag(ExTerraTags.RITUAL_TIER_I).add(Blocks.CANDLE);
+        this.tag(ExTerraTags.MATTER_WIRE).add(ExTerraCore.CALCITE_DUST.get());
     }
 
     private void tagDiamondPickaxe(Block block){

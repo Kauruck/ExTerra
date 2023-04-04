@@ -12,6 +12,7 @@ import com.kauruck.exterra.geometry.Shape;
 import com.kauruck.exterra.items.RitualLensItem;
 import com.kauruck.exterra.items.RitualMap;
 import com.kauruck.exterra.networking.BlockEntityProperty;
+import com.kauruck.exterra.networks.matter.Grid;
 import com.kauruck.exterra.networks.matter.MatterNetwork;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.BlockItem;
@@ -76,11 +77,12 @@ public class ExTerraCore {
 
     // Initialize with functions
     static {
-        BlockEntityProperty.TO_NBTS.put(Shape.class, (data) -> ((Shape) data).toNBT());
-        BlockEntityProperty.FROM_NBTS.put(Shape.class, (tag) -> new Shape((CompoundTag) tag));
+        //Block Entity Property
+        BlockEntityProperty.registerPropertyType(Shape.class,(data) -> ((Shape) data).toNBT(), (tag) -> new Shape((CompoundTag) tag));
 
-        BlockEntityProperty.TO_NBTS.put(MatterNetwork.class, (data) -> ((MatterNetwork) data).saveTag());
-        BlockEntityProperty.FROM_NBTS.put(MatterNetwork.class, (tag) -> MatterNetwork.loadTag((CompoundTag) tag));
+        BlockEntityProperty.registerPropertyType(MatterNetwork.class,(data) -> ((MatterNetwork) data).saveTag(), (tag) -> MatterNetwork.loadTag((CompoundTag) tag));
+
+        BlockEntityProperty.registerPropertyType(Grid.class, (data) -> ((Grid)data).toNBT(), Grid::fromNBT);
     }
 
 }

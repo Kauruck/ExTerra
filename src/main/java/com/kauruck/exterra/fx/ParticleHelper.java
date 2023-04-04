@@ -27,6 +27,18 @@ public class ParticleHelper {
         }
     }
 
+    public static void spawnParticlesAlongLine(Level pLevel, RandomSource pRandom, BlockPos pPos, Vec3 pParticleVec, Direction pXDirection, Direction pZDirection, float pMin, float pMax) {
+        float f = pMax - pMin;
+        if (!(pRandom.nextFloat() >= 0.2F * f)) {
+            float f1 = 0.4375F;
+            float f2 = pMin + f * pRandom.nextFloat();
+            double d0 = 0.5D + (double)(0.4375F * (float)pXDirection.getStepX()) + (double)(f2 * (float)pZDirection.getStepX());
+            double d1 = 0.5D + (double)(0.4375F * (float)pXDirection.getStepY()) + (double)(f2 * (float)pZDirection.getStepY());
+            double d2 = 0.5D + (double)(0.4375F * (float)pXDirection.getStepZ()) + (double)(f2 * (float)pZDirection.getStepZ());
+            pLevel.addParticle(new DustParticleOptions(new Vector3f(pParticleVec), 1.0F), (double)pPos.getX() + d0, (double)pPos.getY() + d1, (double)pPos.getZ() + d2, 0.0D, 0.0D, 0.0D);
+        }
+    }
+
     public static void emitParticlesOnLine(ClientLevel level, Vector3f start, Vector3f end, Vector3f color, float scale, RandomSource random){
         ParticleOptions particleOptions = new DustParticleOptions(color, scale);
         Vector3f delta = end.copy();

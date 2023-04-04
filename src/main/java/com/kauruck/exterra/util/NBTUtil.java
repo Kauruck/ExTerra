@@ -1,8 +1,10 @@
 package com.kauruck.exterra.util;
 
+import com.google.common.collect.Sets;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
@@ -10,10 +12,13 @@ import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
+import java.util.stream.Stream;
 
 public class NBTUtil {
 
@@ -118,5 +123,59 @@ public class NBTUtil {
             out.add(blockPosFromNBT(tag.getCompound(Integer.toString(i))));
         }
         return out;
+    }
+
+    public static CompoundTagCollector toSingleCompoundTag(){
+        return new CompoundTagCollector();
+    }
+
+    public static Stream<CompoundTag> fromSingleCompoundTag(CompoundTag tag){
+        List<CompoundTag> tags = new ArrayList<>();
+        for(String key : tag.getAllKeys()){
+            tags.add(tag.getCompound(key));
+        }
+        return tags.stream();
+    }
+
+    public static class CompoundTagCollector implements Collector<Tag, CompoundTag, CompoundTag> {
+
+        private static final Random RANDOM = new Random();
+
+        @Override
+        public Supplier<CompoundTag> supplier() {
+            return CompoundTag::new;
+        }
+
+        @Override
+        public BiConsumer<CompoundTag, Tag> accumulator() {
+            return (acc, tag) -> acc.put(Integer.toString(tag.hashCode()), tag);
+        }
+
+        @Override
+        public BinaryOperator<CompoundTag> combiner() {
+            return (a, b) -> {
+                b.getAllKeys()
+                    .forEach(current -> a.put(getNextUniqueKey(a, current), b.get(current)));
+                return a;
+            };
+        }
+
+        @Override
+        public Function<CompoundTag, CompoundTag> finisher() {
+            return (a) -> a;
+        }
+
+        @Override
+        public Set<Characteristics> characteristics() {
+            return Sets.immutableEnumSet(Characteristics.CONCURRENT, Characteristics.UNORDERED, Characteristics.IDENTITY_FINISH);
+        }
+
+        private String getNextUniqueKey(CompoundTag testTag, String hashKey){
+            int hash = Integer.parseInt(hashKey);
+            while (testTag.contains(Integer.toString(hash))){
+                hash += RANDOM.nextInt(20);
+            }
+            return Integer.toString(hash);
+        }
     }
 }

@@ -5,10 +5,13 @@ import com.kauruck.exterra.api.exceptions.UnexpectedBehaviorException;
 import com.kauruck.exterra.api.matter.Matter;
 import com.kauruck.exterra.api.matter.MatterStack;
 import com.kauruck.exterra.util.NBTUtil;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.ArrayList;
@@ -24,14 +27,16 @@ public class Edge {
     private int id_b;
 
     /**
-     * The id of the edge. This is unique and persistent between save.
+     * The id of the edge. This is unique per Network and persistent between save.
      */
     private final int id;
 
     private Matter[] transportedMatterFromA;
     private Matter[] transportedMatterFromB;
 
-    public Edge(Vertex a, Vertex b, int id) {
+    private final Wire wire;
+
+    public Edge(Vertex a, Vertex b, int id, Wire wire) {
         this.id = id;
         this.a = a;
         this.b = b;
@@ -43,19 +48,23 @@ public class Edge {
         this.transportedMatterFromB = Arrays.stream(b.getMember().pulledMatter())
                 .filter(matter ->  a.getMember().acceptsMatter(matter))
                 .toArray(Matter[]::new);
+
+        this.wire = wire;
     }
 
-    private Edge(int a_id, int b_id, int id) {
+    private Edge(int a_id, int b_id, int id, Wire wire) {
         this.id = id;
         this.id_a = a_id;
         this.id_b = b_id;
+        this.wire = wire;
     }
 
     public static Edge fromTag(CompoundTag tag) {
         int a_id = tag.getInt("a");
         int b_id = tag.getInt("b");
         int id = tag.getInt("id");
-        return new Edge(a_id, b_id, id);
+        Wire wire = Wire.fromNBT(tag.getCompound("wire"), null);
+        return new Edge(a_id, b_id, id, wire);
     }
 
     public CompoundTag toTag(){
@@ -63,6 +72,7 @@ public class Edge {
         tag.putInt("a", a.getId());
         tag.putInt("b", b.getId());
         tag.putInt("id", id);
+        tag.put("wire", wire.toNBT());
         return tag;
     }
 
@@ -71,7 +81,7 @@ public class Edge {
      * This must be called after loading from tag
      * @param network The network to link against
      */
-    public void link(MatterNetwork network){
+    public void link(MatterNetwork network, Grid grid){
         a = network.vertices.stream()
                 .filter(v -> v.getId() == id_a)
                 .findFirst()
@@ -90,6 +100,8 @@ public class Edge {
         this.transportedMatterFromB = Arrays.stream(b.getMember().pulledMatter())
                 .filter(matter ->  a.getMember().acceptsMatter(matter))
                 .toArray(Matter[]::new);
+
+        this.wire.bindGrid(grid);
     }
 
     public int getId() {
@@ -140,5 +152,9 @@ public class Edge {
         }
         b.applyBackpressure(remainderList);
 
+    }
+
+    public void animationsTick(ClientLevel level, RandomSource random){
+        this.wire.emitParticles(new Vec3(1, 0,0), level, random);
     }
 }

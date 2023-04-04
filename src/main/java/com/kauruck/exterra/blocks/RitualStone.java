@@ -7,6 +7,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -81,7 +82,7 @@ public class RitualStone extends RitualPlateBlock implements EntityBlock {
                             ritualStoneEntity.setShapes(new ShapeCollection(tag.getCompound(RitualMap.TAG_SHAPES)));
                         else
                             ritualStoneEntity.setShapes(new ShapeCollection());
-                        ritualStoneEntity.buildRitual();
+                        ritualStoneEntity.buildRitual((ServerPlayer) pPlayer);
                         return InteractionResult.SUCCESS;
                     }
                 } else {

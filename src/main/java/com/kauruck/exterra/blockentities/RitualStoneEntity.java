@@ -1,23 +1,24 @@
 package com.kauruck.exterra.blockentities;
 
 import com.kauruck.exterra.api.exceptions.UnexpectedBehaviorException;
-import com.kauruck.exterra.api.networks.matter.INetworkMemberBlock;
 import com.kauruck.exterra.fx.ParticleHelper;
 import com.kauruck.exterra.fx.VectorHelper;
 import com.kauruck.exterra.geometry.Shape;
 import com.kauruck.exterra.geometry.ShapeCollection;
 import com.kauruck.exterra.modules.ExTerraCore;
-import com.kauruck.exterra.modules.ExTerraTags;
 import com.kauruck.exterra.networking.BaseBlockEntity;
 import com.kauruck.exterra.networking.BlockEntityProperty;
+import com.kauruck.exterra.networks.matter.Grid;
+import com.kauruck.exterra.networks.matter.GridScanner;
 import com.kauruck.exterra.networks.matter.MatterNetwork;
-import com.kauruck.exterra.util.ShapesUtil;
+import com.kauruck.exterra.networks.matter.Wire;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
@@ -30,10 +31,10 @@ import static com.kauruck.exterra.fx.MathHelper.clamp;
 import static com.kauruck.exterra.networking.BlockEntityPropertySide.*;
 public class RitualStoneEntity extends BaseBlockEntity {
 
-    private final BlockEntityProperty<List<BlockPos>> toCheck = createProperty(Server,"toCheck", new ArrayList<>(),  BlockPos.class);
     private final BlockEntityProperty<List<Shape>> shapes = createProperty(Synced, "shapes", new ArrayList<>(), Shape.class);
     private final BlockEntityProperty<MatterNetwork> matterNetwork = createProperty(Server, "network", new MatterNetwork(), MatterNetwork.class);
-    private final int size = 5;
+    private final BlockEntityProperty<Grid> grid = createProperty(Synced, "grid", new Grid(SIZE, this.getBlockPos()));
+    public static final int SIZE = 5;
     private boolean building = false;
     private final BlockEntityProperty<Boolean> broken = createProperty(Synced, "broken", false);
     private Map<BlockPos, Block> trackingBlock = new HashMap<>();
@@ -104,9 +105,8 @@ public class RitualStoneEntity extends BaseBlockEntity {
         }
     }
 
-    //TODO Just leave this hear, as we do need it for the dust lines
     public void animationTick(ClientLevel clientLevel, RandomSource random){
-
+        grid.get().animationsTick(clientLevel, random);
     }
 
     public void serverTick(){
@@ -114,7 +114,7 @@ public class RitualStoneEntity extends BaseBlockEntity {
             validateMultiblock();
             try {
                 if (!matterNetwork.get().isLinked())
-                    matterNetwork.get().link();
+                    matterNetwork.get().link(this.grid.get());
                 matterNetwork.get().serverTick();
             }catch (RuntimeException e){
                 this.broken.set(true);
@@ -137,15 +137,15 @@ public class RitualStoneEntity extends BaseBlockEntity {
     }
 
 
-    public void buildRitual() {
+    public void buildRitual(ServerPlayer player){
         trackingBlock.clear();
         if(matterNetwork.get() == null)
             matterNetwork.set(new MatterNetwork());
         matterNetwork.get().reset();
         building = true;
-        BlockPos basePos = this.getBlockPos();
-        for (int x = -size; x <= size; x++) {
-            for (int z = -size; z <= size; z++) {
+        /*BlockPos basePos = this.getBlockPos();
+        for (int x = -SIZE; x <= SIZE; x++) {
+            for (int z = -SIZE; z <= SIZE; z++) {
                 toCheck.get().add(basePos.north(x).east(z));
             }
         }
@@ -164,7 +164,20 @@ public class RitualStoneEntity extends BaseBlockEntity {
                 trackingBlock.put(current, state.getBlock());
             }
         }
-        this.toCheck.get().clear();
+        this.toCheck.get().clear();*/
+        // Build the Grid
+        Grid grid = GridScanner.ScanGrid(this.getBlockPos(), SIZE, this.getLevel());
+        player.sendSystemMessage(grid.forChat());
+        List<BlockPos> vertices = GridScanner.scanGridForMembers(grid);
+        try {
+            matterNetwork.get().addRangeVertices(vertices, level);
+        } catch (UnexpectedBehaviorException e) {
+            throw new RuntimeException(e);
+        }
+        List<Wire> wires = GridScanner.scanGridForWires(grid);
+        grid.setWires(wires);
+        this.matterNetwork.get().addRangeEdge(wires);
+        this.grid.set(grid);
         this.broken.set(false);
         this.setChanged();
     }
