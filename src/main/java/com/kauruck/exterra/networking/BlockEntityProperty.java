@@ -1,5 +1,8 @@
 package com.kauruck.exterra.networking;
 
+import com.kauruck.exterra.ExTerra;
+import com.kauruck.exterra.api.blockentity.NotIterableInProperty;
+import com.kauruck.exterra.networks.matter.GridCellType;
 import com.kauruck.exterra.util.NBTUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.*;
@@ -11,9 +14,9 @@ import java.util.function.Function;
 
 public class BlockEntityProperty <T>{
 
-    public static final Map<Class, Function<Object, Tag>> TO_NBTS = new HashMap<>();
-    public static final Map<Class, Function<Tag, Object>> FROM_NBTS = new HashMap<>();
-    public static final Map<Class, BiFunction<Class<?>, Object[], Object>> TO_ITERABLES = new HashMap<>();
+    private static final Map<Class, Function<Object, Tag>> TO_NBTS = new HashMap<>();
+    private static final Map<Class, Function<Tag, Object>> FROM_NBTS = new HashMap<>();
+    private static final Map<Class, BiFunction<Class<?>, Object[], Object>> TO_ITERABLES = new HashMap<>();
 
     private T data;
 
@@ -30,6 +33,15 @@ public class BlockEntityProperty <T>{
 
     boolean changed = true;
     boolean outOfSync = false;
+
+    public static void registerPropertyType(Class clazz, Function<Object, Tag> toNbt, Function<Tag, Object> fromNbt){
+        TO_NBTS.put(clazz, toNbt);
+        FROM_NBTS.put(clazz, fromNbt);
+    }
+
+    public static void registerIterable(Class clazz, BiFunction<Class<?>, Object[], Object> toIterable){
+        TO_ITERABLES.put(clazz, toIterable);
+    }
 
 
     public BlockEntityProperty(T data, String name, Class<T> dataClass, Class<?> innerClass, BlockEntityPropertySide side){
@@ -81,9 +93,10 @@ public class BlockEntityProperty <T>{
     }
 
     public Tag toNBT(){
-        if(data == null){
+        if(data == null) {
             return StringTag.valueOf("\\null\\");
-        } else if(data instanceof Iterable<?> iData){
+        }
+        else if(data instanceof Iterable<?> iData && ! (data instanceof NotIterableInProperty)){
             CompoundTag out = new CompoundTag();
             int index = 0;
             for(Object current : iData ){
@@ -109,7 +122,7 @@ public class BlockEntityProperty <T>{
             }
             this.data = (T) dataArray;
         }
-        else if(data instanceof Iterable<?> iData && tag instanceof CompoundTag ct){
+        else if(data instanceof Iterable<?> iData && !(data instanceof NotIterableInProperty) &&tag instanceof CompoundTag ct){
             int length = ct.getInt("length");
             Object[] dataArray = new Object[length];
             for(int i = 0; i < length; i++){
