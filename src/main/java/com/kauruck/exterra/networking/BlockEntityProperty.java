@@ -1,8 +1,6 @@
 package com.kauruck.exterra.networking;
 
-import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.api.blockentity.NotIterableInProperty;
-import com.kauruck.exterra.networks.matter.GridCellType;
 import com.kauruck.exterra.util.NBTUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.*;
@@ -14,14 +12,14 @@ import java.util.function.Function;
 
 public class BlockEntityProperty <T>{
 
-    private static final Map<Class, Function<Object, Tag>> TO_NBTS = new HashMap<>();
+    private static final Map<Class, BiFunction<Object, Boolean, Tag>> TO_NBTS = new HashMap<>();
     private static final Map<Class, Function<Tag, Object>> FROM_NBTS = new HashMap<>();
     private static final Map<Class, BiFunction<Class<?>, Object[], Object>> TO_ITERABLES = new HashMap<>();
 
     private T data;
 
     private final String name;
-    private final Function<Object, Tag> toNbt;
+    private final BiFunction<Object, Boolean, Tag> toNbt;
     private final Function<Tag, Object> fromNbt;
 
     private final BiFunction<Class<?> ,Object[], Object> toIterable;
@@ -30,11 +28,10 @@ public class BlockEntityProperty <T>{
     private final Class<?> innerClass;
 
     private final BlockEntityPropertySide side;
-
-    boolean changed = true;
+    private boolean shouldBeUpdated = false;
     boolean outOfSync = false;
 
-    public static void registerPropertyType(Class clazz, Function<Object, Tag> toNbt, Function<Tag, Object> fromNbt){
+    public static void registerPropertyType(Class clazz, BiFunction<Object, Boolean, Tag> toNbt, Function<Tag, Object> fromNbt){
         TO_NBTS.put(clazz, toNbt);
         FROM_NBTS.put(clazz, fromNbt);
     }
@@ -92,7 +89,7 @@ public class BlockEntityProperty <T>{
         return name;
     }
 
-    public Tag toNBT(){
+    public Tag toNBT(boolean networkSync){
         if(data == null) {
             return StringTag.valueOf("\\null\\");
         }
@@ -100,14 +97,14 @@ public class BlockEntityProperty <T>{
             CompoundTag out = new CompoundTag();
             int index = 0;
             for(Object current : iData ){
-                out.put(Integer.toString(index), this.toNbt.apply(current));
+                out.put(Integer.toString(index), this.toNbt.apply(current, networkSync));
                 index ++;
             }
             out.putInt("length", index);
             return out;
         }
         else{
-            return this.toNbt.apply(this.data);
+            return this.toNbt.apply(this.data, networkSync);
         }
     }
 
@@ -138,7 +135,6 @@ public class BlockEntityProperty <T>{
     public void set(T value){
         if(data == value)
             return;
-        this.changed = true;
         this.data = value;
     }
 
@@ -176,16 +172,28 @@ public class BlockEntityProperty <T>{
         return this.outOfSync;
     }
 
+    public void confirmSend(){
+        this.shouldBeUpdated = false;
+    }
+
+    public boolean isShouldBeUpdated(){
+        return shouldBeUpdated;
+    }
+
+    public void markChanged(){
+        this.shouldBeUpdated  = true;
+    }
+
 
     static {
         // toNBTs
-        TO_NBTS.put(Boolean.class, (data) -> ByteTag.valueOf((Boolean) data));
-        TO_NBTS.put(String.class, (data) -> StringTag.valueOf((String) data));
-        TO_NBTS.put(Integer.class, (data) -> IntTag.valueOf((Integer) data));
-        TO_NBTS.put(Float.class, (data) -> FloatTag.valueOf((Float) data));
-        TO_NBTS.put(Double.class, (data) -> DoubleTag.valueOf((Double) data));
-        TO_NBTS.put(Long.class, (data) -> LongTag.valueOf((Long) data));
-        TO_NBTS.put(BlockPos.class, (data) -> NBTUtil.blockPosToNBT((BlockPos) data));
+        TO_NBTS.put(Boolean.class, (data, ignored) -> ByteTag.valueOf((Boolean) data));
+        TO_NBTS.put(String.class, (data, ignored) -> StringTag.valueOf((String) data));
+        TO_NBTS.put(Integer.class, (data, ignored) -> IntTag.valueOf((Integer) data));
+        TO_NBTS.put(Float.class, (data, ignored) -> FloatTag.valueOf((Float) data));
+        TO_NBTS.put(Double.class, (data, ignored) -> DoubleTag.valueOf((Double) data));
+        TO_NBTS.put(Long.class, (data, ignored) -> LongTag.valueOf((Long) data));
+        TO_NBTS.put(BlockPos.class, (data, ignored) -> NBTUtil.blockPosToNBT((BlockPos) data));
 
         //fromNBts
         FROM_NBTS.put(Boolean.class, (tag) -> ((ByteTag)tag).getAsByte() != 0);

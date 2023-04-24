@@ -16,18 +16,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Grid implements Iterable<GridCellType>, NotIterableInProperty {
 
     private final int size;
     private BlockState[][] grid;
     private final BlockPos center;
-    private List<Wire> wires = new ArrayList<>();
-
     public Grid(int size, BlockPos center) {
         this.size = size;
         grid = new BlockState[2 * size + 1][2 * size + 1];
@@ -107,22 +103,6 @@ public class Grid implements Iterable<GridCellType>, NotIterableInProperty {
         return getBlockStateAt(localPos.getA(), localPos.getB());
     }
 
-    public void setWires(List<Wire> wires){
-        this.wires = wires;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder("\n");
-        for (int x = -size; x < size + 1; x++) {
-            for (int z = -size; z < size + 1; z++) {
-                String cellString = this.getCell(x, z).toString();
-                builder.append(cellString);
-            }
-            builder.append('\n');
-        }
-        return builder.toString();
-    }
 
     public MutableComponent forChat() {
         MutableComponent comp = Component.literal("Grid\n");
@@ -133,7 +113,6 @@ public class Grid implements Iterable<GridCellType>, NotIterableInProperty {
             }
             comp.append("\n");
         }
-        comp.append(Integer.toString(wires.size()));
         return comp;
     }
 
@@ -160,9 +139,6 @@ public class Grid implements Iterable<GridCellType>, NotIterableInProperty {
             }
             tag.put(Integer.toString(x), rowTag);
         }
-        tag.put("wires", wires.stream()
-                .map(Wire::toNBT)
-                .collect(NBTUtil.toSingleCompoundTag()));
         return tag;
     }
 
@@ -181,15 +157,7 @@ public class Grid implements Iterable<GridCellType>, NotIterableInProperty {
             }
             tag.put(Integer.toString(x), rowTag);
         }
-        List<Wire> wires = NBTUtil.fromSingleCompoundTag(tag.getCompound("wires"))
-                .map(current -> Wire.fromNBT(current, out))
-                .toList();
-        out.wires = wires;
         return out;
-    }
-
-    public void animationsTick(ClientLevel level, RandomSource random){
-        wires.forEach(wire -> wire.emitParticles(new Vec3(1, 0, 0), level, random));
     }
 
 
@@ -222,5 +190,25 @@ public class Grid implements Iterable<GridCellType>, NotIterableInProperty {
             }
             return cell;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Grid that = (Grid) o;
+
+        if (size != that.size) return false;
+        if (!Arrays.deepEquals(grid, that.grid)) return false;
+        return Objects.equals(center, that.center);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = size;
+        result = 31 * result + Arrays.deepHashCode(grid);
+        result = 31 * result + (center != null ? center.hashCode() : 0);
+        return result;
     }
 }

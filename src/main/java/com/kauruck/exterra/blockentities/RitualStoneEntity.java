@@ -31,11 +31,9 @@ import static com.kauruck.exterra.fx.MathHelper.clamp;
 import static com.kauruck.exterra.networking.BlockEntityPropertySide.*;
 public class RitualStoneEntity extends BaseBlockEntity {
 
-    private final BlockEntityProperty<List<Shape>> shapes = createProperty(Synced, "shapes", new ArrayList<>(), Shape.class);
-    private final BlockEntityProperty<MatterNetwork> matterNetwork = createProperty(Server, "network", new MatterNetwork(), MatterNetwork.class);
-    private final BlockEntityProperty<Grid> grid = createProperty(Synced, "grid", new Grid(SIZE, this.getBlockPos()));
+    private final BlockEntityProperty<List<Shape>> shapes = createProperty(Requestable, "shapes", new ArrayList<>(), Shape.class);
+    private final BlockEntityProperty<MatterNetwork> matterNetwork = createProperty(Requestable, "network", new MatterNetwork(), MatterNetwork.class);
     public static final int SIZE = 5;
-    private boolean building = false;
     private final BlockEntityProperty<Boolean> broken = createProperty(Synced, "broken", false);
     private Map<BlockPos, Block> trackingBlock = new HashMap<>();
 
@@ -49,6 +47,7 @@ public class RitualStoneEntity extends BaseBlockEntity {
         for(BlockPos pos : trackingBlock.keySet()){
             if(this.getLevel().getBlockState(pos).getBlock() != trackingBlock.get(pos)){
                 this.broken.set(true);
+                this.broken.markChanged();
                 this.setChanged();
                 return;
             }
@@ -106,7 +105,7 @@ public class RitualStoneEntity extends BaseBlockEntity {
     }
 
     public void animationTick(ClientLevel clientLevel, RandomSource random){
-        grid.get().animationsTick(clientLevel, random);
+        matterNetwork.get().animationsTick(clientLevel, random);
     }
 
     public void serverTick(){
@@ -114,10 +113,12 @@ public class RitualStoneEntity extends BaseBlockEntity {
             validateMultiblock();
             try {
                 if (!matterNetwork.get().isLinked())
-                    matterNetwork.get().link(this.grid.get());
+                    matterNetwork.get().link();
                 matterNetwork.get().serverTick();
+                matterNetwork.markChanged();
             }catch (RuntimeException e){
                 this.broken.set(true);
+                this.broken.markChanged();
             }
         }
         this.setChanged();
@@ -139,10 +140,6 @@ public class RitualStoneEntity extends BaseBlockEntity {
 
     public void buildRitual(ServerPlayer player){
         trackingBlock.clear();
-        if(matterNetwork.get() == null)
-            matterNetwork.set(new MatterNetwork());
-        matterNetwork.get().reset();
-        building = true;
         /*BlockPos basePos = this.getBlockPos();
         for (int x = -SIZE; x <= SIZE; x++) {
             for (int z = -SIZE; z <= SIZE; z++) {
@@ -167,6 +164,7 @@ public class RitualStoneEntity extends BaseBlockEntity {
         this.toCheck.get().clear();*/
         // Build the Grid
         Grid grid = GridScanner.ScanGrid(this.getBlockPos(), SIZE, this.getLevel());
+        matterNetwork.set(new MatterNetwork());
         player.sendSystemMessage(grid.forChat());
         List<BlockPos> vertices = GridScanner.scanGridForMembers(grid);
         try {
@@ -175,10 +173,10 @@ public class RitualStoneEntity extends BaseBlockEntity {
             throw new RuntimeException(e);
         }
         List<Wire> wires = GridScanner.scanGridForWires(grid);
-        grid.setWires(wires);
         this.matterNetwork.get().addRangeEdge(wires);
-        this.grid.set(grid);
         this.broken.set(false);
+        this.broken.markChanged();
+        this.shapes.markChanged();
         this.setChanged();
     }
 }

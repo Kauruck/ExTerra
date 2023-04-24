@@ -40,6 +40,8 @@ public class Edge {
         this.id = id;
         this.a = a;
         this.b = b;
+        this.id_a = a.getId();
+        this.id_b = b.getId();
         //TODO conversion
         this.transportedMatterFromA = Arrays.stream(a.getMember().pulledMatter())
                 .filter(matter ->  b.getMember().acceptsMatter(matter))
@@ -63,7 +65,7 @@ public class Edge {
         int a_id = tag.getInt("a");
         int b_id = tag.getInt("b");
         int id = tag.getInt("id");
-        Wire wire = Wire.fromNBT(tag.getCompound("wire"), null);
+        Wire wire = Wire.fromNBT(tag.getCompound("wire"));
         return new Edge(a_id, b_id, id, wire);
     }
 
@@ -81,7 +83,7 @@ public class Edge {
      * This must be called after loading from tag
      * @param network The network to link against
      */
-    public void link(MatterNetwork network, Grid grid){
+    public void link(MatterNetwork network){
         a = network.vertices.stream()
                 .filter(v -> v.getId() == id_a)
                 .findFirst()
@@ -100,8 +102,6 @@ public class Edge {
         this.transportedMatterFromB = Arrays.stream(b.getMember().pulledMatter())
                 .filter(matter ->  a.getMember().acceptsMatter(matter))
                 .toArray(Matter[]::new);
-
-        this.wire.bindGrid(grid);
     }
 
     public int getId() {
@@ -121,6 +121,7 @@ public class Edge {
     }
 
     public void serverTick(){
+        wire.serverTick();
 
         //TODO Conversion
 
@@ -130,6 +131,7 @@ public class Edge {
             MatterStack stack = a.pullMatterStack(currentMatter);
             if(stack == null)
                 continue;
+            wire.addInfo(stack.getMatter().getParticleColor());
             //ExTerra.LOGGER.debug("Moving Matter {} from {} to {}", stack, this.a.getMember().getName(), this.b.getMember().getName());
             MatterStack remainder = b.getMember().pushMatter(stack);
             if(remainder != null && remainder.getAmount() != 0){
@@ -139,12 +141,14 @@ public class Edge {
         a.applyBackpressure(remainderList);
         remainderList.clear();
 
+
         //Move from b
         for(Matter currentMatter : transportedMatterFromB){
             MatterStack stack = b.pullMatterStack(currentMatter);
             if(stack == null)
                 continue;
             //ExTerra.LOGGER.debug("Moving Matter {} form {} to {}", stack, this.b.getMember().getName(), this.a.getMember().getName());
+            wire.addInfo(stack.getMatter().getParticleColor());
             MatterStack remainder = a.getMember().pushMatter(stack);
             if(remainder != null && remainder.getAmount() != 0){
                 remainderList.add(remainder);
@@ -154,7 +158,7 @@ public class Edge {
 
     }
 
-    public void animationsTick(ClientLevel level, RandomSource random){
-        this.wire.emitParticles(new Vec3(1, 0,0), level, random);
+    public void animationTick(ClientLevel level, RandomSource random) {
+        wire.animationTick(level, random);
     }
 }

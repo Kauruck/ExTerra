@@ -23,8 +23,8 @@ public class MatterNetwork {
     private int vertex_id = 0;
     private int edge_id = 0;
     private boolean linked = true;
-
-    public MatterNetwork(){}
+    public MatterNetwork(){
+    }
     private MatterNetwork(boolean linked){
         this.linked = linked;
     }
@@ -52,11 +52,6 @@ public class MatterNetwork {
         this.addEdge(a, b, wire);
     }
 
-    public void reset(){
-        vertices.clear();
-        edges.clear();
-    }
-
     private void addVertex(Vertex vertex) throws UnexpectedBehaviorException {
         //Check weather the block can handle being in a matter network
         if(vertex.getLevel().getBlockEntity(vertex.getPosition()) instanceof INetworkMember){
@@ -75,19 +70,22 @@ public class MatterNetwork {
 
     public static MatterNetwork loadTag(CompoundTag tag){
         MatterNetwork network = new MatterNetwork(false);
-        network.vertex_id = tag.getInt("vertex_id");
-        network.edge_id = tag.getInt("edge_id");
-        if(tag.contains("edges"))
+        //Check if the data is in the tag, if not the data was send over network
+        if(tag.contains("vertex_id")) {
+            network.vertex_id = tag.getInt("vertex_id");
+            network.edge_id = tag.getInt("edge_id");
+
+            if (tag.contains("vertex"))
+                network.vertices = List.of(NBTUtil.compoundTagToCompoundTagArray((CompoundTag) tag.get("vertex"))).stream()
+                        .map(Vertex::fromTag)
+                        .collect(Collectors.toList());
+
+        }
+        Grid grid = Grid.fromNBT(tag.getCompound("grid"));
+        if (tag.contains("edges"))
             network.edges = List.of(NBTUtil.compoundTagToCompoundTagArray((CompoundTag) tag.get("edges"))).stream()
-                .map(Edge::fromTag)
-                .collect(Collectors.toList());
-
-        if(tag.contains("vertex"))
-            network.vertices = List.of(NBTUtil.compoundTagToCompoundTagArray((CompoundTag) tag.get("vertex"))).stream()
-                .map(Vertex::fromTag)
-                .collect(Collectors.toList());
-
-
+                    .map(Edge::fromTag)
+                    .collect(Collectors.toList());
         return network;
     }
 
@@ -95,7 +93,7 @@ public class MatterNetwork {
         return linked;
     }
 
-    public void link(Grid grid){
+    public void link(){
         this.vertices.forEach(vertex -> {
             try {
                 vertex.link(this);
@@ -103,23 +101,27 @@ public class MatterNetwork {
                 throw new RuntimeException(e);
             }
         });
-        this.edges.forEach(edge -> edge.link(this, grid));
+        this.edges.forEach(edge -> edge.link(this));
         this.linked = true;
     }
 
-    public CompoundTag saveTag(){
+    public CompoundTag saveTag(Boolean sync){
         CompoundTag tag = new CompoundTag();
-        tag.putInt("vertex_id", vertex_id);
-        tag.putInt("edge_id", edge_id);
-        CompoundTag[] edge_tags =  edges.stream()
+        // Only save the network, do not send the vertices to the client
+        if(!sync) {
+            tag.putInt("vertex_id", vertex_id);
+            tag.putInt("edge_id", edge_id);
+
+            CompoundTag[] vertex_tags = vertices.stream()
+                    .map(Vertex::toTag)
+                    .toArray(CompoundTag[]::new);
+            tag.put("vertex", NBTUtil.compoundTagArrayToCompoundTag(vertex_tags));
+        }
+
+        CompoundTag[] edge_tags = edges.stream()
                 .map(Edge::toTag)
                 .toArray(CompoundTag[]::new);
         tag.put("edges", NBTUtil.compoundTagArrayToCompoundTag(edge_tags));
-
-        CompoundTag[] vertex_tags =  vertices.stream()
-                .map(Vertex::toTag)
-                .toArray(CompoundTag[]::new);
-        tag.put("vertex", NBTUtil.compoundTagArrayToCompoundTag(vertex_tags));
         return tag;
     }
 
@@ -128,9 +130,8 @@ public class MatterNetwork {
         edges.forEach(Edge::serverTick);
         vertices.forEach(Vertex::postServerTick);
     }
-
     public void animationsTick(ClientLevel level, RandomSource random){
-        edges.forEach((edge -> edge.animationsTick(level, random)));
+        edges.forEach(edge -> edge.animationTick(level, random));
     }
 
     public void addRangeVertices(Collection<BlockPos> vertices, Level level) throws UnexpectedBehaviorException {
@@ -144,4 +145,32 @@ public class MatterNetwork {
     }
 
 
+    @Override
+    public String toString() {
+        return edges.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        MatterNetwork that = (MatterNetwork) o;
+
+        if (vertex_id != that.vertex_id) return false;
+        if (edge_id != that.edge_id) return false;
+        if (linked != that.linked) return false;
+        if (!Objects.equals(vertices, that.vertices)) return false;
+        return (!Objects.equals(edges, that.edges));
+    }
+
+    @Override
+    public int hashCode() {
+        int result = vertices != null ? vertices.hashCode() : 0;
+        result = 31 * result + (edges != null ? edges.hashCode() : 0);
+        result = 31 * result + vertex_id;
+        result = 31 * result + edge_id;
+        result = 31 * result + (linked ? 1 : 0);
+        return result;
+    }
 }

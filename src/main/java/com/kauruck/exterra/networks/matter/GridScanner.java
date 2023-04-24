@@ -31,7 +31,7 @@ public class GridScanner {
 
             // Next Connection
             if(grid.has(x + 1, z) && grid.getCell(x + 1, z) == GridCellType.Connection){
-                Wire current = new Wire(grid);
+                Wire current = new Wire();
                 current.setTerminalA(grid.localToBlockPos(x, z));
                 List<PositionTuple> had = new ArrayList<>();
                 had.add(PositionTuple.of(x,z));
@@ -40,7 +40,7 @@ public class GridScanner {
                     out.add(current);
             }
             if(grid.has(x - 1, z) && grid.getCell(x - 1, z) == GridCellType.Connection){
-                Wire current = new Wire(grid);
+                Wire current = new Wire();
                 current.setTerminalA(grid.localToBlockPos(x, z));
                 List<PositionTuple> had = new ArrayList<>();
                 had.add(PositionTuple.of(x,z));
@@ -49,7 +49,7 @@ public class GridScanner {
                     out.add(current);
             }
             if(grid.has(x ,z + 1) && grid.getCell(x, z + 1) == GridCellType.Connection){
-                Wire current = new Wire(grid);
+                Wire current = new Wire();
                 current.setTerminalA(grid.localToBlockPos(x, z));
                 List<PositionTuple> had = new ArrayList<>();
                 had.add(PositionTuple.of(x,z));
@@ -58,7 +58,7 @@ public class GridScanner {
                     out.add(current);
             }
             if(grid.has(x, z - 1) && grid.getCell(x, z - 1) == GridCellType.Connection){
-                Wire current = new Wire(grid);
+                Wire current = new Wire();
                 current.setTerminalA(grid.localToBlockPos(x, z));
                 List<PositionTuple> had = new ArrayList<>();
                 had.add(PositionTuple.of(x,z));
@@ -92,22 +92,22 @@ public class GridScanner {
 
         // Next Connection
         if(!had.contains(PositionTuple.of(x + 1, z)) && grid.has(x + 1, z) && grid.getCell(x + 1, z) == GridCellType.Connection){
-            wire.appendBlock(grid.localToBlockPos(x + 1, z));
+            wire.appendBlock(grid.localToBlockPos(x+1, z), grid.getBlockStateAt(x+1, z));
             had.add(PositionTuple.of(x + 1, z));
             return traceWire(x + 1, z, had, grid, wire);
         }
         else if(!had.contains(PositionTuple.of(x - 1, z)) && grid.has(x - 1, z) && grid.getCell(x - 1, z) == GridCellType.Connection){
-            wire.appendBlock(grid.localToBlockPos(x - 1, z));
+            wire.appendBlock(grid.localToBlockPos(x-1, z), grid.getBlockStateAt(x-1, z));
             had.add(PositionTuple.of(x - 1, z));
             return traceWire(x - 1, z, had, grid, wire);
         }
         else if(!had.contains(PositionTuple.of(x, z + 1)) && grid.has(x ,z + 1) && grid.getCell(x, z + 1) == GridCellType.Connection){
-            wire.appendBlock(grid.localToBlockPos(x, z + 1));
+            wire.appendBlock(grid.localToBlockPos(x, z + 1), grid.getBlockStateAt(x, z + 1));
             had.add(PositionTuple.of(x, z + 1));
             return traceWire(x, z + 1, had, grid, wire);
         }
         else if(!had.contains(PositionTuple.of(x, z - 1)) && grid.has(x, z - 1) && grid.getCell(x, z - 1) == GridCellType.Connection){
-            wire.appendBlock(grid.localToBlockPos(x, z - 1));
+            wire.appendBlock(grid.localToBlockPos(x, z - 1), grid.getBlockStateAt(x, z - 1));
             had.add(PositionTuple.of(x, z - 1));
             return traceWire(x, z - 1, had, grid, wire);
         }

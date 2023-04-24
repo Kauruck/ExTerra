@@ -32,7 +32,7 @@ public abstract class BaseBlockEntity extends BlockEntity {
 
     private void saveProperties(Map<String, BlockEntityProperty<?>> properties, CompoundTag tag){
         for(String key : properties.keySet()){
-            tag.put(key, properties.get(key).toNBT());
+            tag.put(key, properties.get(key).toNBT(false));
         }
     }
 
@@ -84,24 +84,19 @@ public abstract class BaseBlockEntity extends BlockEntity {
     void handelRequestProperty(String name, ServerPlayer player){
         if(this.properties.containsKey(name)){
             CompoundTag tag = new CompoundTag();
-            tag.put(name, this.properties.get(name).toNBT());
+            tag.put(name, this.properties.get(name).toNBT(true));
             ExTerraNetworking.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new BlockEntityClientBoundUpdatePacket(tag, this.getBlockPos()));
         }
-    }
-
-    private boolean isSomethingToSync(){
-        return properties.values().stream()
-                .anyMatch((e) -> e.changed);
     }
 
     @Override
     public void setChanged() {
         super.setChanged();
-        if(!this.getLevel().isClientSide() && this.isSomethingToSync()) {
+        if(!this.getLevel().isClientSide()) {
             CompoundTag tag = generateUpdateTag();
             BlockEntityClientBoundUpdatePacket packet = new BlockEntityClientBoundUpdatePacket(tag, this.getBlockPos());
             ExTerraNetworking.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(() -> this.getLevel().getChunkAt(this.getBlockPos())), packet);
-            properties.values().forEach((current) -> current.changed = false);
+            properties.values().forEach(BlockEntityProperty::confirmSend);
         }
     }
 
@@ -110,8 +105,8 @@ public abstract class BaseBlockEntity extends BlockEntity {
         CompoundTag out = super.getUpdateTag();
         CompoundTag syncTag = new CompoundTag();
         for (BlockEntityProperty<?> current : properties.values()) {
-            if (current.getSide() == BlockEntityPropertySide.Synced)
-                out.put(current.getName(), current.toNBT());
+            if (current.getSide() == BlockEntityPropertySide.Synced || current.isShouldBeUpdated())
+                out.put(current.getName(), current.toNBT(true));
             else if (current.getSide() == BlockEntityPropertySide.Requestable)
                 syncTag.putBoolean(current.getName(), true);
             out.put("syncTag", syncTag);
@@ -125,12 +120,10 @@ public abstract class BaseBlockEntity extends BlockEntity {
         CompoundTag out = new CompoundTag();
         CompoundTag syncTag = new CompoundTag();
         for(BlockEntityProperty<?> current : properties.values()){
-            if(current.changed) {
-                if(current.getSide() == BlockEntityPropertySide.Synced)
-                    out.put(current.getName(), current.toNBT());
-                else if(current.getSide() == BlockEntityPropertySide.Requestable)
-                    syncTag.putBoolean(current.getName(), true);
-            }
+            if(current.getSide() == BlockEntityPropertySide.Synced || current.isShouldBeUpdated())
+                out.put(current.getName(), current.toNBT(true));
+            else if(current.getSide() == BlockEntityPropertySide.Requestable)
+                syncTag.putBoolean(current.getName(), true);
         }
         out.put("syncTag", syncTag);
         return out;

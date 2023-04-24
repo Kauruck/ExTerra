@@ -9,6 +9,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.server.ServerLifecycleHooks;
 
@@ -123,6 +124,21 @@ public class NBTUtil {
             out.add(blockPosFromNBT(tag.getCompound(Integer.toString(i))));
         }
         return out;
+    }
+
+    public static CompoundTag vec3ToNBT(Vec3 vec3){
+        CompoundTag out = new CompoundTag();
+        out.putDouble("x", vec3.x);
+        out.putDouble("y", vec3.y);
+        out.putDouble("z", vec3.z);
+        return out;
+    }
+
+    public static Vec3 vec3FromNBT(CompoundTag tag){
+        double x = tag.getDouble("x");
+        double y = tag.getDouble("y");
+        double z = tag.getDouble("z");
+        return new Vec3(x,y,z);
     }
 
     public static CompoundTagCollector toSingleCompoundTag(){

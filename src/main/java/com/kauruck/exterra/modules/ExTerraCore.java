@@ -14,6 +14,7 @@ import com.kauruck.exterra.items.RitualMap;
 import com.kauruck.exterra.networking.BlockEntityProperty;
 import com.kauruck.exterra.networks.matter.Grid;
 import com.kauruck.exterra.networks.matter.MatterNetwork;
+import com.kauruck.exterra.util.Colors;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -29,7 +30,7 @@ public class ExTerraCore {
 
     //Test Stuff
     public static final RegistryObject<Item> TEST_ITEM = ITEM_REGISTRY.register("test", () -> new Item(ExTerraShared.DEFAULT_PROPERTIES_ITEM));
-    public static final RegistryObject<Matter> TEST_MATTER = MATTER_REGISTRY.register("test_matter", () -> new Matter(new Matter.MatterProperties().setEnergy(1).setParticleColor(Color.RED)));
+    public static final RegistryObject<Matter> TEST_MATTER = MATTER_REGISTRY.register("test_matter", () -> new Matter(new Matter.MatterProperties().setEnergy(1).setParticleColor(Colors.RED)));
 
     //Ritual Lense
     public static final RegistryObject<Item> RITUAL_LENS = ITEM_REGISTRY.register("ritual_lens", () -> new RitualLensItem());
@@ -78,11 +79,9 @@ public class ExTerraCore {
     // Initialize with functions
     static {
         //Block Entity Property
-        BlockEntityProperty.registerPropertyType(Shape.class,(data) -> ((Shape) data).toNBT(), (tag) -> new Shape((CompoundTag) tag));
+        BlockEntityProperty.registerPropertyType(Shape.class,(data, ignored) -> ((Shape) data).toNBT(), (tag) -> new Shape((CompoundTag) tag));
 
-        BlockEntityProperty.registerPropertyType(MatterNetwork.class,(data) -> ((MatterNetwork) data).saveTag(), (tag) -> MatterNetwork.loadTag((CompoundTag) tag));
-
-        BlockEntityProperty.registerPropertyType(Grid.class, (data) -> ((Grid)data).toNBT(), Grid::fromNBT);
+        BlockEntityProperty.registerPropertyType(MatterNetwork.class,(data, sync) -> ((MatterNetwork) data).saveTag(sync), (tag) -> MatterNetwork.loadTag((CompoundTag) tag));
     }
 
 }
