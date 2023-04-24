@@ -31,10 +31,10 @@ public class MatterNetwork {
 
     private void addEdge(Vertex a, Vertex b, Wire wire){
         Edge edge = new Edge(a,b,edge_id, wire);
-        a.addEdge(edge);
-        b.addEdge(edge);
         if(edges.contains(edge))
             return;
+        a.addEdge(edge);
+        b.addEdge(edge);
         edges.add(edge);
         edge_id ++;
     }

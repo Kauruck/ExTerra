@@ -117,6 +117,7 @@ public class RitualStoneEntity extends BaseBlockEntity {
                 matterNetwork.get().serverTick();
                 matterNetwork.markChanged();
             }catch (RuntimeException e){
+                //Something went wrong in the network
                 this.broken.set(true);
                 this.broken.markChanged();
             }
@@ -140,29 +141,6 @@ public class RitualStoneEntity extends BaseBlockEntity {
 
     public void buildRitual(ServerPlayer player){
         trackingBlock.clear();
-        /*BlockPos basePos = this.getBlockPos();
-        for (int x = -SIZE; x <= SIZE; x++) {
-            for (int z = -SIZE; z <= SIZE; z++) {
-                toCheck.get().add(basePos.north(x).east(z));
-            }
-        }
-        //Build the Multiblock
-        for (BlockPos current : toCheck.get()) {
-            BlockState state = this.getLevel().getBlockState(current);
-            if (state.getBlock() instanceof INetworkMemberBlock) {
-                try {
-                    matterNetwork.get().addVertex(current, this.getLevel());
-                } catch (UnexpectedBehaviorException e) {
-                    throw new RuntimeException(e);
-                }
-                trackingBlock.put(current, state.getBlock());
-                this.setChanged();
-            } else if (state.is(ExTerraTags.RITUAL_TIER_I) && ShapesUtil.containsBlockPos(shapes.get(), current, this.getBlockPos())) {
-                trackingBlock.put(current, state.getBlock());
-            }
-        }
-        this.toCheck.get().clear();*/
-        // Build the Grid
         Grid grid = GridScanner.ScanGrid(this.getBlockPos(), SIZE, this.getLevel());
         matterNetwork.set(new MatterNetwork());
         player.sendSystemMessage(grid.forChat());
