@@ -144,6 +144,7 @@ public class Vertex {
         // Add all the matters this node offers
         availableMatters.clear();
         availableMatters.putAll(Arrays.stream(member.pullMatter())
+                        .filter(Objects::nonNull)
                         .filter(current -> current.getAmount() != 0)
                         .map(stack -> new Tuple<Matter, List<MatterStack>>(stack.getMatter(), splitStack(stack)))
                         .collect(
