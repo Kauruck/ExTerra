@@ -31,6 +31,18 @@ public class TestEmitterBlock extends RitualPlateBlock implements INetworkMember
         return new MatterEmitterEntity(pPos, pState);
     }
 
+
+
+    @Override
+    public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
+        BlockEntity entity = pLevel.getBlockEntity(pPos);
+        if(entity instanceof  MatterEmitterEntity emitterEntity){
+            emitterEntity.cycleMatter();
+            return InteractionResult.SUCCESS;
+        }
+        return super.use(pState, pLevel, pPos, pPlayer, pHand, pHit);
+    }
+
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level pLevel, BlockState pState, BlockEntityType<T> pBlockEntityType) {

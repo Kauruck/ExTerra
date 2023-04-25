@@ -28,13 +28,14 @@ public class MatterReceiverEntity extends BaseBlockEntity implements INetworkMem
 
     @Override
     public boolean acceptsMatter(Matter matter) {
-        return matter == ExTerraCore.TEST_MATTER.get();
+        return matter == ExTerraCore.TEST_MATTER.get() || matter == ExTerraCore.TEST_MATTER_2.get();
     }
 
     @Override
     public Matter[] acceptedMatter() {
-        Matter[] out = new Matter[1];
+        Matter[] out = new Matter[2];
         out[0] =  ExTerraCore.TEST_MATTER.get();
+        out[1] = ExTerraCore.TEST_MATTER_2.get();
         return out;
     }
 

@@ -5,7 +5,10 @@ import com.kauruck.exterra.api.matter.Matter;
 import com.kauruck.exterra.api.matter.MatterStack;
 import com.kauruck.exterra.api.networks.matter.INetworkMember;
 import com.kauruck.exterra.modules.ExTerraCore;
+import com.kauruck.exterra.modules.ExTerraRegistries;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -16,10 +19,25 @@ public class MatterEmitterEntity extends BlockEntity implements INetworkMember {
 
 
     private int tick = 0;
-    private MatterStack localStack = new MatterStack(ExTerraCore.TEST_MATTER.get(), 0);
+    private MatterStack localStack;
+
+    private Matter transportetMatter = ExTerraCore.TEST_MATTER.get();
 
     public MatterEmitterEntity(BlockPos pPos, BlockState pBlockState) {
         super(ExTerraCore.EMITTER_BLOCK_ENTITY.get(), pPos, pBlockState);
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag pTag) {
+        super.saveAdditional(pTag);
+        pTag.putString("matter", ExTerraRegistries.MATTER.get().getKey(transportetMatter).toString());
+    }
+
+    @Override
+    public void load(CompoundTag pTag) {
+        super.load(pTag);
+        if(pTag.contains("matter"))
+            transportetMatter = ExTerraRegistries.MATTER.get().getValue(ResourceLocation.tryParse(pTag.getString("matter")));
     }
 
     @Override
@@ -43,6 +61,9 @@ public class MatterEmitterEntity extends BlockEntity implements INetworkMember {
     }
 
     public void serverTick(){
+        if(localStack == null){
+            localStack = new MatterStack(transportetMatter, 0);
+        }
         if(tick >= 40){
             localStack.addMatter(10);
             tick = 0;
@@ -52,21 +73,22 @@ public class MatterEmitterEntity extends BlockEntity implements INetworkMember {
 
     @Override
     public Matter[] pulledMatter() {
-        Matter[] out = new Matter[1];
+        Matter[] out = new Matter[2];
         out[0] =  ExTerraCore.TEST_MATTER.get();
+        out[1] =  ExTerraCore.TEST_MATTER_2.get();
         return out;
     }
 
     @Override
     public boolean pullsMatter(Matter matter) {
-        return matter == ExTerraCore.TEST_MATTER.get();
+        return matter == transportetMatter;
     }
 
     @Override
     public MatterStack[] pullMatter() {
         MatterStack[] out = new MatterStack[1];
         out[0] =  localStack;
-        localStack = new MatterStack(ExTerraCore.TEST_MATTER.get(), 0);
+        localStack = new MatterStack(transportetMatter, 0);
         return out;
     }
 
@@ -74,5 +96,12 @@ public class MatterEmitterEntity extends BlockEntity implements INetworkMember {
     public void applyBackpressure(MatterStack[] matters) {
         //ExTerra.LOGGER.info("Voiding matter: {}", Arrays.toString(matters));
         // Just void them I don't care
+    }
+
+    public void cycleMatter(){
+        if(transportetMatter == ExTerraCore.TEST_MATTER.get())
+            transportetMatter = ExTerraCore.TEST_MATTER_2.get();
+        else
+            transportetMatter = ExTerraCore.TEST_MATTER.get();
     }
 }

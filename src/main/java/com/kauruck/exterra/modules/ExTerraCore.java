@@ -31,6 +31,7 @@ public class ExTerraCore {
     //Test Stuff
     public static final RegistryObject<Item> TEST_ITEM = ITEM_REGISTRY.register("test", () -> new Item(ExTerraShared.DEFAULT_PROPERTIES_ITEM));
     public static final RegistryObject<Matter> TEST_MATTER = MATTER_REGISTRY.register("test_matter", () -> new Matter(new Matter.MatterProperties().setEnergy(1).setParticleColor(Colors.RED)));
+    public static final RegistryObject<Matter> TEST_MATTER_2 = MATTER_REGISTRY.register("test_matter_2", () -> new Matter(new Matter.MatterProperties().setEnergy(1).setParticleColor(Colors.BLUE)));
 
     //Ritual Lense
     public static final RegistryObject<Item> RITUAL_LENS = ITEM_REGISTRY.register("ritual_lens", () -> new RitualLensItem());

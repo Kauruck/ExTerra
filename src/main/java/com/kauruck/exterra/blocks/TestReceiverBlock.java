@@ -34,7 +34,6 @@ public class TestReceiverBlock extends RitualPlateBlock implements INetworkMembe
     @Override
     public void destroy(LevelAccessor pLevel, BlockPos pPos, BlockState pState) {
         super.destroy(pLevel, pPos, pState);
-        ExTerra.LOGGER.info("Destroyed block");
     }
 
     @Override

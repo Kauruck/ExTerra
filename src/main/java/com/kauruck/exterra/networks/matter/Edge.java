@@ -46,7 +46,6 @@ public class Edge {
         this.transportedMatterFromA = Arrays.stream(a.getMember().pulledMatter())
                 .filter(matter ->  b.getMember().acceptsMatter(matter))
                 .toArray(Matter[]::new);
-
         this.transportedMatterFromB = Arrays.stream(b.getMember().pulledMatter())
                 .filter(matter ->  a.getMember().acceptsMatter(matter))
                 .toArray(Matter[]::new);
