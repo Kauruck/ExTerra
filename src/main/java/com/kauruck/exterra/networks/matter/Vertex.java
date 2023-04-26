@@ -153,8 +153,6 @@ public class Vertex {
                                 Tuple::getB
                         )
         ));
-        /*if(availableMatters.size() != 0)
-            ExTerra.LOGGER.info(availableMatters);*/
     }
 
     private List<MatterStack> splitStack(MatterStack stack){
@@ -200,4 +198,6 @@ public class Vertex {
             //If it is not in the availableMatters Map I don't know how it got there
         }
     }
+
+
 }

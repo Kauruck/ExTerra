@@ -1,5 +1,6 @@
 package com.kauruck.exterra.blockentities;
 
+import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.api.exceptions.UnexpectedBehaviorException;
 import com.kauruck.exterra.fx.ParticleHelper;
 import com.kauruck.exterra.fx.VectorHelper;
@@ -143,14 +144,14 @@ public class RitualStoneEntity extends BaseBlockEntity {
         trackingBlock.clear();
         Grid grid = GridScanner.ScanGrid(this.getBlockPos(), SIZE, this.getLevel());
         matterNetwork.set(new MatterNetwork());
-        player.sendSystemMessage(grid.forChat());
         List<BlockPos> vertices = GridScanner.scanGridForMembers(grid);
         try {
             matterNetwork.get().addRangeVertices(vertices, level);
         } catch (UnexpectedBehaviorException e) {
             throw new RuntimeException(e);
         }
-        List<Wire> wires = GridScanner.scanGridForWires(grid);
+        HashSet<Wire> wires = GridScanner.scanGridForWires(grid);
+        ExTerra.LOGGER.info(wires);
         this.matterNetwork.get().addRangeEdge(wires);
         this.broken.set(false);
         this.broken.markChanged();

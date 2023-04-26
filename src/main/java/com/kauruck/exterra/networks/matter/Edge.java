@@ -17,6 +17,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class Edge {
 
@@ -123,15 +124,16 @@ public class Edge {
         wire.serverTick();
 
         //TODO Conversion
-
         List<MatterStack> remainderList = new ArrayList<>();
         //Move from a
         for(Matter currentMatter : transportedMatterFromA){
             MatterStack stack = a.pullMatterStack(currentMatter);
-            if(stack == null)
+            if(stack == null) {
+                //ExTerra.LOGGER.debug("Matter {} not available at {}", currentMatter, this.a.getPosition());
                 continue;
+            }
             wire.addInfo(stack.getMatter().getParticleColor());
-            //ExTerra.LOGGER.debug("Moving Matter {} from {} to {}", stack, this.a.getMember().getName(), this.b.getMember().getName());
+            //ExTerra.LOGGER.debug("Moving Matter {} from {} to {}", stack, this.a.getPosition(), this.b.getPosition());
             MatterStack remainder = b.getMember().pushMatter(stack);
             if(remainder != null && remainder.getAmount() != 0){
                 remainderList.add(remainder);
@@ -144,9 +146,11 @@ public class Edge {
         //Move from b
         for(Matter currentMatter : transportedMatterFromB){
             MatterStack stack = b.pullMatterStack(currentMatter);
-            if(stack == null)
+            if(stack == null) {
+                //ExTerra.LOGGER.debug("Matter {} not available at {}", currentMatter, this.b.getPosition());
                 continue;
-            //ExTerra.LOGGER.debug("Moving Matter {} form {} to {}", stack, this.b.getMember().getName(), this.a.getMember().getName());
+            }
+            //ExTerra.LOGGER.debug("Moving Matter {} form {} to {}", stack, this.b.getPosition(), this.a.getPosition());
             wire.addInfo(stack.getMatter().getParticleColor());
             MatterStack remainder = a.getMember().pushMatter(stack);
             if(remainder != null && remainder.getAmount() != 0){
@@ -159,5 +163,13 @@ public class Edge {
 
     public void animationTick(ClientLevel level, RandomSource random) {
         wire.animationTick(level, random);
+    }
+
+    @Override
+    public String toString() {
+        return "Edge(" + id + ")" +
+                "{" +
+                "wire=" + wire +
+                '}';
     }
 }
