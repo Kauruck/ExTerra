@@ -29,8 +29,7 @@ public class ParticleHelper {
 
     public static void spawnParticlesAlongLine(Level pLevel, RandomSource pRandom, BlockPos pPos, Vec3 pParticleVec, Direction pXDirection, Direction pZDirection, float pMin, float pMax) {
         float f = pMax - pMin;
-        if (!(pRandom.nextFloat() >= 0.2F * f)) {
-            float f1 = 0.4375F;
+        if (!(pRandom.nextFloat() >= 0.5F * f)) {
             float f2 = pMin + f * pRandom.nextFloat();
             double d0 = 0.5D + (double)(0.4375F * (float)pXDirection.getStepX()) + (double)(f2 * (float)pZDirection.getStepX());
             double d1 = 0.5D + (double)(0.4375F * (float)pXDirection.getStepY()) + (double)(f2 * (float)pZDirection.getStepY());

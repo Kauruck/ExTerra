@@ -149,7 +149,6 @@ public class Wire {
 
         boolean lengthSame = this.positions.size() == other.positions.size();
 
-        //TODO do we need the HashSet?
         boolean allElementsIncluded = new HashSet<>(this.positions).containsAll(other.positions);
 
         return terminalEquals && lengthSame && allElementsIncluded;
@@ -242,6 +241,14 @@ public class Wire {
             result = 31 * result + (flip ? 1 : 0);
             result = 31 * result + (strength != +0.0f ? Float.floatToIntBits(strength) : 0);
             return result;
+        }
+
+        @Override
+        public String toString() {
+            return "WireTransferInfo{" +
+                    "color=" + color +
+                    ", strength=" + strength +
+                    '}';
         }
     }
 }
