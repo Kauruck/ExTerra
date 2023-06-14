@@ -1,5 +1,12 @@
 package com.kauruck.exterra.api.matter;
 
+import com.kauruck.exterra.ExTerra;
+import com.kauruck.exterra.modules.ExTerraRegistries;
+import net.minecraft.core.Registry;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+
 import java.util.Objects;
 
 import static com.kauruck.exterra.fx.MathHelper.clamp;
@@ -28,6 +35,21 @@ public class MatterStack {
     public MatterStack(Matter matter) {
         this.matter = matter;
         this.amount = 0;
+    }
+
+    public MatterStack(CompoundTag tag){
+        //TODO NBT/ForgeCaps
+        this.matter = ExTerraRegistries.MATTER.get().getValue(new ResourceLocation(tag.getString("id")));
+        this.amount = tag.getByte("Count");
+    }
+
+    public static MatterStack of(CompoundTag tag) {
+        try {
+            return new MatterStack(tag);
+        } catch (RuntimeException runtimeexception) {
+            ExTerra.LOGGER.debug("Tried to load invalid item: {}", tag, runtimeexception);
+            return EMPTY;
+        }
     }
 
     /**
@@ -117,5 +139,17 @@ public class MatterStack {
         int result = matter != null ? matter.hashCode() : 0;
         result = 31 * result + amount;
         return result;
+    }
+
+    public boolean isEmpty(){
+        return this.amount == 0;
+    }
+
+    public boolean is(Matter matter){
+        return this.matter == matter;
+    }
+
+    public MatterStack copy() {
+        return new MatterStack(this.matter, this.amount);
     }
 }

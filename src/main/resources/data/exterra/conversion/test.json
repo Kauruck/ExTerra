@@ -1,0 +1,14 @@
+{
+  "type" : "exterra:conversion",
+  "output" : {
+    "matter":"exterra:test_matter",
+    "amount": "1"
+  },
+  "input": [
+    {
+      "type" : "const_matter",
+      "matter": "exterra:test_matter_2",
+      "amount" : 5
+    }
+  ]
+}

@@ -1,6 +1,9 @@
 package com.kauruck.exterra.modules;
 
+import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.api.matter.Matter;
+import com.kauruck.exterra.api.matter.MatterStack;
+import com.kauruck.exterra.api.recipes.*;
 import com.kauruck.exterra.blockentities.MatterEmitterEntity;
 import com.kauruck.exterra.blockentities.MatterReceiverEntity;
 import com.kauruck.exterra.blockentities.RitualStoneEntity;
@@ -9,20 +12,25 @@ import com.kauruck.exterra.blocks.RitualStone;
 import com.kauruck.exterra.blocks.TestEmitterBlock;
 import com.kauruck.exterra.blocks.TestReceiverBlock;
 import com.kauruck.exterra.geometry.Shape;
+import com.kauruck.exterra.ingredients.MatterIngredient;
+import com.kauruck.exterra.ingredients.MatterIngredientSerializer;
 import com.kauruck.exterra.items.RitualLensItem;
 import com.kauruck.exterra.items.RitualMap;
 import com.kauruck.exterra.networking.BlockEntityProperty;
-import com.kauruck.exterra.networks.matter.Grid;
 import com.kauruck.exterra.networks.matter.MatterNetwork;
+import com.kauruck.exterra.recipes.ConversionContainer;
+import com.kauruck.exterra.recipes.ConversionRecipe;
+import com.kauruck.exterra.recipes.ConversionSerializer;
 import com.kauruck.exterra.util.Colors;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.RegistryObject;
 
-import java.awt.Color;
+import java.util.function.Supplier;
 
 import static com.kauruck.exterra.modules.RegistryManger.*;
 
@@ -33,6 +41,11 @@ public class ExTerraCore {
     public static final RegistryObject<Matter> TEST_MATTER = MATTER_REGISTRY.register("test_matter", () -> new Matter(new Matter.MatterProperties().setEnergy(1).setParticleColor(Colors.RED)));
     public static final RegistryObject<Matter> TEST_MATTER_2 = MATTER_REGISTRY.register("test_matter_2", () -> new Matter(new Matter.MatterProperties().setEnergy(1).setParticleColor(Colors.BLUE)));
 
+    //Recipes
+    public static final Supplier<ExTerraRecipeManager<MatterStack>> CONVERSION_RECIPE_MANGER = ExTerraReloadableResources.registerRecipeManger(ExTerra.getResource("conversion"), (context) -> new ExTerraRecipeManager<>(context, "conversion" , ExTerra.getResource("conversion")));
+    public static final RegistryObject<ExTerraRecipeSerializer<ConversionRecipe>> CONVERSION_RECIPE_SERIALIZER = RECIPE_SERIALIZER_REGISTRY.register("conversion", ConversionSerializer::new);
+    public static final RegistryObject<ExTerraRecipeType<ConversionRecipe>> CONVERSION_RECIPE_TYPE = RECIPE_TYPE_REGISTRY.register("conversion",() -> new ExTerraRecipeType<>(ExTerra.getResource("conversion")));
+    public static final RegistryObject<ExTerraIngredientSerializer<MatterIngredient>> CONST_MATTER_SERIALIZER = INGREDIENT_SERIALIZER_REGISTRY.register("const_matter", MatterIngredientSerializer::new);
     //Ritual Lense
     public static final RegistryObject<Item> RITUAL_LENS = ITEM_REGISTRY.register("ritual_lens", () -> new RitualLensItem());
 
