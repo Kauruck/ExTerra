@@ -1,22 +1,13 @@
 package com.kauruck.exterra.api.recipes;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.kauruck.exterra.api.blockentity.IRecipeContainerHolder;
 import com.kauruck.exterra.modules.ExTerraRegistries;
-import com.kauruck.exterra.modules.ExTerraReloadableResources;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.Tuple;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
-
-public abstract class ExTerraRecipe<T, C extends ExTerraRecipeContainer<T>> implements Predicate<T> {
+public abstract class ExTerraRecipe<T, C extends ExTerraRecipeContainer<T>>{
     private final ResourceLocation id;
 
     private final ExTerraRecipeType<?> recipeType;
