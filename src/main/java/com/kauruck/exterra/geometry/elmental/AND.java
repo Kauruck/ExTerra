@@ -1,10 +1,13 @@
 package com.kauruck.exterra.geometry.elmental;
 
 
+import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.api.geometry.ElementalOperation;
 import com.kauruck.exterra.api.geometry.GeometricRule;
 import com.kauruck.exterra.api.geometry.IGeometricTest;
+import com.kauruck.exterra.commands.ExTerraCommands;
 import com.kauruck.exterra.geometry.BlockPosHolder;
+import net.minecraft.resources.ResourceLocation;
 
 
 public class AND extends ElementalOperation {
@@ -27,8 +30,8 @@ public class AND extends ElementalOperation {
     }
 
     @Override
-    public String getName() {
-        return "and";
+    public ResourceLocation getName() {
+        return ExTerra.getResource("and");
     }
 
 }

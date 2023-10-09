@@ -18,6 +18,7 @@ public class ExTerraCommands {
     public static void registerCommands(RegisterCommandsEvent event){
         CommandDispatcher<CommandSourceStack> commandDispatcher = event.getDispatcher();
         CommandGetProperty.register(commandDispatcher);
+        TestCommand.register(commandDispatcher);
 
     }
 

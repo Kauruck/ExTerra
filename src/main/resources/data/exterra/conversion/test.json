@@ -6,9 +6,12 @@
   },
   "input": [
     {
-      "type" : "const_matter",
+      "type" : "exterra:const_matter",
       "matter": "exterra:test_matter_2",
       "amount" : 5
     }
+  ],
+  "shapes": [
+    "exterra:square"
   ]
 }

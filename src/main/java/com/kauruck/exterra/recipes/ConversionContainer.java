@@ -1,20 +1,22 @@
 package com.kauruck.exterra.recipes;
 
-import com.kauruck.exterra.api.matter.Matter;
 import com.kauruck.exterra.api.matter.MatterStack;
 import com.kauruck.exterra.api.recipes.ExTerraRecipeContainer;
+import com.kauruck.exterra.data.ShapeData;
+import com.kauruck.exterra.geometry.Shape;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class ConversionContainer implements ExTerraRecipeContainer<MatterStack> {
 
     private final Set<MatterStack> matters;
-    public ConversionContainer(Set<MatterStack> matters){
+    private final Set<ShapeData> presentShapes = new HashSet<>();
+    public ConversionContainer(Set<MatterStack> matters, Set<Shape> presentShapes){
         this.matters = matters;
+        for(Shape currentShape : presentShapes){
+            this.presentShapes.add(currentShape.getShapeData());
+        }
     }
     @Override
     public int getSize() {
@@ -45,5 +47,10 @@ public class ConversionContainer implements ExTerraRecipeContainer<MatterStack> 
     @Override
     public Iterator<MatterStack> iterator() {
         return matters.iterator();
+    }
+
+    // Additional information
+    public boolean isShapePresent(ShapeData shape){
+        return presentShapes.contains(shape);
     }
 }

@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.kauruck.exterra.geometry.GeometryParts;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +26,7 @@ public abstract class ElementalOperation implements IGeometricTest {
                     if(!currentObject.has(("name")))
                         continue;
 
-                    String name = currentObject.get("name").getAsString();
+                    ResourceLocation name = new ResourceLocation(currentObject.get("name").getAsString());
                     if(!GeometryParts.GEOMETRIC_TESTS.containsKey(name))
                         continue;
 
@@ -43,7 +44,7 @@ public abstract class ElementalOperation implements IGeometricTest {
     @Override
     public JsonObject toJSON() {
         JsonObject out = new JsonObject();
-        out.addProperty("name", this.getName());
+        out.addProperty("name", this.getName().toString());
         JsonArray predictsArray = new JsonArray();
         parts.forEach((part) -> predictsArray.add(part.toJSON()));
         out.add("predicts", predictsArray);

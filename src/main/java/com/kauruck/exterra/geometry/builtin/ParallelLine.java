@@ -5,6 +5,7 @@ import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.api.geometry.GeometricRule;
 import com.kauruck.exterra.geometry.BlockPosHolder;
 import com.kauruck.exterra.util.MathUtil;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -70,8 +71,8 @@ public class ParallelLine extends GeometricRule {
     }
 
     @Override
-    public String getName() {
-        return "parallel_line";
+    public ResourceLocation getName() {
+        return ExTerra.getResource("parallel_line");
     }
 
     @Override

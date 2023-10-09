@@ -2,9 +2,11 @@ package com.kauruck.exterra.geometry.builtin;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
+import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.api.geometry.GeometricRule;
 import com.kauruck.exterra.geometry.BlockPosHolder;
 import com.kauruck.exterra.util.MathUtil;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,8 +48,8 @@ public class IntersectAngle extends GeometricRule {
     }
 
     @Override
-    public String getName() {
-        return "angle";
+    public ResourceLocation getName() {
+        return ExTerra.getResource( "angle");
     }
 
     @Override

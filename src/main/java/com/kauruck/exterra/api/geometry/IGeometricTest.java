@@ -2,6 +2,7 @@ package com.kauruck.exterra.api.geometry;
 
 import com.google.gson.JsonObject;
 import com.kauruck.exterra.geometry.BlockPosHolder;
+import net.minecraft.resources.ResourceLocation;
 
 public interface IGeometricTest {
 
@@ -11,7 +12,7 @@ public interface IGeometricTest {
 
     Character[] expectedBlockPosNames();
 
-    String getName();
+    ResourceLocation getName();
 
     JsonObject toJSON();
 }

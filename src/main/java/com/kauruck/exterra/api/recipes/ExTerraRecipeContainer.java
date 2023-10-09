@@ -45,4 +45,17 @@ public interface ExTerraRecipeContainer<T> extends Iterable<T>{
      * @return Collection of all Objects.
      */
     Collection<T> getAll();
+
+    /**
+     * Tests weather an ingredient is true for this container
+     * @param ingredient The ingredient to test
+     * @return Weather the ingredient is true
+     */
+    default boolean testIngredient(ExTerraIngredient<T> ingredient) {
+        for(T current : this.getAll()){
+            if(ingredient.test(current))
+                return true;
+        }
+        return false;
+    }
 }

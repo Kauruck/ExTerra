@@ -1,24 +1,26 @@
 package com.kauruck.exterra.data.provider;
 
+import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.api.geometry.ElementalOperation;
 import com.kauruck.exterra.api.geometry.IGeometricTest;
 import com.kauruck.exterra.data.ShapeData;
 import com.kauruck.exterra.geometry.builtin.IntersectAngle;
 import com.kauruck.exterra.geometry.builtin.ParallelLine;
 import com.kauruck.exterra.geometry.elmental.AND;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ShapeDataBuilder {
 
-    private final String name;
+    private final ResourceLocation name;
     private final int numberOfPoints;
     private final List<IGeometricTest> parts = new ArrayList<>();
     private final ShapeDataBuilder superBuilder;
     private final IGeometricTest targetTest;
 
-    public ShapeDataBuilder(String name, int numberOfPoints) {
+    public ShapeDataBuilder(ResourceLocation name, int numberOfPoints) {
         this.name = name;
         this.numberOfPoints = numberOfPoints;
         this.superBuilder = null;
@@ -26,7 +28,7 @@ public class ShapeDataBuilder {
     }
 
     public ShapeDataBuilder(ShapeDataBuilder superBuilder, IGeometricTest targetTest) {
-        name = "";
+        name = ExTerra.getResource("empty");
         numberOfPoints = 0;
         this.superBuilder = superBuilder;
         this.targetTest = targetTest;

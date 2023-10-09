@@ -1,9 +1,9 @@
 {
-  "name": "square",
+  "name": "exterra:square",
   "points": 4,
   "predicts": [
     {
-      "name": "parallel_line",
+      "name": "exterra:parallel_line",
       "epsilon": 0.5,
       "parameters": {
         "pos": [
@@ -15,7 +15,7 @@
       }
     },
     {
-      "name": "parallel_line",
+      "name": "exterra:parallel_line",
       "epsilon": 0.5,
       "parameters": {
         "pos": [

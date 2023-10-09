@@ -1,6 +1,8 @@
 package com.kauruck.exterra.modules;
 
 import com.kauruck.exterra.api.recipes.ExTerraRecipeManager;
+import com.kauruck.exterra.data.ShapeData;
+import com.kauruck.exterra.data.loader.ShapeReloadListener;
 import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
@@ -30,6 +32,8 @@ public class ExTerraReloadableResources implements PreparableReloadListener{
 
     private Map<ResourceLocation ,? extends ExTerraRecipeManager<?>> currentRecipeManager = new HashMap<>();
 
+    private ShapeReloadListener shapeReloadListener = new ShapeReloadListener();
+
     private ICondition.IContext currentContext;
 
     public void setCurrentContext(ICondition.IContext newCurrentContext){
@@ -45,6 +49,18 @@ public class ExTerraReloadableResources implements PreparableReloadListener{
         return (ExTerraRecipeManager<T>) currentRecipeManager.get(location);
     }
 
+    public Map<ResourceLocation, ShapeData> getShapes(){
+        return shapeReloadListener.shapes;
+    }
+
+    public ShapeData getShape(ResourceLocation name){
+        return shapeReloadListener.shapes.get(name);
+    }
+
+    public boolean existsShape(ResourceLocation name){
+        return shapeReloadListener.shapes.containsKey(name);
+    }
+
     @Override
     public CompletableFuture<Void> reload(PreparationBarrier pPreparationBarrier, ResourceManager pResourceManager, ProfilerFiller pPreparationsProfiler, ProfilerFiller pReloadProfiler, Executor pBackgroundExecutor, Executor pGameExecutor) {
         currentRecipeManager = allRecipeManager.keySet().stream()
@@ -53,9 +69,12 @@ public class ExTerraReloadableResources implements PreparableReloadListener{
                         ExTerraRecipeManager::getId,
                         Function.identity()
                 ));
-        return CompletableFuture.allOf(
-                currentRecipeManager.values().stream()
-                        .map(current -> current.reload(pPreparationBarrier, pResourceManager, pPreparationsProfiler, pReloadProfiler, pBackgroundExecutor, pGameExecutor))
-                        .toArray(CompletableFuture[]::new));
+        shapeReloadListener = new ShapeReloadListener();
+        List<CompletableFuture<?>> reloadMembers = new ArrayList<>();
+        reloadMembers.addAll(currentRecipeManager.values().stream()
+                .map(current -> current.reload(pPreparationBarrier, pResourceManager, pPreparationsProfiler, pReloadProfiler, pBackgroundExecutor, pGameExecutor)).toList());
+        reloadMembers.add(shapeReloadListener.reload(pPreparationBarrier, pResourceManager, pPreparationsProfiler, pReloadProfiler, pBackgroundExecutor, pGameExecutor));
+
+        return CompletableFuture.allOf(reloadMembers.toArray(CompletableFuture[]::new));
     }
 }

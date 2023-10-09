@@ -11,7 +11,7 @@ public class Shapes extends ShapeDataProvider {
 
     @Override
     public void registerShapes() {
-        this.registerShape("square",4)
+        this.registerShape(ExTerra.getResource("square"),4)
                 .parallel('A', 'B', 'C', 'D')
                 .parallel('A', 'D', 'B', 'C');
     }

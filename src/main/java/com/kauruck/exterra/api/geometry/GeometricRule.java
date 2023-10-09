@@ -43,7 +43,7 @@ public abstract class GeometricRule implements IGeometricTest{
     @Override
     public JsonObject toJSON() {
         JsonObject out = new JsonObject();
-        out.addProperty("name", this.getName());
+        out.addProperty("name", this.getName().toString());
         out.addProperty("epsilon", this.epsilon);
         JsonArray positionsArray = new JsonArray();
         Arrays.stream(expectedBlockPos)

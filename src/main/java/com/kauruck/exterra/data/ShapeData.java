@@ -7,6 +7,7 @@ import com.kauruck.exterra.api.geometry.GeometricRule;
 import com.kauruck.exterra.api.geometry.IGeometricTest;
 import com.kauruck.exterra.geometry.BlockPosHolder;
 import com.kauruck.exterra.geometry.GeometryParts;
+import net.minecraft.resources.ResourceLocation;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -15,16 +16,16 @@ import java.util.List;
 
 public class ShapeData {
 
-    private final String name;
+    private final ResourceLocation name;
     private final int numberOfPoints;
     private List<IGeometricTest> parts = new ArrayList<>();
 
-    public ShapeData(String name, int numberOfPoints){
+    public ShapeData(ResourceLocation name, int numberOfPoints){
         this.name = name;
         this.numberOfPoints = numberOfPoints;
     }
 
-    public String getName() {
+    public ResourceLocation getName() {
         return name;
     }
 
@@ -54,6 +55,16 @@ public class ShapeData {
         return true;
     }
 
+    @Override
+    public String toString() {
+        return "Shape: " + name;
+    }
+
+    public String getTranslationKey()
+    {
+        return "shape." + name.getNamespace() + "." + name.getPath();
+    }
+
     public void setPredictsFromJSON(JsonArray predictsArray){
         for (JsonElement current : predictsArray) {
             if (current.isJsonObject()) {
@@ -61,7 +72,7 @@ public class ShapeData {
                 if (!currentObject.has(("name")))
                     continue;
 
-                String name = currentObject.get("name").getAsString();
+                ResourceLocation name = new ResourceLocation(currentObject.get("name").getAsString());
                 if (!GeometryParts.GEOMETRIC_TESTS.containsKey(name))
                     continue;
 
@@ -88,7 +99,7 @@ public class ShapeData {
             JsonObject obj = json.getAsJsonObject();
             if(!obj.has("name"))
                 throw new JsonParseException("ShapeData needs to have a name");
-            String name = obj.get("name").getAsString();
+            ResourceLocation name = new ResourceLocation(obj.get("name").getAsString());
             if(!obj.has("points"))
                 throw new JsonParseException("ShapeData needs to have a number of points");
             int numberOfPoints = obj.get("points").getAsInt();
@@ -120,7 +131,7 @@ public class ShapeData {
         @Override
         public JsonElement serialize(ShapeData src, Type typeOfSrc, JsonSerializationContext context) {
             JsonObject root = new JsonObject();
-            root.addProperty("name", src.name);
+            root.addProperty("name", src.getName().toString());
             root.addProperty("points", src.numberOfPoints);
             JsonArray predictsArray = new JsonArray();
             for(IGeometricTest current : src.parts){

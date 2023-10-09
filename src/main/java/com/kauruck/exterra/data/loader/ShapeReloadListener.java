@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class ShapeReloadListener extends SimpleJsonResourceReloadListener {
 
-    public static Map<String, ShapeData> shapes = new HashMap<>();
+    public Map<ResourceLocation, ShapeData> shapes = new HashMap<>();
 
     public ShapeReloadListener() {
         super(new GsonBuilder()
@@ -39,7 +39,7 @@ public class ShapeReloadListener extends SimpleJsonResourceReloadListener {
                     String name = jsonObject.get("name").getAsString();
                     int numberOfPoints = jsonObject.get("points").getAsInt();
                     JsonArray predictsArray = jsonObject.get("predicts").getAsJsonArray();
-                    ShapeData shape = new ShapeData(name, numberOfPoints);
+                    ShapeData shape = new ShapeData(new ResourceLocation(name), numberOfPoints);
                     shape.setPredictsFromJSON(predictsArray);
                     shapes.put(shape.getName(), shape);
                 }

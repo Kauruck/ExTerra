@@ -5,6 +5,7 @@ import com.kauruck.exterra.data.ShapeData;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.HashCache;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 
 import java.io.IOException;
@@ -13,9 +14,9 @@ import java.util.Map;
 
 public abstract class ShapeDataProvider extends GenericDataProvider {
 
-    private final Map<String, ShapeDataBuilder> shapes = new HashMap<>();
+    private final Map<ResourceLocation, ShapeDataBuilder> shapes = new HashMap<>();
 
-    protected ShapeDataBuilder registerShape(String name, int numberOfPoints){
+    protected ShapeDataBuilder registerShape(ResourceLocation name, int numberOfPoints){
         ShapeDataBuilder builder = new ShapeDataBuilder(name, numberOfPoints);
         shapes.put(name, builder);
         return builder;
@@ -26,12 +27,12 @@ public abstract class ShapeDataProvider extends GenericDataProvider {
     }
 
     @Override
-    public void run(CachedOutput pCache) throws IOException {
+    public void run(CachedOutput pCache){
         shapes.clear();
         registerShapes();
-        for(String currentName : shapes.keySet()){
+        for(ResourceLocation currentName : shapes.keySet()){
             ShapeData data = shapes.get(currentName).build();
-            this.saveThing(pCache, currentName, data);
+            this.saveThing(pCache, currentName.getPath(), data);
         }
     }
 

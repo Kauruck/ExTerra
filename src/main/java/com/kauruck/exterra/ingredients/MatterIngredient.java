@@ -26,4 +26,9 @@ public class MatterIngredient extends ExTerraIngredient<MatterStack> {
     public boolean test(MatterStack stack) {
         return this.stack == stack;
     }
+
+    @Override
+    public String toString() {
+        return "Ingredient: " + stack.toString();
+    }
 }

@@ -51,4 +51,11 @@ public abstract class ExTerraRecipe<T, C extends ExTerraRecipeContainer<T>>{
         return (ExTerraRecipeSerializer<ExTerraRecipe<T, C>>) ExTerraRegistries.RECIPE_SERIALIZER.get().getValue(this.getType().typeId());
     }
 
+    @Override
+    public String toString() {
+        return "ExTerraRecipe{" +
+                "id=" + id +
+                ", recipeType=" + recipeType +
+                '}';
+    }
 }

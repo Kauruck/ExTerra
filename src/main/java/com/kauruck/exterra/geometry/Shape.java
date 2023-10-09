@@ -3,10 +3,13 @@ package com.kauruck.exterra.geometry;
 import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.data.ShapeData;
 import com.kauruck.exterra.data.loader.ShapeReloadListener;
+import com.kauruck.exterra.modules.ExTerraReloadableResources;
 import com.kauruck.exterra.util.NBTUtil;
 import com.kauruck.exterra.util.PositionsUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.system.CallbackI;
 
@@ -33,8 +36,8 @@ public class Shape implements Iterable<BlockPos>{
     }
 
     public boolean end(){
-        for(String currentKey : ShapeReloadListener.shapes.keySet()){
-            ShapeData currentShape = ShapeReloadListener.shapes.get(currentKey);
+        for(ResourceLocation currentKey : ExTerraReloadableResources.INSTANCE.getShapes().keySet()){
+            ShapeData currentShape = ExTerraReloadableResources.INSTANCE.getShape(currentKey);
             BlockPosHolder holder = new BlockPosHolder(this.positions.toArray(new BlockPos[0]));
             if(currentShape.test(holder)){
                 shapeData = currentShape;
@@ -57,7 +60,14 @@ public class Shape implements Iterable<BlockPos>{
         if(shapeData == null)
             return "contains: " + positions.size() + " positions";
         else
-            return shapeData.getName();
+            return shapeData.getTranslationKey();
+    }
+
+    public TranslatableContents getTranslation(){
+        if(shapeData == null)
+            return new TranslatableContents("shape.exterra.unfinshed.size", this.positions);
+        else
+            return new TranslatableContents(shapeData.getTranslationKey());
     }
 
     public void fromNBT(CompoundTag tag){
@@ -68,9 +78,9 @@ public class Shape implements Iterable<BlockPos>{
             this.positions.add(pos);
         }
         if(tag.contains(TAG_SHAPE_DATA)){
-            String shapeName = tag.getString(TAG_SHAPE_DATA);
-            if(ShapeReloadListener.shapes.containsKey(shapeName))
-                shapeData = ShapeReloadListener.shapes.get(shapeName);
+            ResourceLocation shapeName = new ResourceLocation(tag.getString(TAG_SHAPE_DATA));
+            if(ExTerraReloadableResources.INSTANCE.existsShape(shapeName))
+                shapeData = ExTerraReloadableResources.INSTANCE.getShape(shapeName);
         }
     }
 
@@ -82,7 +92,7 @@ public class Shape implements Iterable<BlockPos>{
             tag.put(Integer.toString(i), NBTUtil.blockPosToNBT(positions.get(i)));
         }
         if(shapeData != null)
-            tag.putString(TAG_SHAPE_DATA, shapeData.getName());
+            tag.putString(TAG_SHAPE_DATA, shapeData.getName().toString());
         return tag;
     }
 
@@ -110,4 +120,7 @@ public class Shape implements Iterable<BlockPos>{
         return this.positions.iterator();
     }
 
+    public ShapeData getShapeData() {
+        return this.shapeData;
+    }
 }

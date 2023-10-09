@@ -24,4 +24,8 @@ public class ExTerraRecipeType<T extends  ExTerraRecipe<?, ?>> {
         return loc;
     }
 
+    @Override
+    public String toString() {
+        return loc.toString();
+    }
 }
