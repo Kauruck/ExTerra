@@ -35,9 +35,6 @@ public class RitualStone extends RitualPlateBlock implements EntityBlock {
                 .requiresCorrectToolForDrops());
     }
 
-
-
-
     @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pPos, BlockState pState) {

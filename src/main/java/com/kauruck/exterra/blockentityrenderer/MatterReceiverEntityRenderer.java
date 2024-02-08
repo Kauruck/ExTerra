@@ -16,6 +16,7 @@ public class MatterReceiverEntityRenderer implements BlockEntityRenderer<MatterR
 
     @Override
     public void render(MatterReceiverEntity pBlockEntity, float pPartialTick, PoseStack pPoseStack, MultiBufferSource pBufferSource, int pPackedLight, int pPackedOverlay) {
-        RenderUtil.renderFloatingTextOverBlock(context, Integer.toString(pBlockEntity.getReceivedMatter()),  pPoseStack, pBufferSource, pPackedLight);
+        String toDisplay = pBlockEntity.getReceivedMatter() + "\n" + pBlockEntity.getMatterName();
+        RenderUtil.renderFloatingTextOverBlock(context, toDisplay,  pPoseStack, pBufferSource, pPackedLight);
     }
 }

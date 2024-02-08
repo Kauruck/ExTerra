@@ -4,6 +4,8 @@ import com.kauruck.exterra.api.blockentity.NotIterableInProperty;
 import com.kauruck.exterra.util.NBTUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.*;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.Resource;
 import net.minecraftforge.api.distmarker.Dist;
 
 import java.util.*;
@@ -194,6 +196,7 @@ public class BlockEntityProperty <T>{
         TO_NBTS.put(Double.class, (data, ignored) -> DoubleTag.valueOf((Double) data));
         TO_NBTS.put(Long.class, (data, ignored) -> LongTag.valueOf((Long) data));
         TO_NBTS.put(BlockPos.class, (data, ignored) -> NBTUtil.blockPosToNBT((BlockPos) data));
+        TO_NBTS.put(ResourceLocation.class, (data, ignored) -> StringTag.valueOf(((ResourceLocation) data).toString()));
 
         //fromNBts
         FROM_NBTS.put(Boolean.class, (tag) -> ((ByteTag)tag).getAsByte() != 0);
@@ -203,6 +206,7 @@ public class BlockEntityProperty <T>{
         FROM_NBTS.put(Double.class, (tag) -> ((DoubleTag)tag).getAsDouble());
         FROM_NBTS.put(Long.class, (tag) -> ((LongTag)tag).getAsLong());
         FROM_NBTS.put(BlockPos.class, (tag) -> NBTUtil.blockPosFromNBT((CompoundTag) tag));
+        FROM_NBTS.put(ResourceLocation.class, (tag) -> new ResourceLocation(((StringTag) tag).getAsString()));
 
 
         //Iterables
