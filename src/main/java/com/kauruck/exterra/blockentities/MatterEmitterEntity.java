@@ -21,7 +21,7 @@ public class MatterEmitterEntity extends BlockEntity implements INetworkMember {
     private int tick = 0;
     private MatterStack localStack;
 
-    private Matter transportetMatter = ExTerraCore.TEST_MATTER.get();
+    private Matter transportetMatter = ExTerraCore.TEST_MATTER_2.get();
 
     public MatterEmitterEntity(BlockPos pPos, BlockState pBlockState) {
         super(ExTerraCore.EMITTER_BLOCK_ENTITY.get(), pPos, pBlockState);

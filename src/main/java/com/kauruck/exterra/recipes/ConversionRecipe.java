@@ -1,13 +1,18 @@
 package com.kauruck.exterra.recipes;
 
+import com.kauruck.exterra.api.matter.Matter;
 import com.kauruck.exterra.api.matter.MatterStack;
 import com.kauruck.exterra.api.recipes.ExTerraIngredient;
 import com.kauruck.exterra.api.recipes.ExTerraRecipe;
 import com.kauruck.exterra.data.ShapeData;
+import com.kauruck.exterra.geometry.Shape;
+import com.kauruck.exterra.ingredients.MatterIngredient;
 import com.kauruck.exterra.modules.ExTerraCore;
 import com.kauruck.exterra.modules.ExTerraReloadableResources;
+import com.kauruck.exterra.util.StreamHelper;
 import net.minecraft.core.NonNullList;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
@@ -73,14 +78,18 @@ public class ConversionRecipe extends ExTerraRecipe<MatterStack, ConversionConta
     @Override
     public boolean matches(ConversionContainer container, Level pLevel) {
         loadShapes();
+        for(ShapeData currentShape : this.shapes){
+            if(!container.isShapePresent(currentShape))
+                return false;
+        }
+        return testIngredient(container);
+    }
+
+    private boolean testIngredient(ConversionContainer container) {
         for(ExTerraIngredient<MatterStack> currentIngredient : ingredients){
             if(!container.testIngredient(currentIngredient)){
                 return false;
             }
-        }
-        for(ShapeData currentShape : this.shapes){
-            if(!container.isShapePresent(currentShape))
-                return false;
         }
         return true;
     }
@@ -95,9 +104,42 @@ public class ConversionRecipe extends ExTerraRecipe<MatterStack, ConversionConta
         return true;
     }
 
+    public boolean canBeCraftedWith(List<Matter> matters, List<Shape> shapes) {
+        List<ShapeData> presentShapes = shapes.stream()
+                        .map(Shape::getShapeData)
+                        .toList();
+        loadShapes();
+        for(ShapeData currentShape : this.shapes){
+            if(!presentShapes.contains(currentShape))
+                return false;
+        }
+        for(ExTerraIngredient<MatterStack> currentIngredient : ingredients) {
+            if(currentIngredient instanceof MatterIngredient matterIngredient) {
+                if(!matterIngredient.testMatters(matters)){
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
     @Override
     public MatterStack assemble(ConversionContainer container) {
         return output.copy();
+    }
+
+    public MatterStack assembleAsMuchAsPossible(ConversionContainer container) {
+        MatterStack outputCumulated = new MatterStack(output.getMatter(), 0);
+        while (testIngredient(container)) {
+            outputCumulated.addMatter(output.getAmount());
+            for (ExTerraIngredient<MatterStack> ingredient : ingredients) {
+                if(ingredient instanceof MatterIngredient matterIngredient) {
+                    container.reduceByIngredient(matterIngredient);
+                }
+            }
+        }
+        return outputCumulated;
     }
 
     @Override
@@ -113,6 +155,15 @@ public class ConversionRecipe extends ExTerraRecipe<MatterStack, ConversionConta
     @Override
     public NonNullList<ExTerraIngredient<MatterStack>> getIngredients() {
         return ingredients;
+    }
+
+    public NonNullList<Matter> getUsedMatters() {
+        return ingredients.stream()
+                .filter(MatterIngredient.class::isInstance)
+                .map(MatterIngredient.class::cast)
+                .map(MatterIngredient::getStack)
+                .map(MatterStack::getMatter)
+                .collect(StreamHelper.toNonNullList());
     }
 
     @Override

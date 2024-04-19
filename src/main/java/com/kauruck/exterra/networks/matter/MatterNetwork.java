@@ -3,6 +3,7 @@ package com.kauruck.exterra.networks.matter;
 import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.api.exceptions.UnexpectedBehaviorException;
 import com.kauruck.exterra.api.networks.matter.INetworkMember;
+import com.kauruck.exterra.geometry.Shape;
 import com.kauruck.exterra.util.NBTUtil;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -14,23 +15,30 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class MatterNetwork {
     List<Vertex> vertices = new ArrayList<>();
     List<Edge> edges = new ArrayList<>();
 
+    Supplier<List<Shape>> shapeGetter = null;
+
     private int vertex_id = 0;
     private int edge_id = 0;
     private boolean linked = true;
+
+    private Level level;
+
     public MatterNetwork(){
     }
+
     private MatterNetwork(boolean linked){
         this.linked = linked;
     }
 
     private void addEdge(Vertex a, Vertex b, Wire wire){
-        Edge edge = new Edge(a,b,edge_id, wire);
+        Edge edge = new Edge(a,b,edge_id, wire, this);
         if(edges.contains(edge))
             return;
         a.addEdge(edge);
@@ -84,7 +92,7 @@ public class MatterNetwork {
         Grid grid = Grid.fromNBT(tag.getCompound("grid"));
         if (tag.contains("edges"))
             network.edges = List.of(NBTUtil.compoundTagToCompoundTagArray((CompoundTag) tag.get("edges"))).stream()
-                    .map(Edge::fromTag)
+                    .map(t -> Edge.fromTag(t, network))
                     .collect(Collectors.toList());
         return network;
     }
@@ -93,7 +101,8 @@ public class MatterNetwork {
         return linked;
     }
 
-    public void link(){
+    public void link(Level level) {
+        this.level = level;
         this.vertices.forEach(vertex -> {
             try {
                 vertex.link(this);
@@ -123,6 +132,21 @@ public class MatterNetwork {
                 .toArray(CompoundTag[]::new);
         tag.put("edges", NBTUtil.compoundTagArrayToCompoundTag(edge_tags));
         return tag;
+    }
+
+    public void setShapeGetter(Supplier<List<Shape>> shapeGetter) {
+        this.shapeGetter = shapeGetter;
+    }
+
+    public List<Shape> getShapes() {
+        if(this.shapeGetter != null) {
+            return shapeGetter.get();
+        }
+        return new ArrayList<>();
+    }
+
+    public Level getLevel() {
+        return level;
     }
 
     public void serverTick(){

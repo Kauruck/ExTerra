@@ -4,20 +4,26 @@ import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.api.exceptions.UnexpectedBehaviorException;
 import com.kauruck.exterra.api.matter.Matter;
 import com.kauruck.exterra.api.matter.MatterStack;
+import com.kauruck.exterra.api.networks.matter.INetworkMember;
+import com.kauruck.exterra.api.recipes.ExTerraRecipeManager;
+import com.kauruck.exterra.geometry.Shape;
+import com.kauruck.exterra.modules.ExTerraCore;
+import com.kauruck.exterra.modules.ExTerraReloadableResources;
+import com.kauruck.exterra.recipes.ConversionContainer;
+import com.kauruck.exterra.recipes.ConversionHelper;
+import com.kauruck.exterra.recipes.ConversionRecipe;
 import com.kauruck.exterra.util.NBTUtil;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.ArrayUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class Edge {
 
@@ -32,41 +38,53 @@ public class Edge {
      */
     private final int id;
 
-    private Matter[] transportedMatterFromA;
-    private Matter[] transportedMatterFromB;
+    private Tuple<Matter, Matter[]>[] transportedMatterFromA;
+    private Tuple<Matter, Matter[]>[] transportedMatterFromB;
 
     private final Wire wire;
 
-    public Edge(Vertex a, Vertex b, int id, Wire wire) {
+    private final MatterNetwork network;
+
+    /**
+     * last used recipe.
+     */
+    private ConversionRecipe cachedRecipe = null;
+
+    public Edge(Vertex a, Vertex b, int id, Wire wire, MatterNetwork network) {
         this.id = id;
         this.a = a;
         this.b = b;
         this.id_a = a.getId();
         this.id_b = b.getId();
-        //TODO conversion
-        this.transportedMatterFromA = Arrays.stream(a.getMember().pulledMatter())
-                .filter(matter ->  b.getMember().acceptsMatter(matter))
-                .toArray(Matter[]::new);
-        this.transportedMatterFromB = Arrays.stream(b.getMember().pulledMatter())
-                .filter(matter ->  a.getMember().acceptsMatter(matter))
-                .toArray(Matter[]::new);
+        this.network = network;
+
+        this.transportedMatterFromA = Arrays.stream(ConversionHelper
+                        .convertWithConversion(a.getMember().pulledMatter(), network.getShapes()))
+                .filter(matter ->  b.getMember().acceptsMatter(matter.getA()))
+                .toArray(Tuple[]::new);
+        this.transportedMatterFromB = Arrays.stream(ConversionHelper
+                        .convertWithConversion(b.getMember().pulledMatter(), network.getShapes()))
+                .filter(matter ->  a.getMember().acceptsMatter(matter.getA()))
+                .toArray(Tuple[]::new);
 
         this.wire = wire;
     }
 
-    private Edge(int a_id, int b_id, int id, Wire wire) {
+
+    private Edge(int a_id, int b_id, int id, Wire wire, MatterNetwork network) {
         this.id = id;
         this.id_a = a_id;
         this.id_b = b_id;
         this.wire = wire;
+        this.network = network;
     }
 
-    public static Edge fromTag(CompoundTag tag) {
+    public static Edge fromTag(CompoundTag tag, MatterNetwork network) {
         int a_id = tag.getInt("a");
         int b_id = tag.getInt("b");
         int id = tag.getInt("id");
         Wire wire = Wire.fromNBT(tag.getCompound("wire"));
-        return new Edge(a_id, b_id, id, wire);
+        return new Edge(a_id, b_id, id, wire, network);
     }
 
     public CompoundTag toTag(){
@@ -94,14 +112,14 @@ public class Edge {
                 .findFirst()
                 .orElse(null);
 
-        //TODO conversion
-        this.transportedMatterFromA = Arrays.stream(a.getMember().pulledMatter())
-                .filter(matter ->  b.getMember().acceptsMatter(matter))
-                .toArray(Matter[]::new);
-
-        this.transportedMatterFromB = Arrays.stream(b.getMember().pulledMatter())
-                .filter(matter ->  a.getMember().acceptsMatter(matter))
-                .toArray(Matter[]::new);
+        this.transportedMatterFromA = Arrays.stream(ConversionHelper
+                        .convertWithConversion(a.getMember().pulledMatter(), network.getShapes()))
+                .filter(matter ->  b.getMember().acceptsMatter(matter.getA()))
+                .toArray(Tuple[]::new);
+        this.transportedMatterFromB = Arrays.stream(ConversionHelper
+                        .convertWithConversion(b.getMember().pulledMatter(), network.getShapes()))
+                .filter(matter ->  a.getMember().acceptsMatter(matter.getA()))
+                .toArray(Tuple[]::new);
     }
 
     public int getId() {
@@ -117,48 +135,84 @@ public class Edge {
     }
 
     public Matter[] getTransportedMatter() {
-        return ArrayUtils.addAll(transportedMatterFromA, transportedMatterFromB);
+        return ArrayUtils.addAll(Arrays.stream(transportedMatterFromA).map(Tuple::getA).toArray(Matter[]::new),
+                Arrays.stream(transportedMatterFromB).map(Tuple::getA).toArray(Matter[]::new));
     }
 
     public void serverTick(){
         wire.serverTick();
 
-        //TODO Conversion
+        doTransfer(a, transportedMatterFromA, b);
+        doTransfer(b, transportedMatterFromB, a);
+
+    }
+
+    private void doTransfer(Vertex from, Tuple<Matter, Matter[]>[] maybeTransport, Vertex to) {
+        ExTerraRecipeManager<MatterStack> conversion = ExTerraCore.CONVERSION_RECIPE_MANGER.get();
+
         List<MatterStack> remainderList = new ArrayList<>();
         //Move from a
-        for(Matter currentMatter : transportedMatterFromA){
-            MatterStack stack = a.pullMatterStack(currentMatter);
-            if(stack == null) {
-                //ExTerra.LOGGER.debug("Matter {} not available at {}", currentMatter, this.a.getPosition());
+        for(Tuple<Matter, Matter[]> currentMatterTransfer : maybeTransport) {
+            List<MatterStack> presentStacks = new ArrayList<>();
+            boolean flagJump = false;
+            for (Matter currentMatter : currentMatterTransfer.getB()) {
+                MatterStack stack = from.pullMatterStack(currentMatter);
+
+                if(stack == null) {
+                    flagJump = true;
+                    break;
+                }
+
+                presentStacks.add(stack);
+            }
+
+            if (flagJump || presentStacks.isEmpty()) {
                 continue;
             }
-            wire.addInfo(stack.getMatter().getParticleColor());
-            //ExTerra.LOGGER.debug("Moving Matter {} from {} to {}", stack, this.a.getPosition(), this.b.getPosition());
-            MatterStack remainder = b.getMember().pushMatter(stack);
-            if(remainder != null && remainder.getAmount() != 0){
-                remainderList.add(remainder);
+
+
+            // Transport without conversion
+            if (presentStacks.size() == 1 && presentStacks.get(0).getMatter() == currentMatterTransfer.getA()) {
+                MatterStack stack = presentStacks.get(0);
+                wire.addInfo(stack.getMatter().getParticleColor());
+
+                MatterStack remainder = to.getMember().pushMatter(stack);
+                if(remainder != null && remainder.getAmount() != 0){
+                    remainderList.add(remainder);
+                }
+            } else {
+                ConversionContainer container = new ConversionContainer(new HashSet<>(presentStacks), new HashSet<>(network.getShapes()));
+                ConversionRecipe recipe;
+                if (cachedRecipe != null && cachedRecipe.matches(container, network.getLevel())) {
+                    recipe = cachedRecipe;
+                } else {
+                    Optional<ConversionRecipe> recipeOptional = conversion.getRecipeFor(ExTerraCore.CONVERSION_RECIPE_TYPE.get(), container, network.getLevel());
+
+                    if (recipeOptional.isEmpty()) {
+                        continue;
+                    }
+                    recipe = recipeOptional.get();
+                    cachedRecipe = recipe;
+                }
+
+                if(!recipe.matches(container, network.getLevel())) {
+                    continue;
+                }
+
+                MatterStack output = recipe.assembleAsMuchAsPossible(container);
+
+                wire.addInfo(output.getMatter().getParticleColor());
+                //ExTerra.LOGGER.debug("Moving Matter {} from {} to {}", stack, this.a.getPosition(), this.b.getPosition());
+                MatterStack remainder = to.getMember().pushMatter(output);
+                if(remainder != null && remainder.getAmount() != 0){
+                    remainderList.add(remainder);
+                }
+
+                remainderList.addAll(container.getAll());
             }
+
         }
-        a.applyBackpressure(remainderList);
-        remainderList.clear();
-
-
-        //Move from b
-        for(Matter currentMatter : transportedMatterFromB){
-            MatterStack stack = b.pullMatterStack(currentMatter);
-            if(stack == null) {
-                //ExTerra.LOGGER.debug("Matter {} not available at {}", currentMatter, this.b.getPosition());
-                continue;
-            }
-            //ExTerra.LOGGER.debug("Moving Matter {} form {} to {}", stack, this.b.getPosition(), this.a.getPosition());
-            wire.addInfo(stack.getMatter().getParticleColor());
-            MatterStack remainder = a.getMember().pushMatter(stack);
-            if(remainder != null && remainder.getAmount() != 0){
-                remainderList.add(remainder);
-            }
-        }
-        b.applyBackpressure(remainderList);
-
+        from.applyBackpressure(remainderList);
     }
 
     public void animationTick(ClientLevel level, RandomSource random) {

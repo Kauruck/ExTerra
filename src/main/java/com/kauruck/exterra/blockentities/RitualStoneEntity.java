@@ -113,8 +113,10 @@ public class RitualStoneEntity extends BaseBlockEntity {
         if(!broken.get()) {
             validateMultiblock();
             try {
-                if (!matterNetwork.get().isLinked())
-                    matterNetwork.get().link();
+                if (!matterNetwork.get().isLinked()) {
+                    this.matterNetwork.get().setShapeGetter(this::getShapes);
+                    matterNetwork.get().link(this.getLevel());
+                    }
                 matterNetwork.get().serverTick();
                 matterNetwork.markChanged();
             }catch (RuntimeException e){
@@ -152,6 +154,7 @@ public class RitualStoneEntity extends BaseBlockEntity {
         }
         HashSet<Wire> wires = GridScanner.scanGridForWires(grid);
         ExTerra.LOGGER.info(wires);
+        this.matterNetwork.get().setShapeGetter(this::getShapes);
         this.matterNetwork.get().addRangeEdge(wires);
         this.broken.set(false);
         this.broken.markChanged();

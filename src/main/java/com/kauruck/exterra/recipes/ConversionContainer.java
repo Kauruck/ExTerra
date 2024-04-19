@@ -1,9 +1,12 @@
 package com.kauruck.exterra.recipes;
 
+import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.api.matter.MatterStack;
+import com.kauruck.exterra.api.recipes.ExTerraIngredient;
 import com.kauruck.exterra.api.recipes.ExTerraRecipeContainer;
 import com.kauruck.exterra.data.ShapeData;
 import com.kauruck.exterra.geometry.Shape;
+import com.kauruck.exterra.ingredients.MatterIngredient;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -52,5 +55,19 @@ public class ConversionContainer implements ExTerraRecipeContainer<MatterStack> 
     // Additional information
     public boolean isShapePresent(ShapeData shape){
         return presentShapes.contains(shape);
+    }
+
+    // Additional helpers
+
+    public void reduceByIngredient(MatterIngredient ingredient) {
+        for(MatterStack current : matters) {
+            if(ingredient.test(current)) {
+                current.removeMatter(ingredient.reduceAmount());
+                if(current.getAmount() < 0) {
+                    ExTerra.LOGGER.warn("Matter stack went below zero while reducing an ingredient");
+                }
+                break;
+            }
+        }
     }
 }
