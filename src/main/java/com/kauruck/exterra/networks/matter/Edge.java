@@ -201,8 +201,10 @@ public class Edge {
 
                 MatterStack output = recipe.assembleAsMuchAsPossible(container);
 
-                wire.addInfo(output.getMatter().getParticleColor());
-                //ExTerra.LOGGER.debug("Moving Matter {} from {} to {}", stack, this.a.getPosition(), this.b.getPosition());
+                for (MatterStack input : presentStacks) {
+                    wire.addInfo(input.getMatter().getParticleColor(), 0.5f, from != b);
+                }
+                wire.addInfo(output.getMatter().getParticleColor(), 0.5f, from == b);
                 MatterStack remainder = to.getMember().pushMatter(output);
                 if(remainder != null && remainder.getAmount() != 0){
                     remainderList.add(remainder);

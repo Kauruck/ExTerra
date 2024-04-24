@@ -58,7 +58,7 @@ public class Wire {
     public void animationTick(ClientLevel pLevel, RandomSource pRandom){
         float stepSize = 1f/ positions.size();
         for(int index = 0; index < positions.size(); index++){
-            float percentage = index*stepSize;
+            float percentage = index * stepSize;
             Vec3 color = new Vec3(0,0,0);
             for(WireTransferInfo info : infos){
                 if(!info.flip && percentage <= info.percentage)
@@ -88,8 +88,6 @@ public class Wire {
     }
 
     public void addInfo(Vec3 color, float percentage, boolean fromB){
-        if(!(infos instanceof ArrayList<WireTransferInfo>))
-            ExTerra.LOGGER.info("HOW");
         this.infos.add(new WireTransferInfo(color, percentage, fromB));
     }
 
