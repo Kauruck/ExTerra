@@ -46,8 +46,9 @@ public class ExTerraCore {
     public static final RegistryObject<ExTerraRecipeSerializer<ConversionRecipe>> CONVERSION_RECIPE_SERIALIZER = RECIPE_SERIALIZER_REGISTRY.register("conversion", ConversionSerializer::new);
     public static final RegistryObject<ExTerraRecipeType<ConversionRecipe>> CONVERSION_RECIPE_TYPE = RECIPE_TYPE_REGISTRY.register("conversion",() -> new ExTerraRecipeType<>(ExTerra.getResource("conversion")));
     public static final RegistryObject<ExTerraIngredientSerializer<MatterIngredient>> CONST_MATTER_SERIALIZER = INGREDIENT_SERIALIZER_REGISTRY.register("const_matter", MatterIngredientSerializer::new);
+
     //Ritual Lense
-    public static final RegistryObject<Item> RITUAL_LENS = ITEM_REGISTRY.register("ritual_lens", () -> new RitualLensItem());
+    public static final RegistryObject<Item> RITUAL_LENS = ITEM_REGISTRY.register("ritual_lens", RitualLensItem::new);
 
     //Compound
     public static final RegistryObject<Item> COMPOUND = ITEM_REGISTRY.register("compound",() -> new Item(ExTerraShared.DEFAULT_PROPERTIES_ITEM));
@@ -67,6 +68,9 @@ public class ExTerraCore {
     //Compound Framed Glass
     public static final RegistryObject<Block> COMPOUND_FRAMED_GLASS = BLOCK_REGISTRY.register("compound_framed_glass", () -> new GlassBlock(ExTerraShared.DEFAULT_PROPERTIES_GLASS));
     public static final RegistryObject<Item> COMPOUND_FRAMED_GLASS_ITEM = ITEM_REGISTRY.register("compound_framed_glass", () -> new BlockItem(COMPOUND_FRAMED_GLASS.get(), ExTerraShared.DEFAULT_PROPERTIES_ITEM));
+
+    // Compound Plate
+    public static final RegistryObject<Item> COMPOUND_PLATE = ITEM_REGISTRY.register("compound_plate", () -> new Item(ExTerraShared.DEFAULT_PROPERTIES_ITEM));
 
     //Dusts
     public static final RegistryObject<Block> CALCITE_DUST = BLOCK_REGISTRY.register("calcite_dust", () -> new DustBlock(ExTerraShared.DEFAULT_PROPERTIES_DUST));
