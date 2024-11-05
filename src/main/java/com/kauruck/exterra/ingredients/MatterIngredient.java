@@ -30,7 +30,7 @@ public class MatterIngredient extends ExTerraIngredient<MatterStack> {
 
     @Override
     public boolean test(MatterStack stack) {
-        return this.stack.getMatter() == stack.getMatter() && this.stack.getAmount() < stack.getAmount();
+        return this.stack.getMatter() == stack.getMatter() && this.stack.getAmount() <= stack.getAmount();
     }
 
     @Override

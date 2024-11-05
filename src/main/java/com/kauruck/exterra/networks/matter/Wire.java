@@ -30,7 +30,10 @@ public class Wire {
 
     public static final Codec<Wire> CODEC = RecordCodecBuilder.create(
             instance -> instance.group(
-                    Codec.list(Codec.pair(BlockPos.CODEC, BlockState.CODEC)).fieldOf("positions").forGetter(Wire::getPositions),
+                    Codec.list(Codec.pair(
+                            BlockPos.CODEC.fieldOf("pos").codec(),
+                            BlockState.CODEC.fieldOf("state").codec())
+                    ).fieldOf("positions").forGetter(Wire::getPositions),
                     Codec.list(WireTransferInfo.CODEC).fieldOf("infos").forGetter(Wire::getInfos)
             ).apply(instance, Wire::new)
     );

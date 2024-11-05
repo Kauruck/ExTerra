@@ -1,5 +1,6 @@
 package com.kauruck.exterra.items;
 
+import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.geometry.Shape;
 import com.kauruck.exterra.blocks.RitualStone;
 import com.kauruck.exterra.modules.ExTerraCore;
@@ -44,6 +45,8 @@ public class RitualMap extends Item {
             List<Shape> shapes = itemStack.get(ExTerraCore.COMPONENT_SHAPES);
             if (shapes == null) {
                 shapes = new ArrayList<>();
+            } else {
+                shapes = new ArrayList<>(shapes);
             }
             int currentShapeIndex = itemStack.get(ExTerraCore.COMPONENT_CURRENT_SHAPE) != null ?
                     itemStack.get(ExTerraCore.COMPONENT_CURRENT_SHAPE) : -1;
@@ -92,6 +95,7 @@ public class RitualMap extends Item {
             }
 
             itemStack.set(ExTerraCore.COMPONENT_SHAPES, shapes);
+            ExTerra.LOGGER.debug("Setting shapes to {}", shapes);
             itemStack.set(ExTerraCore.COMPONENT_CURRENT_SHAPE, currentShapeIndex);
         }
 

@@ -2,13 +2,9 @@ package com.kauruck.exterra.data.provider;
 
 
 import com.kauruck.exterra.data.ShapeData;
-import com.kauruck.exterra.modules.ExTerraRegistries;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.*;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.PackType;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,7 +42,7 @@ public abstract class ShapeDataProvider implements DataProvider {
         registerShapes();
         List<CompletableFuture<?>> toGen = new ArrayList<>();
         for (ResourceLocation loc : shapes.keySet()) {
-            toGen.add(DataProvider.saveStable(output, registries, ShapeData.CODEC, shapes.get(loc).build(), shapePathProvider.json(loc)));
+            toGen.add(DataProvider.saveStable(output, registries, ShapeData.FULL_CODEC, shapes.get(loc).build(), shapePathProvider.json(loc)));
         }
         return CompletableFuture.allOf(toGen.toArray(CompletableFuture[]::new));
     }

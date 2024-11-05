@@ -27,7 +27,8 @@ public class DataGenerators {
                 ),
                 lookup));
         generator.addProvider(event.includeServer(), new TagsGenerators(output, lookup, event.getExistingFileHelper()));
-        generator.addProvider(event.includeServer(), new Shapes(output, lookup));
+        generator.addProvider(event.includeServer() || event.includeClient(), new Shapes(output, lookup));
+        generator.addProvider(event.includeServer(), new ConversionRecipesGenerator(output, lookup));
 
         generator.addProvider(event.includeClient(), new BlockStates(output, event.getExistingFileHelper()));
         generator.addProvider(event.includeClient(), new Items(output, event.getExistingFileHelper()));

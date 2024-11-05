@@ -35,7 +35,7 @@ public class ShapeReloadListener extends SimpleJsonResourceReloadListener {
         for(ResourceLocation currentLocation : pObject.keySet()){
             if(pObject.get(currentLocation).isJsonObject()){
                 JsonObject jsonObject = pObject.get(currentLocation).getAsJsonObject();
-                ShapeData shape = ShapeData.CODEC.parse(JsonOps.INSTANCE, jsonObject).getOrThrow(JsonParseException::new);
+                ShapeData shape = ShapeData.FULL_CODEC.parse(JsonOps.INSTANCE, jsonObject).getOrThrow(JsonParseException::new);
                 shapes.put(shape.getName(), shape);
             }
         }

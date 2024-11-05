@@ -1,0 +1,19 @@
+{
+  "type": "exterra:conversion",
+  "input": [
+    {
+      "type": "exterra:const_matter",
+      "matter": {
+        "amount": 10,
+        "matter": "exterra:test_matter"
+      }
+    }
+  ],
+  "output": {
+    "amount": 1,
+    "matter": "exterra:test_matter_2"
+  },
+  "shapes": [
+    "exterra:square"
+  ]
+}

@@ -31,8 +31,8 @@ public class Edge {
 
     public static final Codec<Edge> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
-                    Codec.INT.fieldOf("a").forGetter(e -> e.a.getId()),
-                    Codec.INT.fieldOf("b").forGetter(e -> e.b.getId()),
+                    Codec.INT.fieldOf("a").forGetter(e -> e.id_a),
+                    Codec.INT.fieldOf("b").forGetter(e -> e.id_b),
                     Codec.INT.fieldOf("id").forGetter(Edge::getId),
                     Wire.CODEC.fieldOf("wire").forGetter(Edge::getWire)
             ).apply(instance, Edge::new));
@@ -166,9 +166,40 @@ public class Edge {
                 continue;
             }
 
+            boolean flagFoundRecipe = false;
+            ConversionContainer container = new ConversionContainer(new HashSet<>(presentStacks), new HashSet<>(network.getShapes()));
+            Optional<ConversionRecipe> recipeOptional;
+            if (cachedRecipe != null && cachedRecipe.matches(container, network.getLevel())) {
+                recipeOptional = Optional.of(cachedRecipe);
+            } else {
+                recipeOptional = conversion.getRecipeFor(ExTerraCore.CONVERSION_RECIPE_TYPE.get(), container, network.getLevel());
+            }
+
+            if (recipeOptional.isPresent()) {
+                ConversionRecipe recipe = recipeOptional.get();
+                cachedRecipe = recipe;
+                if(recipe.matches(container, network.getLevel())) {
+                    MatterStack output = recipe.assembleAsMuchAsPossible(container);
+
+                    for (MatterStack input : presentStacks) {
+                        wire.addInfo(input.getMatter().getParticleColor(), 0.5f, from != b);
+                    }
+                    wire.addInfo(output.getMatter().getParticleColor(), 0.5f, from == b);
+                    MatterStack remainder = to.getMember().pushMatter(output);
+                    if(remainder != null && remainder.getAmount() != 0){
+                        remainderList.add(remainder);
+                    }
+
+                    remainderList.addAll(container.getAll());
+                    flagFoundRecipe = true;
+                }
+
+            }
+
+
 
             // Transport without conversion
-            if (presentStacks.size() == 1 && presentStacks.get(0).getMatter() == currentMatterTransfer.getA()) {
+            if (!flagFoundRecipe && presentStacks.size() == 1 && presentStacks.get(0).getMatter() == currentMatterTransfer.getA()) {
                 MatterStack stack = presentStacks.get(0);
                 wire.addInfo(stack.getMatter().getParticleColor());
 
@@ -176,37 +207,6 @@ public class Edge {
                 if(remainder != null && remainder.getAmount() != 0){
                     remainderList.add(remainder);
                 }
-            } else {
-                ConversionContainer container = new ConversionContainer(new HashSet<>(presentStacks), new HashSet<>(network.getShapes()));
-                ConversionRecipe recipe;
-                if (cachedRecipe != null && cachedRecipe.matches(container, network.getLevel())) {
-                    recipe = cachedRecipe;
-                } else {
-                    Optional<ConversionRecipe> recipeOptional = conversion.getRecipeFor(ExTerraCore.CONVERSION_RECIPE_TYPE.get(), container, network.getLevel());
-
-                    if (recipeOptional.isEmpty()) {
-                        continue;
-                    }
-                    recipe = recipeOptional.get();
-                    cachedRecipe = recipe;
-                }
-
-                if(!recipe.matches(container, network.getLevel())) {
-                    continue;
-                }
-
-                MatterStack output = recipe.assembleAsMuchAsPossible(container);
-
-                for (MatterStack input : presentStacks) {
-                    wire.addInfo(input.getMatter().getParticleColor(), 0.5f, from != b);
-                }
-                wire.addInfo(output.getMatter().getParticleColor(), 0.5f, from == b);
-                MatterStack remainder = to.getMember().pushMatter(output);
-                if(remainder != null && remainder.getAmount() != 0){
-                    remainderList.add(remainder);
-                }
-
-                remainderList.addAll(container.getAll());
             }
 
         }

@@ -25,6 +25,12 @@ import java.util.stream.Stream;
 
 public class ExTerraRecipeManager<T> extends SimpleJsonResourceReloadListener {
 
+    public static final Codec<ExTerraRecipe<?, ?>> CODEC = ExTerraRegistries.RECIPE_SERIALIZER.byNameCodec()
+            .dispatch(
+                    r -> r.getRecipeType().getCodec(),
+                    c -> c
+            );
+
     private final Codec<ExTerraRecipe<T, ?>> INNER_CODEC = ExTerraRegistries.RECIPE_SERIALIZER.byNameCodec()
             .dispatch(
                     r -> r.getRecipeType().getCodec(),
