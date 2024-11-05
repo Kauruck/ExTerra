@@ -3,18 +3,11 @@ package com.kauruck.exterra.items;
 import com.kauruck.exterra.fx.ParticleHelper;
 import com.kauruck.exterra.fx.VectorHelper;
 import com.kauruck.exterra.geometry.Shape;
-import com.kauruck.exterra.geometry.ShapeCollection;
 import com.kauruck.exterra.modules.ExTerraCore;
 import com.kauruck.exterra.modules.ExTerraShared;
-import com.kauruck.exterra.util.NBTUtil;
-import com.mojang.math.Vector3f;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -22,6 +15,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import org.joml.Vector3f;
 
 import java.util.List;
 
@@ -29,7 +23,6 @@ import static com.kauruck.exterra.fx.MathHelper.clamp;
 
 public class RitualLensItem extends Item {
 
-    public static final String TAG_VIEW_CENTER = "center";
     public RitualLensItem() {
         super(ExTerraShared.DEFAULT_PROPERTIES_ITEM);
     }
@@ -38,8 +31,7 @@ public class RitualLensItem extends Item {
     public InteractionResult useOn(UseOnContext pContext) {
         BlockState clicked = pContext.getLevel().getBlockState(pContext.getClickedPos());
         if(clicked.getBlock() == ExTerraCore.RITUAL_STONE.get() && pContext.getPlayer().isCrouching()){
-            CompoundTag tag = pContext.getItemInHand().getOrCreateTag();
-            tag.put(TAG_VIEW_CENTER, NBTUtil.blockPosToNBT(pContext.getClickedPos()));
+            pContext.getItemInHand().set(ExTerraCore.COMPONENT_CENTER_POS.get(), pContext.getClickedPos());
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.PASS;
@@ -51,14 +43,11 @@ public class RitualLensItem extends Item {
             if (pEntity instanceof Player player) {
                 ItemStack mainHand = player.getMainHandItem();
                 if (player.getOffhandItem().getItem() == this && mainHand.getItem() == ExTerraCore.RITUAL_MAP.get()) {
-                    CompoundTag data = mainHand.getTag();
-                    CompoundTag centerTag = pStack.getTag();
-                    if (data == null || centerTag == null || !centerTag.contains(TAG_VIEW_CENTER))
+                    List<Shape> shapes = mainHand.get(ExTerraCore.COMPONENT_SHAPES);
+                    BlockPos center = mainHand.get(ExTerraCore.COMPONENT_CENTER_POS);
+                    if (shapes == null || center == null)
                         return;
-                    ShapeCollection shapeCollection = new ShapeCollection(data.getCompound(RitualMap.TAG_SHAPES));
-                    List<Shape> shapes = shapeCollection.getShapes();
-                    BlockPos center = NBTUtil.blockPosFromNBT(centerTag.getCompound(TAG_VIEW_CENTER));
-                    int currentShape = data.getInt(RitualMap.TAG_CURRENT_SHAPE);
+                    Integer currentShape = mainHand.get(ExTerraCore.COMPONENT_CURRENT_SHAPE);
                     int i = 0;
                     int r = 100;
                     int g = 100;

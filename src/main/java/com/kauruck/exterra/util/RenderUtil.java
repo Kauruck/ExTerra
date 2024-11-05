@@ -1,16 +1,11 @@
 package com.kauruck.exterra.util;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Quaternion;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.BlockPos;
@@ -19,9 +14,11 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import org.lwjgl.opengl.GL11;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.util.List;
 @OnlyIn(Dist.CLIENT)
@@ -36,7 +33,7 @@ public class RenderUtil {
        return Minecraft.getInstance().getEntityRenderDispatcher().camera.getPosition();
     }
 
-    public static Quaternion getCameraRotation(){
+    public static Quaternionf getCameraRotation(){
         return Minecraft.getInstance().getEntityRenderDispatcher().cameraOrientation();
     }
 
@@ -62,7 +59,7 @@ public class RenderUtil {
         Matrix4f matrix4f = pMatrixStack.last().pose();
         float f1 = Minecraft.getInstance().options.getBackgroundOpacity(0.9F);
         int j = (int)(f1 * 255.0F) << 24;
-        FONT.drawInBatch(pText, f2, 0f, 553648127, false, matrix4f, pBuffer, false, j, pPackedLight);
+        FONT.drawInBatch(pText, f2, 0f, 553648127, false, matrix4f, pBuffer, Font.DisplayMode.NORMAL, j, pPackedLight);
         pMatrixStack.popPose();
     }
 
@@ -77,7 +74,7 @@ public class RenderUtil {
         Matrix4f matrix4f = pMatrixStack.last().pose();
         float f1 = Minecraft.getInstance().options.getBackgroundOpacity(0.9F);
         int j = (int)(f1 * 255.0F) << 24;
-        FONT.drawInBatch(pText, f2, 0f, 553648127, false, matrix4f, pBuffer, false, j, pPackedLight);
+        FONT.drawInBatch(pText, f2, 0f, 553648127, false, matrix4f, pBuffer, Font.DisplayMode.NORMAL, j, pPackedLight);
         pMatrixStack.popPose();
     }
 
@@ -89,8 +86,12 @@ public class RenderUtil {
         VertexConsumer builder = getMainBufferSource().getBuffer(RenderType.lines());
         Matrix4f matrix4f = stack.last().pose();
         shape.forAllEdges((x1, y1, z1, x2, y2, z2) -> {
-            builder.vertex(matrix4f, (float)x1, (float)y1, (float)z1).color(red, green, blue, alpha).normal(0,0,0).endVertex();
-            builder.vertex(matrix4f, (float)x2, (float)y2, (float)z2).color(red, green, blue, alpha).normal(0,0,0).endVertex();
+            builder.addVertex(matrix4f, (float)x1, (float)y1, (float)z1)
+                    .setColor(red, green, blue, alpha)
+                    .setNormal(0,0,0);
+            builder.addVertex(matrix4f, (float)x2, (float)y2, (float)z2)
+                    .setColor(red, green, blue, alpha)
+                    .setNormal(0,0,0);
         });
         getMainBufferSource().endBatch(RenderType.lines());
     }
@@ -117,8 +118,15 @@ public class RenderUtil {
             f /= f3;
             f1 /= f3;
             f2 /= f3;
-            pConsumer.vertex(posestack$pose.pose(), (float)(p_234280_ + pX), (float)(p_234281_ + pY), (float)(p_234282_ + pZ)).color(pRed, pGreen, pBlue, pAlpha).normal(posestack$pose.normal(), f, f1, f2).endVertex();
-            pConsumer.vertex(posestack$pose.pose(), (float)(p_234283_ + pX), (float)(p_234284_ + pY), (float)(p_234285_ + pZ)).color(pRed, pGreen, pBlue, pAlpha).normal(posestack$pose.normal(), f, f1, f2).endVertex();
+            Vector3f transformedNormals = posestack$pose.transformNormal(f, f1, f2, new Vector3f());
+            pConsumer
+                    .addVertex(posestack$pose.pose(), (float)(p_234280_ + pX), (float)(p_234281_ + pY), (float)(p_234282_ + pZ))
+                    .setColor(pRed, pGreen, pBlue, pAlpha)
+                    .setNormal(transformedNormals.x, transformedNormals.y, transformedNormals.z);
+            pConsumer
+                    .addVertex(posestack$pose.pose(), (float)(p_234283_ + pX), (float)(p_234284_ + pY), (float)(p_234285_ + pZ))
+                    .setColor(pRed, pGreen, pBlue, pAlpha)
+                    .setNormal(transformedNormals.x, transformedNormals.y, transformedNormals.z);
         });
     }
 

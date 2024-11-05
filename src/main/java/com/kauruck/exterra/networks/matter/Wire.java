@@ -6,6 +6,9 @@ import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.fx.ParticleHelper;
 import com.kauruck.exterra.util.Colors;
 import com.kauruck.exterra.util.NBTUtil;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -25,18 +28,33 @@ import static com.kauruck.exterra.blocks.DustBlock.*;
 
 public class Wire {
 
+    public static final Codec<Wire> CODEC = RecordCodecBuilder.create(
+            instance -> instance.group(
+                    Codec.list(Codec.pair(BlockPos.CODEC, BlockState.CODEC)).fieldOf("positions").forGetter(Wire::getPositions),
+                    Codec.list(WireTransferInfo.CODEC).fieldOf("infos").forGetter(Wire::getInfos)
+            ).apply(instance, Wire::new)
+    );
+
+
     /**
      * This **should** be ordered from terminal a to terminal b.
      */
-    private final List<Tuple<BlockPos, BlockState>> positions = new ArrayList<>();
+    private List<Pair<BlockPos, BlockState>> positions = new ArrayList<>();
     private BlockPos terminalA;
     private BlockPos terminalB;
 
     public static final Map<Direction, EnumProperty<RedstoneSide>> PROPERTY_BY_DIRECTION = Maps.newEnumMap(ImmutableMap.of(Direction.NORTH, NORTH, Direction.EAST, EAST, Direction.SOUTH, SOUTH, Direction.WEST, WEST));
     private List<WireTransferInfo> infos = new ArrayList<>();
 
+    public Wire( List<Pair<BlockPos, BlockState>> positions, List<WireTransferInfo> infos) {
+        this.infos = infos;
+        this.positions = positions;
+    }
+
+    public Wire() { }
+
     public void appendBlock(BlockPos pos, BlockState state){
-        positions.add(new Tuple<>(pos, state));
+        positions.add(new Pair<>(pos, state));
     }
 
     public void emitParticles(Vec3 color, ClientLevel pLevel, RandomSource pRandom, BlockPos currentPos, BlockState pState) {
@@ -67,8 +85,16 @@ public class Wire {
                     color = color.add(info.color.scale(info.strength));
             }
             if(!Colors.isZero(color))
-                this.emitParticles(color, pLevel, pRandom, positions.get(index).getA(), positions.get(index).getB());
+                this.emitParticles(color, pLevel, pRandom, positions.get(index).getFirst(), positions.get(index).getSecond());
         }
+    }
+
+    public List<Pair<BlockPos, BlockState>> getPositions() {
+        return positions;
+    }
+
+    public List<WireTransferInfo> getInfos() {
+        return infos;
     }
 
     public void serverTick(){
@@ -105,35 +131,6 @@ public class Wire {
 
     public BlockPos getTerminalB() {
         return terminalB;
-    }
-
-    public CompoundTag toNBT(){
-        CompoundTag out = new CompoundTag();
-        int index = 0;
-        for(Tuple<BlockPos, BlockState> currentPos : positions){
-            out.put(index+"_pos", NBTUtil.blockPosToNBT(currentPos.getA()));
-            out.put(index+"_state", NbtUtils.writeBlockState(currentPos.getB()));
-            index++;
-        }
-        out.putInt("length", index);
-        CompoundTag infoTag = infos.stream()
-                .map(WireTransferInfo::toNBT)
-                .collect(NBTUtil.toSingleCompoundTag());
-        out.put("infos", infoTag);
-        return out;
-    }
-
-    public static Wire fromNBT(CompoundTag tag){
-        int length = tag.getInt("length");
-        Wire out = new Wire();
-        for(int i = 0; i < length; i++){
-            out.appendBlock(NBTUtil.blockPosFromNBT(tag.getCompound(i+"_pos")), NbtUtils.readBlockState(tag.getCompound(i + "_state")));
-        }
-        List<WireTransferInfo> infos = NBTUtil.fromSingleCompoundTag((CompoundTag) tag.get("infos"))
-                .map(WireTransferInfo::fromNBT)
-                .collect(Collectors.toCollection(ArrayList::new));
-        out.infos = infos;
-        return out;
     }
 
     @Override
@@ -173,6 +170,13 @@ public class Wire {
     }
 
     public static class WireTransferInfo {
+
+        public static final Codec<WireTransferInfo> CODEC = RecordCodecBuilder.create(instance ->
+                instance.group(
+                        Vec3.CODEC.fieldOf("color").forGetter(WireTransferInfo::getColor),
+                        Codec.FLOAT.fieldOf("percentage").forGetter(WireTransferInfo::getPercentage),
+                        Codec.BOOL.fieldOf("flip").forGetter(WireTransferInfo::isFlip)
+                ).apply(instance, WireTransferInfo::new));
         private final Vec3 color;
         private final float percentage;
         private final boolean flip;

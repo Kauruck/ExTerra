@@ -1,50 +1,46 @@
 package com.kauruck.exterra;
 
-import com.kauruck.exterra.geometry.GeometryParts;
-import com.kauruck.exterra.modules.ExTerraCore;
-import com.kauruck.exterra.modules.ExTerraPower;
-import com.kauruck.exterra.modules.ExTerraRegistries;
-import com.kauruck.exterra.modules.RegistryManger;
+import com.kauruck.exterra.commands.ExTerraCommands;
+import com.kauruck.exterra.data.DataEventHandler;
+import com.kauruck.exterra.datagenenerators.DataGenerators;
+import com.kauruck.exterra.modules.*;
 import com.kauruck.exterra.networking.ExTerraNetworking;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.common.Mod;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 
-// The value here should match an entry in the META-INF/mods.toml file
+// The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod("exterra")
-public class ExTerra
-{
+public class ExTerra {
     //Logger
     public static final Logger LOGGER = LogManager.getLogger();
 
     //Constants
     public static final String MOD_ID = "exterra";
 
-    public ExTerra() {
+    public ExTerra(IEventBus bus) {
         //Make the registries
-        ExTerraRegistries.makeRegistries();
-        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+        bus.register(ExTerraRegistries.class);
+        // Data Gen
+        bus.register(DataGenerators.class);
         //Modules
-        bus.register(new ExTerraCore());
-        bus.register(new ExTerraPower());
+        new ExTerraCore();
+        new ExTerraPower();
 
-        //Client Listeners
-        bus.addListener(ExTerraClient::clientSetupEvent);
-        //Add GeometricTests
-        GeometryParts.initInbuilt();
+        // Network Inbuilts
+        new NetworkInbuilt();
 
-        RegistryManger.doRegistry();
+        // Client
+        bus.register(ExTerraClient.class);
 
-        //Network
-        ExTerraNetworking.init();
+        RegistryManger.doRegistry(bus);
     }
 
     public static ResourceLocation getResource(String path){
-        return new ResourceLocation(MOD_ID, path);
+        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
     }
 
 

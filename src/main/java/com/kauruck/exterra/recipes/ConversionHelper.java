@@ -4,7 +4,6 @@ import com.kauruck.exterra.api.matter.Matter;
 import com.kauruck.exterra.geometry.Shape;
 import com.kauruck.exterra.modules.ExTerraCore;
 import net.minecraft.util.Tuple;
-import net.minecraftforge.event.entity.player.PlayerEvent;
 
 import java.util.ArrayList;
 import java.util.HashSet;

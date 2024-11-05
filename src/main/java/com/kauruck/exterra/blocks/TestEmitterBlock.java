@@ -32,15 +32,14 @@ public class TestEmitterBlock extends RitualPlateBlock implements INetworkMember
     }
 
 
-
     @Override
-    public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
+    protected InteractionResult useWithoutItem(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHitResult) {
         BlockEntity entity = pLevel.getBlockEntity(pPos);
         if(entity instanceof  MatterEmitterEntity emitterEntity){
             emitterEntity.cycleMatter();
             return InteractionResult.SUCCESS;
         }
-        return super.use(pState, pLevel, pPos, pPlayer, pHand, pHit);
+        return super.useWithoutItem(pState, pLevel, pPos, pPlayer, pHitResult);
     }
 
     @Nullable

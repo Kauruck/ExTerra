@@ -5,15 +5,14 @@ import com.kauruck.exterra.api.exceptions.UnexpectedBehaviorException;
 import com.kauruck.exterra.fx.ParticleHelper;
 import com.kauruck.exterra.fx.VectorHelper;
 import com.kauruck.exterra.geometry.Shape;
-import com.kauruck.exterra.geometry.ShapeCollection;
 import com.kauruck.exterra.modules.ExTerraCore;
+import com.kauruck.exterra.modules.NetworkInbuilt;
 import com.kauruck.exterra.networking.BaseBlockEntity;
 import com.kauruck.exterra.networking.BlockEntityProperty;
 import com.kauruck.exterra.networks.matter.Grid;
 import com.kauruck.exterra.networks.matter.GridScanner;
 import com.kauruck.exterra.networks.matter.MatterNetwork;
 import com.kauruck.exterra.networks.matter.Wire;
-import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
@@ -24,6 +23,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import org.joml.Vector3f;
 
 import java.util.*;
 
@@ -32,10 +32,10 @@ import static com.kauruck.exterra.fx.MathHelper.clamp;
 import static com.kauruck.exterra.networking.BlockEntityPropertySide.*;
 public class RitualStoneEntity extends BaseBlockEntity {
 
-    private final BlockEntityProperty<List<Shape>> shapes = createProperty(Requestable, "shapes", new ArrayList<>(), Shape.class);
-    private final BlockEntityProperty<MatterNetwork> matterNetwork = createProperty(Requestable, "network", new MatterNetwork(), MatterNetwork.class);
+    private final BlockEntityProperty<List<Shape>> shapes = createProperty(Requestable, "shapes", new ArrayList<>(), ExTerraCore.PROPERTY_SHAPE_LIST.get());
+    private final BlockEntityProperty<MatterNetwork> matterNetwork = createProperty(Requestable, "network", new MatterNetwork(), ExTerraCore.PROPERTY_MATTER_NETWORK.get());
     public static final int SIZE = 5;
-    private final BlockEntityProperty<Boolean> broken = createProperty(Synced, "broken", false);
+    private final BlockEntityProperty<Boolean> broken = createProperty(Synced, "broken", false, NetworkInbuilt.PROPERTY_BOOLEAN.get());
     private Map<BlockPos, Block> trackingBlock = new HashMap<>();
 
 
@@ -53,11 +53,6 @@ public class RitualStoneEntity extends BaseBlockEntity {
                 return;
             }
         }
-    }
-
-    @Override
-    protected void saveAdditional(CompoundTag pTag) {
-        super.saveAdditional(pTag);
     }
 
     public void infoToPlayer(Player player){
@@ -86,7 +81,8 @@ public class RitualStoneEntity extends BaseBlockEntity {
                         } else {
                             end = worldPos.get(0);
                         }
-                        ParticleHelper.emitParticlesOnLine(clientLevel, VectorHelper.blockPosToVector(start), VectorHelper.blockPosToVector(end), new Vector3f(r / 255f, g / 255f, b / 255f), 1F);
+                        ParticleHelper.emitParticlesOnLine(clientLevel, VectorHelper.blockPosToVector(start),
+                                VectorHelper.blockPosToVector(end), new Vector3f(r / 255f, g / 255f, b / 255f), 1F);
                     }
                     switch (i % 3) {
                         case 0:
@@ -132,8 +128,10 @@ public class RitualStoneEntity extends BaseBlockEntity {
         return shapes.get();
     }
 
-    public void setShapes(ShapeCollection shapes){
-        this.shapes.set(shapes.getShapes());
+    public void setShapes(List<Shape> shapes){
+        if (shapes == null)
+            return;
+        this.shapes.set(shapes);
         this.setChanged();
     }
 

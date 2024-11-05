@@ -2,6 +2,9 @@ package com.kauruck.exterra.networks.matter;
 
 import com.kauruck.exterra.api.blockentity.NotIterableInProperty;
 import com.kauruck.exterra.util.NBTUtil;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -12,6 +15,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.Tuple;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
@@ -21,6 +25,13 @@ import java.util.stream.Collectors;
 
 public class Grid implements Iterable<GridCellType>, NotIterableInProperty {
 
+    public static final Codec<Grid> CODEC = RecordCodecBuilder.create(instance ->
+            instance.group(
+                    Codec.INT.fieldOf("size").forGetter(Grid::getSize),
+                    BlockPos.CODEC.fieldOf("center").forGetter(Grid::getCenter),
+                    Codec.list(Codec.list(BlockState.CODEC)).fieldOf("grid_data").forGetter(Grid::getGridAsList)
+            ).apply(instance, Grid::new));
+
     private final int size;
     private BlockState[][] grid;
     private final BlockPos center;
@@ -28,6 +39,28 @@ public class Grid implements Iterable<GridCellType>, NotIterableInProperty {
         this.size = size;
         grid = new BlockState[2 * size + 1][2 * size + 1];
         this.center = center;
+    }
+
+    public Grid(int size, BlockPos center, List<List<BlockState>> gridList) {
+        this.center = center;
+        BlockState[][] grid = new BlockState[size][size];
+        for(int x = -size; x < size + 1; x++){
+            List<BlockState> inner = gridList.get(x);
+            for(int y = -size; y < size + 1; y++){
+                BlockState state = inner.get(y);
+                grid[x][y] = state;
+            }
+        }
+        this.grid = grid;
+        this.size = size;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public BlockPos getCenter() {
+        return center;
     }
 
     public BlockPos localToBlockPos(int x, int z){
@@ -126,38 +159,17 @@ public class Grid implements Iterable<GridCellType>, NotIterableInProperty {
         return size;
     }
 
-    public Tag toNBT() {
-        CompoundTag tag = new CompoundTag();
-        tag.putInt("size", this.size);
-        tag.put("center", NBTUtil.blockPosToNBT(this.center));
+    public List<List<BlockState>> getGridAsList() {
+        List<List<BlockState>> outer = new ArrayList<>();
         for(int x = -size; x < size + 1; x++){
-            CompoundTag rowTag = new CompoundTag();
+            List<BlockState> inner = new ArrayList<>();
             for(int y = -size; y < size + 1; y++){
                 BlockState state = this.getBlockStateAt(x,y);
-                if(state != null)
-                    rowTag.put(Integer.toString(y), NbtUtils.writeBlockState(state));
+                inner.add(state);
             }
-            tag.put(Integer.toString(x), rowTag);
+            outer.add(inner);
         }
-        return tag;
-    }
-
-    public static Grid fromNBT(Tag nbt) {
-        CompoundTag tag = (CompoundTag) nbt;
-        int size = tag.getInt("size");
-        BlockPos center = NBTUtil.blockPosFromNBT(tag.getCompound("center"));
-        Grid out = new Grid(size, center);
-        for(int x = -size; x < size + 1; x++){
-            CompoundTag rowTag = tag.getCompound(Integer.toString(x));
-            for(int y = -size; y < size + 1; y++){
-                BlockState state = null;
-                if(rowTag.contains(Integer.toString(y)))
-                    state = NbtUtils.readBlockState(rowTag.getCompound(Integer.toString(y)));
-                out.setCell(x,y, state);
-            }
-            tag.put(Integer.toString(x), rowTag);
-        }
-        return out;
+        return outer;
     }
 
 

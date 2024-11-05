@@ -1,7 +1,7 @@
 package com.kauruck.exterra.data.provider;
 
 import com.kauruck.exterra.ExTerra;
-import com.kauruck.exterra.api.geometry.ElementalOperation;
+import com.kauruck.exterra.geometry.elmental.ElementalOperation;
 import com.kauruck.exterra.api.geometry.IGeometricTest;
 import com.kauruck.exterra.data.ShapeData;
 import com.kauruck.exterra.geometry.builtin.IntersectAngle;

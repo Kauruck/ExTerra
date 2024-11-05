@@ -2,11 +2,12 @@ package com.kauruck.exterra.data;
 
 import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.modules.ExTerraReloadableResources;
-import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.AddReloadListenerEvent;
 
-@Mod.EventBusSubscriber(modid = ExTerra.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+
+@EventBusSubscriber(modid = ExTerra.MOD_ID)
 public class DataEventHandler {
 
     @SubscribeEvent

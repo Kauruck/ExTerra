@@ -5,9 +5,13 @@ import com.kauruck.exterra.api.exceptions.UnexpectedBehaviorException;
 import com.kauruck.exterra.api.matter.Matter;
 import com.kauruck.exterra.api.matter.MatterStack;
 import com.kauruck.exterra.api.networks.matter.INetworkMember;
+import com.kauruck.exterra.networking.ExTerraCodecs;
 import com.kauruck.exterra.util.NBTUtil;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -19,16 +23,23 @@ import java.util.stream.Collectors;
 
 public class Vertex {
 
+    public static final Codec<Vertex> CODEC = RecordCodecBuilder.create(instance ->
+            instance.group(
+                    Codec.INT.fieldOf("id").forGetter(Vertex::getId),
+                    Codec.list(Codec.INT).fieldOf("loaded_ids").forGetter(Vertex::getLoaded_ids),
+                    BlockPos.CODEC.fieldOf("position").forGetter(Vertex::getPosition)
+            ).apply(instance, Vertex::new));
+
     private List<Edge> edges = new ArrayList<>();
     private final BlockPos position;
-    private final Level level;
+    private  Level level;
 
     /**
      * Unique id in the network
      */
     private final int id;
     private INetworkMember member;
-    private int[] loaded_ids;
+    private Integer[] loaded_ids;
 
     private final Map<Matter, List<MatterStack>> availableMatters = new HashMap<>();
 
@@ -36,7 +47,17 @@ public class Vertex {
         this.id = id;
         this.position = pos;
         this.level = level;
-        this.loaded_ids = new int[0];
+        this.loaded_ids = new Integer[0];
+    }
+
+    public Vertex(int id, List<Integer> loaded_ids, BlockPos position) {
+        this.id = id;
+        this.loaded_ids = loaded_ids.toArray(Integer[]::new);
+        this.position = position;
+    }
+
+    public List<Integer> getLoaded_ids() {
+        return List.of(loaded_ids);
     }
 
     public void loadFromWorld() throws UnexpectedBehaviorException {
@@ -46,23 +67,13 @@ public class Vertex {
         this.member = (INetworkMember) entity;
     }
 
-    public static Vertex fromTag(CompoundTag tag) {
-        int[] edgeIds = tag.getIntArray("edge_indexes");
-        BlockPos pos = NBTUtil.blockPosFromNBT(tag.getCompound("block_pos"));
-        Level level = NBTUtil.levelFromNBT(tag.getCompound("level"));
-        int id = tag.getInt("id");
-        Vertex vertex = null;
-        vertex = new Vertex(pos, level, id);
-        vertex.loaded_ids = edgeIds;
-        return vertex;
-    }
-
     /**
      * Links all the loaded ids to their corresponding edges in the network.
      * This must be called after loading from tag
      * @param network The network to link against
      */
-    public void link(MatterNetwork network) throws UnexpectedBehaviorException {
+    public void link(MatterNetwork network, Level level) throws UnexpectedBehaviorException {
+        this.level = level;
         this.loadFromWorld();
         for(int currentId : this.loaded_ids){
             edges.add(network.edges.stream()
@@ -70,21 +81,6 @@ public class Vertex {
                     .findAny()
                     .orElse(null));
         }
-    }
-
-    public CompoundTag toTag(){
-        int[] edgeIds = new int[this.edges.size()];
-        int i = 0;
-        for(Edge currentEdge : edges){
-            edgeIds[i] = currentEdge.getId();
-            i++;
-        }
-        CompoundTag tag = new CompoundTag();
-        tag.putIntArray("edge_indexes", edgeIds);
-        tag.put("block_pos", NBTUtil.blockPosToNBT(this.position));
-        tag.put("level", NBTUtil.LevelToNBT(level));
-        tag.putInt("id", id);
-        return tag;
     }
 
     public int getId() {

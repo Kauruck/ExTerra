@@ -2,13 +2,20 @@ package com.kauruck.exterra.api.matter;
 
 
 import com.kauruck.exterra.modules.ExTerraRegistries;
+import com.mojang.serialization.Codec;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Optional;
 
 public class Matter{
+
+    public static final Codec<Matter> CODEC = ResourceLocation.CODEC.xmap(
+            ExTerraRegistries.MATTER::get,
+            ExTerraRegistries.MATTER::getKey
+    );
 
     protected final Vec3 particleColor;
     protected final int energy;
@@ -43,7 +50,7 @@ public class Matter{
 
     @Override
     public String toString() {
-        Optional<ResourceKey<Matter>> key = ExTerraRegistries.MATTER.get().getResourceKey(this);
+        Optional<ResourceKey<Matter>> key = ExTerraRegistries.MATTER.getResourceKey(this);
         return key.map(matterResourceKey -> matterResourceKey.location().getPath()).orElse("How did we get here");
     }
 }

@@ -1,27 +1,35 @@
 package com.kauruck.exterra.geometry;
 
-import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.data.ShapeData;
-import com.kauruck.exterra.data.loader.ShapeReloadListener;
 import com.kauruck.exterra.modules.ExTerraReloadableResources;
-import com.kauruck.exterra.util.NBTUtil;
-import com.kauruck.exterra.util.PositionsUtil;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
-import org.lwjgl.system.CallbackI;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
 
 public class Shape implements Iterable<BlockPos>{
 
-    public static String TAG_SHAPE_DATA = "shapeData";
+    public static final Codec<Shape> CODEC = RecordCodecBuilder.create(instance ->
+        instance.group(
+                Codec.list(BlockPos.CODEC).fieldOf("positions").forGetter(Shape::getPositions),
+                ShapeData.CODEC.optionalFieldOf("shapeData", null).forGetter(Shape::getShapeData)
+        ).apply(instance, Shape::new)
+    );
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, Shape> STREAM_CODEC = StreamCodec.composite(
+            BlockPos.STREAM_CODEC.apply(ByteBufCodecs.list()),
+            Shape::getPositions,
+            ShapeData.STREAM_CODEC.apply(ByteBufCodecs::optional),
+            Shape::getShapeDataOptional,
+            Shape::new
+    );
 
     List<BlockPos> positions = new ArrayList<>();
 
@@ -31,8 +39,18 @@ public class Shape implements Iterable<BlockPos>{
 
     }
 
-    public Shape(CompoundTag nbt){
-        this.fromNBT(nbt);
+    private List<BlockPos> getPositions() {
+        return positions;
+    }
+
+    public Shape(List<BlockPos> positions, ShapeData shapeData) {
+        this.positions = positions;
+        this.shapeData = shapeData;
+    }
+
+    private Shape(List<BlockPos> positions, Optional<ShapeData> shapeData) {
+        this.positions = positions;
+        this.shapeData = shapeData.orElse(null);
     }
 
     public boolean end(){
@@ -65,35 +83,10 @@ public class Shape implements Iterable<BlockPos>{
 
     public TranslatableContents getTranslation(){
         if(shapeData == null)
-            return new TranslatableContents("shape.exterra.unfinshed.size", this.positions);
+            return new TranslatableContents("shape.exterra.unfinshed.size", "Shape with %s positions",
+                    new Object[]{this.positions.size()});
         else
-            return new TranslatableContents(shapeData.getTranslationKey());
-    }
-
-    public void fromNBT(CompoundTag tag){
-        int size = tag.getInt("size");
-        this.positions.clear();
-        for(int i = 0; i < size; i++){
-            BlockPos pos = NBTUtil.blockPosFromNBT(tag.getCompound(Integer.toString(i)));
-            this.positions.add(pos);
-        }
-        if(tag.contains(TAG_SHAPE_DATA)){
-            ResourceLocation shapeName = new ResourceLocation(tag.getString(TAG_SHAPE_DATA));
-            if(ExTerraReloadableResources.INSTANCE.existsShape(shapeName))
-                shapeData = ExTerraReloadableResources.INSTANCE.getShape(shapeName);
-        }
-    }
-
-
-    public CompoundTag toNBT(){
-        CompoundTag tag = new CompoundTag();
-        tag.putInt("size", positions.size());
-        for(int i = 0; i < positions.size(); i++){
-            tag.put(Integer.toString(i), NBTUtil.blockPosToNBT(positions.get(i)));
-        }
-        if(shapeData != null)
-            tag.putString(TAG_SHAPE_DATA, shapeData.getName().toString());
-        return tag;
+            return new TranslatableContents(shapeData.getTranslationKey(), shapeData.getTranslationKey(), TranslatableContents.NO_ARGS);
     }
 
 
@@ -122,5 +115,24 @@ public class Shape implements Iterable<BlockPos>{
 
     public ShapeData getShapeData() {
         return this.shapeData;
+    }
+
+    private Optional<ShapeData> getShapeDataOptional() {
+        return Optional.ofNullable(this.shapeData);
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Shape blockPos)) return false;
+
+        return Objects.equals(positions, blockPos.positions) && Objects.equals(shapeData, blockPos.shapeData);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hashCode(positions);
+        result = 31 * result + Objects.hashCode(shapeData);
+        return result;
     }
 }

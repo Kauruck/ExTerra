@@ -4,25 +4,39 @@ import com.google.gson.JsonElement;
 import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.api.geometry.GeometricRule;
 import com.kauruck.exterra.geometry.BlockPosHolder;
+import com.kauruck.exterra.modules.ExTerraCore;
 import com.kauruck.exterra.util.MathUtil;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.RecordBuilder;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class ParallelLine extends GeometricRule {
-    public ParallelLine() {
-        super( "parallel");
+
+    public static MapCodec<ParallelLine> CODEC = INNER_CODEC.xmap(ParallelLine::new, GeometricRule::getData);
+
+    public static StreamCodec<RegistryFriendlyByteBuf, ParallelLine> STREAM_CODEC = INNER_STREAM_CODEC
+            .map(ParallelLine::new, GeometricRule::getData);
+
+    private ParallelLine(GeometricRuleData data) {
+        super(data);
     }
 
     public ParallelLine(Character pointA, Character pointB, Character pointC, Character pointD) {
-        super( "parallel");
         this.expectedBlockPos = new Character[]{pointA, pointB, pointC, pointD};
     }
 
+
+
     /**
      * Test weather line A to B is parallel to C to D
-     * @param positions The positions
+     * @param blockPos The positions to test
      * @return Weather they are parallel
      */
     @Override
@@ -73,6 +87,11 @@ public class ParallelLine extends GeometricRule {
     @Override
     public ResourceLocation getName() {
         return ExTerra.getResource("parallel_line");
+    }
+
+    @Override
+    public ResourceLocation getSerializerLocation() {
+        return ExTerraCore.GEOMETRIC_PARALLEL.getKey().location();
     }
 
     @Override

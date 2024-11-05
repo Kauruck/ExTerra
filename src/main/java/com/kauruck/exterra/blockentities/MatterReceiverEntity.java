@@ -6,10 +6,12 @@ import com.kauruck.exterra.api.matter.MatterStack;
 import com.kauruck.exterra.api.networks.matter.INetworkMember;
 import com.kauruck.exterra.modules.ExTerraCore;
 import com.kauruck.exterra.modules.ExTerraRegistries;
+import com.kauruck.exterra.modules.NetworkInbuilt;
 import com.kauruck.exterra.modules.RegistryManger;
 import com.kauruck.exterra.networking.BaseBlockEntity;
 import com.kauruck.exterra.networking.BlockEntityProperty;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -19,9 +21,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import static com.kauruck.exterra.networking.BlockEntityPropertySide.*;
 
 public class MatterReceiverEntity extends BaseBlockEntity implements INetworkMember {
-    private BlockEntityProperty<Integer> receivedMatter = createProperty(Requestable, "receivedMatter", 0);
+    private BlockEntityProperty<Integer> receivedMatter = createProperty(Requestable, "receivedMatter", 0, NetworkInbuilt.PROPERTY_INTEGER.get());
     private BlockEntityProperty<ResourceLocation> receivedMatterName = createProperty(Requestable, "receivedMatterName",
-            ExTerra.getResource("none"));
+            ExTerra.getResource("none"), NetworkInbuilt.PROPERTY_RESOURCE_LOCATION.get());
 
     public MatterReceiverEntity(BlockPos pPos, BlockState pBlockState) {
         super(ExTerraCore.RECEIVER_BLOCK_ENTITY.get(), pPos, pBlockState);
@@ -47,10 +49,10 @@ public class MatterReceiverEntity extends BaseBlockEntity implements INetworkMem
 
     @Override
     public MatterStack pushMatter(MatterStack matterStack) {
-        if (ExTerraRegistries.MATTER.get().getKey(matterStack.getMatter()) ==  receivedMatterName.get()) {
+        if (ExTerraRegistries.MATTER.getKey(matterStack.getMatter()) ==  receivedMatterName.get()) {
             receivedMatter.set(receivedMatter.get() + matterStack.getAmount());
         } else {
-            receivedMatterName.set(ExTerraRegistries.MATTER.get().getKey(matterStack.getMatter()));
+            receivedMatterName.set(ExTerraRegistries.MATTER.getKey(matterStack.getMatter()));
             receivedMatter.set(matterStack.getAmount());
         }
         this.setChanged();

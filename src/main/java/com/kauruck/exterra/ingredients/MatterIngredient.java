@@ -4,11 +4,18 @@ import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.api.matter.Matter;
 import com.kauruck.exterra.api.matter.MatterStack;
 import com.kauruck.exterra.api.recipes.ExTerraIngredient;
+import com.kauruck.exterra.modules.ExTerraCore;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 
 public class MatterIngredient extends ExTerraIngredient<MatterStack> {
+
+    public static final MapCodec<MatterIngredient> CODEC = MatterStack.CODEC
+            .xmap(MatterIngredient::new, MatterIngredient::getStack)
+            .fieldOf("matter");
 
     private final MatterStack stack;
 
@@ -20,10 +27,6 @@ public class MatterIngredient extends ExTerraIngredient<MatterStack> {
         return stack;
     }
 
-    @Override
-    public ResourceLocation getSerializerLocation() {
-        return ExTerra.getResource("const_matter");
-    }
 
     @Override
     public boolean test(MatterStack stack) {
@@ -45,5 +48,10 @@ public class MatterIngredient extends ExTerraIngredient<MatterStack> {
 
     public int reduceAmount() {
         return stack.getAmount();
+    }
+
+    @Override
+    public MapCodec<? extends ExTerraIngredient<MatterStack>> type() {
+        return ExTerraCore.CONST_MATTER_SERIALIZER.get();
     }
 }

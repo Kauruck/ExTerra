@@ -3,6 +3,7 @@ package com.kauruck.exterra.util;
 import com.google.common.collect.Sets;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
@@ -10,8 +11,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.server.ServerLifecycleHooks;
+import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -37,7 +37,7 @@ public class NBTUtil {
         int i = 0;
         for(BlockPos key : map.keySet()){
             CompoundTag keyNBT = NBTUtil.blockPosToNBT(key);
-            String resourceString = ForgeRegistries.BLOCKS.getKey(map.get(key)).toString();
+            String resourceString = BuiltInRegistries.BLOCK.getKey(map.get(key)).toString();
             CompoundTag entry = new CompoundTag();
             entry.put("key", keyNBT);
             entry.putString("value", resourceString);
@@ -54,7 +54,7 @@ public class NBTUtil {
         for(int i = 0; i < length; i++){
             CompoundTag entry = tag.getCompound(Integer.toString(i));
             BlockPos pos = NBTUtil.blockPosFromNBT(entry.getCompound("key"));
-            Block block = ForgeRegistries.BLOCKS.getValue(ResourceLocation.tryParse(entry.getString("value")));
+            Block block = BuiltInRegistries.BLOCK.get(ResourceLocation.tryParse(entry.getString("value")));
             out.put(pos, block);
         }
         return out;
@@ -85,8 +85,8 @@ public class NBTUtil {
         String locationPath = tag.getString("location_path");
         String registryNamespace = tag.getString("registry_namespace");
         String registryPath = tag.getString("registry_path");
-        ResourceLocation location = new ResourceLocation(locationNamespace, locationPath);
-        ResourceLocation registry = new ResourceLocation(registryNamespace, registryPath);
+        ResourceLocation location = ResourceLocation.fromNamespaceAndPath(locationNamespace, locationPath);
+        ResourceLocation registry = ResourceLocation.fromNamespaceAndPath(registryNamespace, registryPath);
         ResourceKey<? extends Registry<Level>> registryKey = ResourceKey.createRegistryKey(registry);
         ResourceKey<Level> key = ResourceKey.create(registryKey, location);
         return ServerLifecycleHooks.getCurrentServer().getLevel(key);

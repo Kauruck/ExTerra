@@ -1,50 +1,60 @@
 package com.kauruck.exterra.networking;
 
+import com.kauruck.exterra.ExTerra;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import java.nio.charset.Charset;
-import java.util.function.Supplier;
-public class RequestUpdatePacket {
+public class RequestUpdatePacket implements CustomPacketPayload {
+
     private final BlockPos target;
     private final String propertyName;
+
+    public static final Type<RequestUpdatePacket> TYPE = new CustomPacketPayload
+            .Type<>(ExTerra.getResource("packet_serverbound_request"));
+
+    public static final StreamCodec<ByteBuf, RequestUpdatePacket> STREAM_CODEC = StreamCodec.composite(
+            BlockPos.STREAM_CODEC,
+            RequestUpdatePacket::getTarget,
+            ByteBufCodecs.STRING_UTF8,
+            RequestUpdatePacket::getPropertyName,
+            RequestUpdatePacket::new
+    );
+
+    public BlockPos getTarget() {
+        return target;
+    }
+
+    public String getPropertyName() {
+        return propertyName;
+    }
 
     public RequestUpdatePacket(BlockPos target, String propertyName) {
         this.target = target;
         this.propertyName = propertyName;
     }
 
-    public void encoder(FriendlyByteBuf buffer){
-        buffer.writeBlockPos(target);
-        buffer.writeUtf(propertyName);
-    }
 
-    public static RequestUpdatePacket decoder(FriendlyByteBuf buffer) {
-        BlockPos pos = buffer.readBlockPos();
-        String propertyName = buffer.readUtf();
-        return new RequestUpdatePacket(pos, propertyName);
-    }
-
-    public void messageConsumer(Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            Level level = ctx.get().getSender().getLevel();
-            if(level.isLoaded(target)){
-                BlockEntity blockEntity = level.getBlockEntity(target);
+    public static void handle(final RequestUpdatePacket data, final IPayloadContext context) {
+        context.enqueueWork(() -> {
+            Level level = context.player().level();
+            if(level.isLoaded(data.target)){
+                BlockEntity blockEntity = level.getBlockEntity(data.target);
                 if(blockEntity instanceof BaseBlockEntity entity){
-                    entity.handelRequestProperty(propertyName, ctx.get().getSender());
+                    entity.handelRequestProperty(data.propertyName, (ServerPlayer) context.player());
                 }
             }
         });
-        ctx.get().setPacketHandled(true);
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

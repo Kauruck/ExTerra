@@ -1,39 +1,70 @@
 package com.kauruck.exterra.networking;
 
+import com.kauruck.exterra.ExTerra;
+import io.netty.buffer.ByteBuf;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.network.NetworkEvent;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
-import java.util.function.Supplier;
+import java.util.List;
 
-public class BlockEntityClientBoundUpdatePacket {
+public class BlockEntityClientBoundUpdatePacket implements CustomPacketPayload {
 
-    private final CompoundTag tag;
+    public static final CustomPacketPayload.Type<BlockEntityClientBoundUpdatePacket> TYPE = new CustomPacketPayload
+            .Type<>(ExTerra.getResource("packet_clientbound_update"));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, BlockEntityClientBoundUpdatePacket> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.COMPOUND_TAG,
+            BlockEntityClientBoundUpdatePacket::getDataToSet,
+            BlockPos.STREAM_CODEC,
+            BlockEntityClientBoundUpdatePacket::getTargetPos,
+            BlockEntityClientBoundUpdatePacket::new
+    );
+
+
+    private final CompoundTag dataToSet;
     private final BlockPos targetPos;
 
-    public BlockEntityClientBoundUpdatePacket(CompoundTag tag, BlockPos pos){
-        this.tag = tag;
+    public BlockEntityClientBoundUpdatePacket(CompoundTag dataToSet, BlockPos pos){
+        this.dataToSet = dataToSet;
         this.targetPos = pos;
     }
 
-    public void encoder(FriendlyByteBuf buffer) {
-        buffer.writeNbt(tag);
-        buffer.writeBlockPos(this.targetPos);
+    public CompoundTag getDataToSet() {
+        return dataToSet;
     }
 
-    public static BlockEntityClientBoundUpdatePacket decoder(FriendlyByteBuf buffer) {
-        CompoundTag tag = buffer.readNbt();
-        BlockPos pos = buffer.readBlockPos();
-        return new BlockEntityClientBoundUpdatePacket(tag, pos);
+    public BlockPos getTargetPos() {
+        return targetPos;
     }
 
-    public void messageConsumer(Supplier<NetworkEvent.Context> ctx) {
-        ctx.get().enqueueWork(() -> {
-            DistExecutor.unsafeCallWhenOn(Dist.CLIENT, () -> () -> BlockEntityClientUpdateHandler.handleUpdate(tag, targetPos));
+    public static void handle(final BlockEntityClientBoundUpdatePacket data, final IPayloadContext context) {
+        context.enqueueWork(() -> {
+            Level clientLevel = Minecraft.getInstance().level;
+            if (clientLevel == null) {
+                ExTerraNetworking.LOGGER.error("Tried to update block entity data, but client level is null");
+            } else {
+                BlockEntity entity = clientLevel.getBlockEntity(data.targetPos);
+                 if (entity instanceof BaseBlockEntity baseBlockEntity) {
+                     baseBlockEntity.handleUpdateTag(data.getDataToSet());
+                 }
+            }
+        }).exceptionally(e -> {
+            ExTerraNetworking.LOGGER.error("Error when updating block entity", e);
+            return null;
         });
-        ctx.get().setPacketHandled(true);
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
     }
 }

@@ -2,6 +2,8 @@ package com.kauruck.exterra.api.matter;
 
 import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.modules.ExTerraRegistries;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -16,6 +18,12 @@ import static com.kauruck.exterra.fx.MathHelper.clamp;
  * @since 1.0
  */
 public class MatterStack {
+
+    public static final Codec<MatterStack> CODEC = RecordCodecBuilder.create(instance ->
+            instance.group(
+                    Matter.CODEC.fieldOf("matter").forGetter(MatterStack::getMatter),
+                    Codec.INT.fieldOf("amount").forGetter(MatterStack::getAmount)
+            ).apply(instance, MatterStack::new));
 
     /**
      * The max Stack size of a matter stack.
@@ -35,21 +43,6 @@ public class MatterStack {
     public MatterStack(Matter matter) {
         this.matter = matter;
         this.amount = 0;
-    }
-
-    public MatterStack(CompoundTag tag){
-        //TODO NBT/ForgeCaps
-        this.matter = ExTerraRegistries.MATTER.get().getValue(new ResourceLocation(tag.getString("id")));
-        this.amount = tag.getByte("Count");
-    }
-
-    public static MatterStack of(CompoundTag tag) {
-        try {
-            return new MatterStack(tag);
-        } catch (RuntimeException runtimeexception) {
-            ExTerra.LOGGER.debug("Tried to load invalid item: {}", tag, runtimeexception);
-            return EMPTY;
-        }
     }
 
     /**

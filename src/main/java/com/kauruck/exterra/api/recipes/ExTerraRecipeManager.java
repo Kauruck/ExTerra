@@ -6,15 +6,16 @@ import com.google.gson.*;
 import com.kauruck.exterra.modules.ExTerraRegistries;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.logging.LogUtils;
+import com.mojang.serialization.Codec;
 import net.minecraft.core.NonNullList;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.crafting.CraftingHelper;
-import net.minecraftforge.common.crafting.conditions.ICondition;
+import net.neoforged.neoforge.common.conditions.ConditionalOps;
+import net.neoforged.neoforge.common.conditions.ICondition;
 import org.slf4j.Logger;
 
 import javax.annotation.Nullable;
@@ -23,6 +24,14 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ExTerraRecipeManager<T> extends SimpleJsonResourceReloadListener {
+
+    private final Codec<ExTerraRecipe<T, ?>> INNER_CODEC = ExTerraRegistries.RECIPE_SERIALIZER.byNameCodec()
+            .dispatch(
+                    r -> r.getRecipeType().getCodec(),
+                    c -> (com.mojang.serialization.MapCodec<? extends ExTerraRecipe<T, ?>>) c
+            );
+    private final Codec<Optional<ExTerraRecipe<T, ?>>> CONDITIONAL_CODEC = ConditionalOps.createConditionalCodec(INNER_CODEC);
+
     private static final Gson GSON = (new GsonBuilder()).setPrettyPrinting().disableHtmlEscaping().create();
     private static final Logger LOGGER = LogUtils.getLogger();
 
@@ -45,23 +54,26 @@ public class ExTerraRecipeManager<T> extends SimpleJsonResourceReloadListener {
     public void apply(Map<ResourceLocation, JsonElement> elements, ResourceManager resourceManager, ProfilerFiller profiler){
         Map<ExTerraRecipeType<? extends ExTerraRecipe<T, ?>>, ImmutableMap.Builder<ResourceLocation, ExTerraRecipe<T, ?>>> loadedRecipes = Maps.newHashMap();
         ImmutableMap.Builder<ResourceLocation, ExTerraRecipe<T, ?>> builder = ImmutableMap.builder();
+        RegistryOps<JsonElement> registryops = this.makeConditionalOps();
+
         for(Map.Entry<ResourceLocation, JsonElement> entry : elements.entrySet()){
             ResourceLocation resourcelocation = entry.getKey();
             if (resourcelocation.getPath().startsWith("_")) continue; // Skip anything that starts with _. That is just metadata
             try {
-                if (entry.getValue().isJsonObject() && !CraftingHelper.processConditions(entry.getValue().getAsJsonObject(), "conditions", this.context)) {
-                    LOGGER.debug("Skipping loading recipe {} as it's conditions were not met", resourcelocation);
-                    continue;
-                }
-                ExTerraRecipe<T, ?> recipe = fromJson(resourcelocation, GsonHelper.convertToJsonObject(entry.getValue(), "top element"), this.context);
-                if (recipe == null) {
-                    LOGGER.info("Skipping loading recipe {} as it's serializer returned null", resourcelocation);
-                    continue;
-                }
-                loadedRecipes.computeIfAbsent(recipe.getType(), (ignored) -> ImmutableMap.builder())
-                        .put(resourcelocation, recipe);
+                Optional<ExTerraRecipe<T, ?>> result = CONDITIONAL_CODEC.parse(registryops, entry.getValue()).getOrThrow(JsonParseException::new);
 
-                builder.put(resourcelocation, recipe);
+                if (result.isPresent()) {
+                    // Conditions passed
+                    ExTerraRecipe<T, ?> recipe = result.get();
+                    recipe.setId(resourcelocation);
+                    loadedRecipes.computeIfAbsent(recipe.getType(), (ignored) -> ImmutableMap.builder())
+                            .put(resourcelocation, recipe);
+
+                    builder.put(resourcelocation, recipe);
+                } else {
+                    // Conditions not met
+                    LOGGER.debug("Skipping loading recipe {} as it's conditions were not met", resourcelocation);
+                }
             } catch (IllegalArgumentException | JsonParseException jsonparseexception) {
                 LOGGER.error("Parsing error loading recipe {}", resourcelocation, jsonparseexception);
             }
@@ -72,16 +84,7 @@ public class ExTerraRecipeManager<T> extends SimpleJsonResourceReloadListener {
                         Map.Entry::getKey,
                         (value) -> value.getValue().build()));
         this.byName = builder.build();
-        LOGGER.info("Loaded {} recipes", (int)loadedRecipes.size());
-    }
-
-    /**
-     * Use this to check if the recipe is valid after it is loaded
-     * @param recipe The recipe to check
-     * @return Weather it is valid or not
-     */
-    protected boolean isValidRecipe(ExTerraRecipe<T, ?> recipe){
-        return true;
+        LOGGER.info("Loaded {} recipes", loadedRecipes.size());
     }
 
     public <C extends ExTerraRecipeContainer<T>, R extends ExTerraRecipe<T, C>> Optional<R> getRecipeFor(ExTerraRecipeType<R> pRecipeType, C container, Level pLevel) {
@@ -147,15 +150,5 @@ public class ExTerraRecipeManager<T> extends SimpleJsonResourceReloadListener {
     public Stream<ResourceLocation> getRecipeIds() {
         return this.recipes.values().stream()
                 .flatMap((current) -> current.keySet().stream());
-    }
-
-    public <C extends ExTerraRecipeContainer<T>> ExTerraRecipe<T, C> fromJson(ResourceLocation pRecipeId, JsonObject pJson, net.minecraftforge.common.crafting.conditions.ICondition.IContext context) {
-        String s = GsonHelper.getAsString(pJson, "type");
-        ExTerraRecipeSerializer<? extends ExTerraRecipe<T, C>> serializer = (ExTerraRecipeSerializer<? extends ExTerraRecipe<T, C>>) ExTerraRegistries.RECIPE_SERIALIZER.get().getValue(new ResourceLocation(s));
-        if(serializer == null){
-            LOGGER.error("No serializer for type: " + s);
-            return null;
-        }
-        return serializer.fromJson(pRecipeId, pJson, context);
     }
 }

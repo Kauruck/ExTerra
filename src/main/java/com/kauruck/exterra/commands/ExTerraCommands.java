@@ -2,16 +2,13 @@ package com.kauruck.exterra.commands;
 
 import com.kauruck.exterra.ExTerra;
 import com.mojang.brigadier.CommandDispatcher;
-import net.minecraft.commands.CommandSource;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.client.ClientCommandSourceStack;
-import net.minecraftforge.client.event.RegisterClientCommandsEvent;
-import net.minecraftforge.event.RegisterCommandsEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE, modid = ExTerra.MOD_ID)
+@EventBusSubscriber(modid = ExTerra.MOD_ID)
 public class ExTerraCommands {
 
     @SubscribeEvent

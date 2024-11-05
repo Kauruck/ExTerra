@@ -1,7 +1,8 @@
 package com.kauruck.exterra.fx;
 
-import com.mojang.math.Vector3f;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
 
 public class VectorHelper {
 
@@ -25,5 +26,13 @@ public class VectorHelper {
         float dy = b.y() - a.y();
         float dz = b.z() - a.z();
         return (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
+    }
+
+    public static Vector3f fromPhysicsVec(Vec3 vec3) {
+        return new Vector3f((float) vec3.x(), (float) vec3.y(), (float) vec3.z());
+    }
+
+    public static Vector3f copy(Vector3f vec) {
+        return new Vector3f(vec.x(), vec.y(), vec.z());
     }
 }

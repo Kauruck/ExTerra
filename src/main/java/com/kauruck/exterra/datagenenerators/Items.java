@@ -2,34 +2,34 @@ package com.kauruck.exterra.datagenenerators;
 
 import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.modules.ExTerraCore;
-import net.minecraft.data.DataGenerator;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.client.model.generators.ItemModelProvider;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
 
 public class Items extends ItemModelProvider {
 
-    public Items(DataGenerator generator, ExistingFileHelper existingFileHelper) {
-        super(generator, ExTerra.MOD_ID, existingFileHelper);
+    public Items(PackOutput output, ExistingFileHelper existingFileHelper) {
+        super(output, ExTerra.MOD_ID, existingFileHelper);
     }
 
     @Override
     protected void registerModels() {
         this.singleTexture(getPathOf(ExTerraCore.TEST_ITEM.get()),
-                new ResourceLocation("item/generated"),
+                ResourceLocation.withDefaultNamespace("item/generated"),
                 "layer0",
                 ExTerra.getResource("item/test"));
 
         this.singleTexture(getPathOf(ExTerraCore.COMPOUND.get()),
-                new ResourceLocation("item/generated"),
+                ResourceLocation.withDefaultNamespace("item/generated"),
                 "layer0",
                 ExTerra.getResource("item/compound"));
 
         this.singleTexture(getPathOf(ExTerraCore.COMPOUND_BRICK.get()),
-                new ResourceLocation("item/generated"),
+                ResourceLocation.withDefaultNamespace("item/generated"),
                 "layer0",
                 ExTerra.getResource("item/compound_brick"));
 
@@ -47,42 +47,42 @@ public class Items extends ItemModelProvider {
                 ExTerra.getResource("block/compound_framed_glass"));
 
         this.singleTexture(getPathOf(ExTerraCore.CALCITE_DUST_ITEM.get()),
-                new ResourceLocation("item/generated"),
+                ResourceLocation.withDefaultNamespace("item/generated"),
                 "layer0",
                 ExTerra.getResource("item/calcite_dust"));
 
         this.singleTexture(getPathOf(ExTerraCore.RITUAL_MAP.get()),
-                new ResourceLocation("item/generated"),
+                ResourceLocation.withDefaultNamespace("item/generated"),
                 "layer0",
                 ExTerra.getResource("item/ritual_map"));
 
         this.singleTexture(getPathOf(ExTerraCore.RITUAL_STONE_ITEM.get()),
-                new ResourceLocation("item/generated"),
+                ResourceLocation.withDefaultNamespace("item/generated"),
                 "layer0",
                 ExTerra.getResource("item/ritual_stone_item"));
 
         this.singleTexture(getPathOf(ExTerraCore.RECEIVER_BLOCK_ITEM.get()),
-                new ResourceLocation("item/generated"),
+                ResourceLocation.withDefaultNamespace("item/generated"),
                 "layer0",
                 ExTerra.getResource("item/receiver_stone_item"));
 
         this.singleTexture(getPathOf(ExTerraCore.EMITTER_BLOCK_ITEM.get()),
-                new ResourceLocation("item/generated"),
+                ResourceLocation.withDefaultNamespace("item/generated"),
                 "layer0",
                 ExTerra.getResource("item/emitter_stone_item"));
 
         this.singleTexture(getPathOf(ExTerraCore.RITUAL_LENS.get()),
-                new ResourceLocation("item/generated"),
+                ResourceLocation.withDefaultNamespace("item/generated"),
                 "layer0",
                 ExTerra.getResource("item/debug_lens"));
 
     }
 
     private String getPathOf(Item item){
-        return ForgeRegistries.ITEMS.getKey(item).getPath();
+        return BuiltInRegistries.ITEM.getKey(item).getPath();
     }
 
     private String getPathOf(Block block){
-        return ForgeRegistries.BLOCKS.getKey(block).getPath();
+        return BuiltInRegistries.BLOCK.getKey(block).getPath();
     }
 }

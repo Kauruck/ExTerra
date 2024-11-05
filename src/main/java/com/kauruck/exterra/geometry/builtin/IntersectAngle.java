@@ -5,7 +5,14 @@ import com.google.gson.JsonPrimitive;
 import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.api.geometry.GeometricRule;
 import com.kauruck.exterra.geometry.BlockPosHolder;
+import com.kauruck.exterra.modules.ExTerraCore;
 import com.kauruck.exterra.util.MathUtil;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashMap;
@@ -15,12 +22,27 @@ public class IntersectAngle extends GeometricRule {
 
     private float angle;
 
-    public IntersectAngle() {
-        super("angle");
+    public static final MapCodec<IntersectAngle> CODEC = RecordCodecBuilder.mapCodec(
+            instance -> instance.group(
+                    INNER_CODEC.fieldOf("inner").forGetter(GeometricRule::getData),
+                    Codec.FLOAT.fieldOf("angle").forGetter(IntersectAngle::getAngle)
+            ).apply(instance, IntersectAngle::new)
+    );
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, IntersectAngle> STREAM_CODEC = StreamCodec.composite(
+            INNER_STREAM_CODEC,
+            GeometricRule::getData,
+            ByteBufCodecs.FLOAT,
+            IntersectAngle::getAngle,
+            IntersectAngle::new
+    );
+
+    public IntersectAngle(GeometricRuleData data, Float angle) {
+        super(data);
+        this.angle = angle;
     }
 
     public IntersectAngle(Character pointA, Character pointB, Character pointC, float angle){
-        this();
         this.angle = angle;
         this.expectedBlockPos = new Character[]{pointA, pointB, pointC};
     }
@@ -53,6 +75,11 @@ public class IntersectAngle extends GeometricRule {
     }
 
     @Override
+    public ResourceLocation getSerializerLocation() {
+        return ExTerraCore.GEOMETRIC_INTERSECT.getKey().location();
+    }
+
+    @Override
     protected Map<String, JsonElement> getParameters() {
         Map<String, JsonElement> out = new HashMap<>();
         out.put("angle", new JsonPrimitive(angle));
@@ -64,5 +91,9 @@ public class IntersectAngle extends GeometricRule {
         if(parameterName.equals("angle")){
             this.angle = jsonElement.getAsFloat();
         }
+    }
+
+    public float getAngle() {
+        return angle;
     }
 }

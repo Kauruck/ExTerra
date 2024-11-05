@@ -4,7 +4,6 @@ import com.kauruck.exterra.api.matter.Matter;
 import com.kauruck.exterra.api.matter.MatterStack;
 import com.kauruck.exterra.modules.ExTerraRegistries;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.registries.ForgeRegistry;
 
 public class FriendlyByteBufferHelper {
 
@@ -14,7 +13,7 @@ public class FriendlyByteBufferHelper {
         } else {
             buff.writeBoolean(true);
             Matter matter = stack.getMatter();
-            buff.writeVarInt(((ForgeRegistry<Matter>)ExTerraRegistries.MATTER.get()).getID(matter));
+            buff.writeVarInt((ExTerraRegistries.MATTER.getId(matter)));
             buff.writeByte(stack.getAmount());
             // Maybe NBT
             /*CompoundTag compoundtag = null;
@@ -31,7 +30,7 @@ public class FriendlyByteBufferHelper {
             return MatterStack.EMPTY;
         } else {
             int id = buf.readVarInt();
-            Matter matter = ((ForgeRegistry<Matter>) ExTerraRegistries.MATTER.get()).getValue(id);
+            Matter matter = ExTerraRegistries.MATTER.byId(id);
             int i = buf.readByte();
             MatterStack stack = new MatterStack(matter, i);
             //TODO NBT?

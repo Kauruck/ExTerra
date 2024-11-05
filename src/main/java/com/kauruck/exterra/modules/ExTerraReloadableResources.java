@@ -3,13 +3,14 @@ package com.kauruck.exterra.modules;
 import com.kauruck.exterra.api.recipes.ExTerraRecipeManager;
 import com.kauruck.exterra.data.ShapeData;
 import com.kauruck.exterra.data.loader.ShapeReloadListener;
+import com.kauruck.exterra.geometry.Shape;
 import com.mojang.logging.LogUtils;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.PreparableReloadListener;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraftforge.common.crafting.conditions.ICondition;
+import net.neoforged.neoforge.common.conditions.ICondition;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
@@ -47,6 +48,10 @@ public class ExTerraReloadableResources implements PreparableReloadListener{
 
     public <T> ExTerraRecipeManager<T> getRecipeManger(ResourceLocation location){
         return (ExTerraRecipeManager<T>) currentRecipeManager.get(location);
+    }
+
+    public ResourceLocation getNameFromShape(ShapeData shapeData) {
+        return shapeReloadListener.shapes.inverse().get(shapeData);
     }
 
     public Map<ResourceLocation, ShapeData> getShapes(){

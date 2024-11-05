@@ -1,62 +1,50 @@
 package com.kauruck.exterra.api.geometry;
 
+import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.kauruck.exterra.networking.ExTerraCodecs;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.StreamSupport;
 
 public abstract class GeometricRule implements IGeometricTest{
 
     protected Character[] expectedBlockPos;
-    private final String jsonName;
     protected float epsilon = 0.5f;
 
-    protected GeometricRule(String jsonName){
-        this.jsonName = jsonName;
+    public static final MapCodec<GeometricRuleData> INNER_CODEC = RecordCodecBuilder.mapCodec(instance ->
+                    instance.group(
+                            Codec.FLOAT.fieldOf("epsilon").forGetter(GeometricRuleData::epsilon),
+                            Codec.list(ExTerraCodecs.CODEC_CHARACTER).fieldOf("expectedBlockPos").forGetter(GeometricRuleData::expectedBlockPos)
+                    ).apply(instance, GeometricRuleData::new));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, GeometricRuleData> INNER_STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.FLOAT,
+            GeometricRuleData::epsilon,
+            ByteBufCodecs.<RegistryFriendlyByteBuf, Character>list().apply(ExTerraCodecs.STREAM_CHARACTER),
+            GeometricRuleData::expectedBlockPos,
+            GeometricRuleData::new
+    );
+
+    public record GeometricRuleData(Float epsilon, List<Character> expectedBlockPos) {};
+
+    protected GeometricRule() {
+
     }
 
-    @Override
-    public void fromJSON(JsonObject json) {
-        for(Map.Entry<String, JsonElement> object : json.entrySet()){
-            if(object.getKey().equalsIgnoreCase("epsilon")) {
-                this.setEpsilon(object.getValue().getAsFloat());
-            }
-            else if(object.getKey().equalsIgnoreCase("pos")) {
-                if(object.getValue().isJsonArray()) {
-                    JsonArray posArray = object.getValue().getAsJsonArray();
-                    this.expectedBlockPos = StreamSupport.stream(posArray.spliterator(), true)
-                            .map(JsonElement::getAsCharacter)
-                            .toArray(Character[]::new);
-                }
-            }
-            else {
-                this.offerParameter(object.getKey(), object.getValue());
-            }
-        }
-    }
-
-
-
-    @Override
-    public JsonObject toJSON() {
-        JsonObject out = new JsonObject();
-        out.addProperty("name", this.getName().toString());
-        out.addProperty("epsilon", this.epsilon);
-        JsonArray positionsArray = new JsonArray();
-        Arrays.stream(expectedBlockPos)
-                .forEach(positionsArray::add);
-        Map<String, JsonElement> parameters = this.getParameters();
-        JsonObject parameterObject = new JsonObject();
-        for(String currentParameter : parameters.keySet()){
-            parameterObject.add(currentParameter, parameters.get(currentParameter));
-        }
-        parameterObject.add("pos", positionsArray);
-
-        out.add("parameters", parameterObject);
-        return out;
+    protected GeometricRule(GeometricRuleData data) {
+        this.epsilon = data.epsilon;
+        this.expectedBlockPos = data.expectedBlockPos.toArray(Character[]::new);
     }
 
     protected abstract Map<String, JsonElement> getParameters();
@@ -67,8 +55,12 @@ public abstract class GeometricRule implements IGeometricTest{
         return expectedBlockPos;
     }
 
-    public String getJSONName(){
-        return jsonName;
+    public List<Character> getExpectedBlockPos() {
+        return ImmutableList.copyOf(expectedBlockPos);
+    }
+
+    public GeometricRuleData getData() {
+        return new GeometricRuleData(this.epsilon, ImmutableList.copyOf(expectedBlockPos));
     }
 
     public float getEpsilon() {

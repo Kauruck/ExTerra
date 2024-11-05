@@ -1,0 +1,9 @@
+// 1.21	2024-11-05T14:48:00.133207	Loot Tables
+e362015765dbe26568e7ee4cbebcadeb83e21e16 data/exterra/loot_table/blocks/calcite_dust.json
+c980a3506931fa80c1fb2929fdd0926ab98378b1 data/exterra/loot_table/blocks/compound_bricks.json
+9b9efc8c225b8cfc8dc505e5bf6200abce0b7366 data/exterra/loot_table/blocks/compound_bricks_slab.json
+9f1a1d453906be1d139fb084f634ca28bf3a0c25 data/exterra/loot_table/blocks/compound_bricks_stair.json
+a469df999fbcda9031171504ef7345da5b5b5301 data/exterra/loot_table/blocks/compound_framed_glass.json
+06a8387d081bf1d038930d87a32e0c0129874175 data/exterra/loot_table/blocks/emitter_block.json
+4294c9a80751a2f677207892bcb81b9266eba3cb data/exterra/loot_table/blocks/receiver_block.json
+b9e8255823a4cb655e9cc5f4e81cccda9eccac7e data/exterra/loot_table/blocks/ritual_stone.json

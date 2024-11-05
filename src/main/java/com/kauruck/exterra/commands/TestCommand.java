@@ -15,18 +15,10 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.network.chat.contents.LiteralContents;
-import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.network.chat.contents.PlainTextContents;
 
 /**
  * This class holds command, I use for testing
@@ -40,18 +32,18 @@ public class TestCommand {
     }
 
     private static int sendRecipes(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException {
-        MutableComponent root = MutableComponent.create(new LiteralContents("Conversion Recipes\n"));
+        MutableComponent root = MutableComponent.create(new PlainTextContents.LiteralContents("Conversion Recipes\n"));
         for(ExTerraRecipe<MatterStack, ?> recipeRaw : ExTerraReloadableResources.INSTANCE.<MatterStack>getRecipeManger(ExTerra.getResource("conversion")).getRecipes()){
             if(recipeRaw instanceof ConversionRecipe recipe){
                 root.append(recipe.toString()+'\n');
-                MutableComponent ingredients = MutableComponent.create(new LiteralContents("Ingredients\n"));
+                MutableComponent ingredients = MutableComponent.create(new PlainTextContents.LiteralContents("Ingredients\n"));
                 for(ExTerraIngredient<MatterStack> currentIngredient : recipe.getIngredients()){
                     ingredients.append(currentIngredient.toString() + '\n');
                 }
                 root.append(ingredients);
                 root.append("Output:\n");
                 root.append(recipe.getResult().toString() + '\n');
-                MutableComponent shapes = MutableComponent.create(new LiteralContents("Shapes\n"));
+                MutableComponent shapes = MutableComponent.create(new PlainTextContents.LiteralContents("Shapes\n"));
                 for(ShapeData currentShape : recipe.getShapes()){
                     shapes.append(currentShape.toString() + '\n');
                 }

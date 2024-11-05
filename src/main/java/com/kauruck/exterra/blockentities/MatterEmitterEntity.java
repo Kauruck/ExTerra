@@ -7,6 +7,7 @@ import com.kauruck.exterra.api.networks.matter.INetworkMember;
 import com.kauruck.exterra.modules.ExTerraCore;
 import com.kauruck.exterra.modules.ExTerraRegistries;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -28,16 +29,18 @@ public class MatterEmitterEntity extends BlockEntity implements INetworkMember {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag pTag) {
-        super.saveAdditional(pTag);
-        pTag.putString("matter", ExTerraRegistries.MATTER.get().getKey(transportetMatter).toString());
+    protected void saveAdditional(CompoundTag pTag, HolderLookup.Provider provider) {
+        super.saveAdditional(pTag, provider);
+        pTag.putString("matter", ExTerraRegistries.MATTER.getKey(transportetMatter).toString());
     }
 
+
+
     @Override
-    public void load(CompoundTag pTag) {
-        super.load(pTag);
+    public void loadAdditional(CompoundTag pTag, HolderLookup.Provider provider) {
+        super.loadAdditional(pTag, provider);
         if(pTag.contains("matter"))
-            transportetMatter = ExTerraRegistries.MATTER.get().getValue(ResourceLocation.tryParse(pTag.getString("matter")));
+            transportetMatter = ExTerraRegistries.MATTER.get(ResourceLocation.tryParse(pTag.getString("matter")));
     }
 
     @Override

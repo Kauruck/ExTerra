@@ -37,9 +37,8 @@ public class TestReceiverBlock extends RitualPlateBlock implements INetworkMembe
     }
 
     @Override
-    public InteractionResult use(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHit) {
+    protected InteractionResult useWithoutItem(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHitResult) {
         if(!pLevel.isClientSide()) {
-            if (pPlayer.getItemInHand(pHand) == ItemStack.EMPTY) {
                 if(!pPlayer.isCrouching()) {
                     BlockEntity entity = pLevel.getBlockEntity(pPos);
                     if (entity instanceof MatterReceiverEntity me) {
@@ -54,7 +53,6 @@ public class TestReceiverBlock extends RitualPlateBlock implements INetworkMembe
                     }
                     return InteractionResult.SUCCESS;
                 }
-            }
         }
         return InteractionResult.PASS;
     }

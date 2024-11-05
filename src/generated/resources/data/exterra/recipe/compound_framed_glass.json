@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "building",
+  "group": "exterra",
+  "ingredients": [
+    {
+      "item": "exterra:compound"
+    },
+    {
+      "tag": "c:glass_blocks"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "exterra:compound_framed_glass"
+  }
+}

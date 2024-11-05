@@ -23,6 +23,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
@@ -247,14 +248,8 @@ public class DustBlock extends Block {
     }
 
 
-
-    /**
-     * Returns the blockstate with the given rotation from the passed blockstate. If inapplicable, returns the passed
-     * blockstate.
-     * @deprecated call via {@link net.minecraft.world.level.block.state.BlockBehavior.BlockStateBase#rotate} whenever
-     * possible. Implementing/overriding is fine.
-     */
-    public BlockState rotate(BlockState pState, Rotation pRotation) {
+    @Override
+    public BlockState rotate(BlockState pState, LevelAccessor level, BlockPos pos, Rotation pRotation) {
         switch(pRotation) {
             case CLOCKWISE_180:
                 return pState.setValue(NORTH, pState.getValue(SOUTH)).setValue(EAST, pState.getValue(WEST)).setValue(SOUTH, pState.getValue(NORTH)).setValue(WEST, pState.getValue(EAST));
@@ -267,22 +262,15 @@ public class DustBlock extends Block {
         }
     }
 
-    /**
-     * Returns the blockstate with the given mirror of the passed blockstate. If inapplicable, returns the passed
-     * blockstate.
-     * @deprecated call via {@link net.minecraft.world.level.block.state.BlockBehavior.BlockStateBase#mirror} whenever
-     * possible. Implementing/overriding is fine.
-     */
-    public BlockState mirror(BlockState pState, Mirror pMirror) {
-        switch(pMirror) {
-            case LEFT_RIGHT:
-                return pState.setValue(NORTH, pState.getValue(SOUTH)).setValue(SOUTH, pState.getValue(NORTH));
-            case FRONT_BACK:
-                return pState.setValue(EAST, pState.getValue(WEST)).setValue(WEST, pState.getValue(EAST));
-            default:
-                return super.mirror(pState, pMirror);
-        }
+    public @NotNull BlockState mirror(BlockState pState, Mirror pMirror) {
+        return switch (pMirror) {
+            case LEFT_RIGHT -> pState.setValue(NORTH, pState.getValue(SOUTH)).setValue(SOUTH, pState.getValue(NORTH));
+            case FRONT_BACK -> pState.setValue(EAST, pState.getValue(WEST)).setValue(WEST, pState.getValue(EAST));
+            default -> super.mirror(pState, pMirror);
+        };
     }
+
+
 
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
         pBuilder.add(NORTH, EAST, SOUTH, WEST);

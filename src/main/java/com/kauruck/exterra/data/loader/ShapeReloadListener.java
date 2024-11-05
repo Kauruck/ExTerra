@@ -1,11 +1,11 @@
 package com.kauruck.exterra.data.loader;
 
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import com.google.gson.*;
 import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.data.ShapeData;
+import com.mojang.serialization.JsonOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class ShapeReloadListener extends SimpleJsonResourceReloadListener {
 
-    public Map<ResourceLocation, ShapeData> shapes = new HashMap<>();
+    public BiMap<ResourceLocation, ShapeData> shapes = HashBiMap.create();
 
     public ShapeReloadListener() {
         super(new GsonBuilder()
@@ -35,14 +35,8 @@ public class ShapeReloadListener extends SimpleJsonResourceReloadListener {
         for(ResourceLocation currentLocation : pObject.keySet()){
             if(pObject.get(currentLocation).isJsonObject()){
                 JsonObject jsonObject = pObject.get(currentLocation).getAsJsonObject();
-                if(jsonObject.has("name") && jsonObject.has("points") && jsonObject.has("predicts")){
-                    String name = jsonObject.get("name").getAsString();
-                    int numberOfPoints = jsonObject.get("points").getAsInt();
-                    JsonArray predictsArray = jsonObject.get("predicts").getAsJsonArray();
-                    ShapeData shape = new ShapeData(new ResourceLocation(name), numberOfPoints);
-                    shape.setPredictsFromJSON(predictsArray);
-                    shapes.put(shape.getName(), shape);
-                }
+                ShapeData shape = ShapeData.CODEC.parse(JsonOps.INSTANCE, jsonObject).getOrThrow(JsonParseException::new);
+                shapes.put(shape.getName(), shape);
             }
         }
 

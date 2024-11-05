@@ -1,5 +1,8 @@
 package com.kauruck.exterra.util;
 
+import net.minecraft.world.phys.Vec3;
+import org.joml.Vector3f;
+
 public class MathUtil {
 
     //From https://stackoverflow.com/questions/9090500/how-to-compare-that-sequence-of-doubles-are-all-approximately-equal-in-java

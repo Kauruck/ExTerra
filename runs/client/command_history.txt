@@ -1,0 +1,7 @@
+/difficulty peaceful
+/data get entity Dev
+/data get entity @s
+/difficulty peaceful
+/data get entity @s
+/difficulty peaceful
+/property 4 -60 -7

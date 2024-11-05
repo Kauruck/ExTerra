@@ -7,18 +7,17 @@ import com.kauruck.exterra.modules.ExTerraCore;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.ModelEvent;
-import net.minecraftforge.client.model.geometry.IGeometryLoader;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.model.geometry.IGeometryLoader;
 
 @OnlyIn(Dist.CLIENT)
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class ExTerraClient {
 
+    @SubscribeEvent
     public static void clientSetupEvent(final FMLClientSetupEvent e){
         e.enqueueWork(() -> {
             //TODO Find a way to set this in json. Maybe?
@@ -31,7 +30,7 @@ public class ExTerraClient {
 
     @SubscribeEvent
     public static void registerModelLoader(ModelEvent.RegisterGeometryLoaders e){
-        e.register("connected_textures", (IGeometryLoader<?>) ConnectedTextureGeometry.ConnectedTextureLoader.INSTANCE);
+        e.register(ExTerra.getResource("connected_textures"), (IGeometryLoader<?>) ConnectedTextureGeometry.ConnectedTextureLoader.INSTANCE);
     }
 
 }

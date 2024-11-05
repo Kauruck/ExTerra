@@ -1,6 +1,5 @@
 package com.kauruck.exterra.client.model;
 
-import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.*;
@@ -8,22 +7,23 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.client.ChunkRenderTypeSet;
-import net.minecraftforge.client.extensions.IForgeBakedModel;
-import net.minecraftforge.client.model.data.ModelData;
-import net.minecraftforge.client.model.data.ModelProperty;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.client.ChunkRenderTypeSet;
+import net.neoforged.neoforge.client.extensions.IBakedModelExtension;
+import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.model.data.ModelProperty;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3f;
 
 import javax.annotation.Nonnull;
 import java.util.*;
 import java.util.function.Predicate;
 
-public class ConnectedTextureModel implements BakedModel, IForgeBakedModel {
+public class ConnectedTextureModel implements BakedModel, IBakedModelExtension {
 
     //ModelProperties
     public static final ModelProperty<DirectionData> PROPERTY_NORTH = new ModelProperty<>(new SideModelDataPredicate(Direction.NORTH));
@@ -208,13 +208,13 @@ public class ConnectedTextureModel implements BakedModel, IForgeBakedModel {
 
     protected BakedQuad createQuadForSide(Direction side, ModelData data){
         BlockElementFace face = new BlockElementFace(side, 0, "", new BlockFaceUV(this.getUV(side, data), 0));
-        BakedQuad quad = BAKERY.bakeQuad(new Vector3f(0,0,0), new Vector3f(16,16,16), face, getTexture(side), side, BlockModelRotation.X0_Y0, null, true, null);
+        BakedQuad quad = BAKERY.bakeQuad(new Vector3f(0,0,0), new Vector3f(16,16,16), face, getTexture(side), side, BlockModelRotation.X0_Y0, null, true);
         return quad;
     }
 
     protected BakedQuad createQuadForSide(Direction side, DirectionData data){
         BlockElementFace face = new BlockElementFace(side, 0, "", new BlockFaceUV(this.getUV(side, data), 0));
-        BakedQuad quad = BAKERY.bakeQuad(new Vector3f(0,0,0), new Vector3f(16,16,16), face, getTexture(side), side, BlockModelRotation.X0_Y0, null, true, null);
+        BakedQuad quad = BAKERY.bakeQuad(new Vector3f(0,0,0), new Vector3f(16,16,16), face, getTexture(side), side, BlockModelRotation.X0_Y0, null, true);
         return quad;
     }
 
@@ -392,7 +392,7 @@ public class ConnectedTextureModel implements BakedModel, IForgeBakedModel {
 
     @Override
     public ItemTransforms getTransforms() {
-        return Minecraft.getInstance().getModelManager().getModel(new ModelResourceLocation(ForgeRegistries.BLOCKS.getKey(Blocks.STONE), "")).getTransforms();
+        return Minecraft.getInstance().getModelManager().getModel(new ModelResourceLocation(BuiltInRegistries.BLOCK.getKey(Blocks.STONE), "")).getTransforms();
     }
 
     private float[] getUVForPosition(int x, int y){

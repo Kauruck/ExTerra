@@ -1,7 +1,5 @@
 package com.kauruck.exterra.networking;
 
-import net.minecraftforge.api.distmarker.Dist;
-
 public enum BlockEntityPropertySide {
     Server,
     Synced,

@@ -1,5 +1,9 @@
 package com.kauruck.exterra.api.recipes;
 
+import com.kauruck.exterra.api.exceptions.NoCodecException;
+import com.kauruck.exterra.modules.ExTerraRegistries;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.resources.ResourceLocation;
 
 /**
@@ -11,9 +15,13 @@ import net.minecraft.resources.ResourceLocation;
 public class ExTerraRecipeType<T extends  ExTerraRecipe<?, ?>> {
 
     private final ResourceLocation loc;
+    private final ResourceLocation serializerLocation;
 
-    public ExTerraRecipeType(ResourceLocation id) {
+    private MapCodec<ExTerraRecipe<T, ?>> cachedCodec;
+
+    public ExTerraRecipeType(ResourceLocation id, ResourceLocation serializerLocation) {
         this.loc = id;
+        this.serializerLocation = serializerLocation;
     }
     /**
      * The id for the type. Used in translation:
@@ -27,5 +35,19 @@ public class ExTerraRecipeType<T extends  ExTerraRecipe<?, ?>> {
     @Override
     public String toString() {
         return loc.toString();
+    }
+
+    public ResourceLocation getSerializer() {
+        return serializerLocation;
+    }
+
+    public MapCodec<ExTerraRecipe<T, ?>> getCodec() {
+        if (cachedCodec == null) {
+            cachedCodec = (MapCodec<ExTerraRecipe<T, ?>>) ExTerraRegistries.RECIPE_SERIALIZER.get(this.serializerLocation);
+            if (cachedCodec == null) {
+                throw new NoCodecException(this.serializerLocation);
+            }
+        }
+        return cachedCodec;
     }
 }

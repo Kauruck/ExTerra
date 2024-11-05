@@ -13,6 +13,8 @@ import com.kauruck.exterra.recipes.ConversionContainer;
 import com.kauruck.exterra.recipes.ConversionHelper;
 import com.kauruck.exterra.recipes.ConversionRecipe;
 import com.kauruck.exterra.util.NBTUtil;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -26,6 +28,14 @@ import org.apache.commons.lang3.ArrayUtils;
 import java.util.*;
 
 public class Edge {
+
+    public static final Codec<Edge> CODEC = RecordCodecBuilder.create(instance ->
+            instance.group(
+                    Codec.INT.fieldOf("a").forGetter(e -> e.a.getId()),
+                    Codec.INT.fieldOf("b").forGetter(e -> e.b.getId()),
+                    Codec.INT.fieldOf("id").forGetter(Edge::getId),
+                    Wire.CODEC.fieldOf("wire").forGetter(Edge::getWire)
+            ).apply(instance, Edge::new));
 
     private Vertex a;
     private Vertex b;
@@ -43,7 +53,7 @@ public class Edge {
 
     private final Wire wire;
 
-    private final MatterNetwork network;
+    private MatterNetwork network;
 
     /**
      * last used recipe.
@@ -71,29 +81,11 @@ public class Edge {
     }
 
 
-    private Edge(int a_id, int b_id, int id, Wire wire, MatterNetwork network) {
+    private Edge(int a_id, int b_id, int id, Wire wire) {
         this.id = id;
         this.id_a = a_id;
         this.id_b = b_id;
         this.wire = wire;
-        this.network = network;
-    }
-
-    public static Edge fromTag(CompoundTag tag, MatterNetwork network) {
-        int a_id = tag.getInt("a");
-        int b_id = tag.getInt("b");
-        int id = tag.getInt("id");
-        Wire wire = Wire.fromNBT(tag.getCompound("wire"));
-        return new Edge(a_id, b_id, id, wire, network);
-    }
-
-    public CompoundTag toTag(){
-        CompoundTag tag = new CompoundTag();
-        tag.putInt("a", a.getId());
-        tag.putInt("b", b.getId());
-        tag.putInt("id", id);
-        tag.put("wire", wire.toNBT());
-        return tag;
     }
 
     /**
@@ -124,6 +116,10 @@ public class Edge {
 
     public int getId() {
         return id;
+    }
+
+    public Wire getWire() {
+        return wire;
     }
 
     @Override

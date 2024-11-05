@@ -8,12 +8,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 public abstract class ExTerraRecipe<T, C extends ExTerraRecipeContainer<T>>{
-    private final ResourceLocation id;
+    private ResourceLocation id;
 
     private final ExTerraRecipeType<?> recipeType;
-    protected ExTerraRecipe(ResourceLocation id, ExTerraRecipeType<?> recipeType){
-        this.id = id;
+    protected ExTerraRecipe( ExTerraRecipeType<?> recipeType){
         this.recipeType = recipeType;
+    }
+
+    void setId(ResourceLocation id) {
+        this.id = id;
     }
 
     public abstract NonNullList<T> getRemainder(C container);
@@ -45,10 +48,6 @@ public abstract class ExTerraRecipe<T, C extends ExTerraRecipeContainer<T>>{
 
     public ExTerraRecipeType getRecipeType() {
         return recipeType;
-    }
-
-    protected ExTerraRecipeSerializer<ExTerraRecipe<T, C>> getRecipeSerializer() {
-        return (ExTerraRecipeSerializer<ExTerraRecipe<T, C>>) ExTerraRegistries.RECIPE_SERIALIZER.get().getValue(this.getType().typeId());
     }
 
     @Override

@@ -1,18 +1,18 @@
 package com.kauruck.exterra.networking;
 
 import com.kauruck.exterra.ExTerra;
+import com.kauruck.exterra.modules.ExTerraRegistries;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.ByteTag;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -23,52 +23,40 @@ public abstract class BaseBlockEntity extends BlockEntity {
         super(pType, pPos, pBlockState);
     }
 
+
     //---Saving/Loading
     @Override
-    protected void saveAdditional(CompoundTag pTag) {
-        super.saveAdditional(pTag);
+    protected void saveAdditional(CompoundTag pTag, HolderLookup.Provider pRegistries) {
+        super.saveAdditional(pTag, pRegistries);
         saveProperties(properties, pTag);
     }
 
     private void saveProperties(Map<String, BlockEntityProperty<?>> properties, CompoundTag tag){
         for(String key : properties.keySet()){
-            tag.put(key, properties.get(key).toNBT(false));
+            tag.put(key, properties.get(key).toTag(false));
         }
     }
 
     @Override
-    public void load(CompoundTag pTag) {
-        super.load(pTag);
+    public void loadAdditional(CompoundTag pTag, HolderLookup.Provider pRegistries) {
+        super.loadAdditional(pTag, pRegistries);
         for(String key : pTag.getAllKeys()){
             if(properties.containsKey(key)){
-                    properties.get(key).setFromTag(pTag.get(key));
+                    properties.get(key).setFromTag(pTag.get(key), false);
             }
         }
     }
 
     //Properties
-    protected  <T> BlockEntityProperty<T> createProperty(BlockEntityPropertySide side, String name, @NotNull T data){
-        if(data instanceof Iterable<?> iData){
-            if(iData.iterator().hasNext()){
-                Object value = iData.iterator().next();
-                if(value != null){
-                    return createProperty(side, name, data, (Class<T>) data.getClass(), value.getClass());
-                }
-            }
-        }
-        return createProperty(side, name, data, (Class<T>) data.getClass(), null);
-    }
 
-    protected <T> BlockEntityProperty<T> createProperty(BlockEntityPropertySide side, String name, T data, Class<?> clazz){
-        if (data instanceof Iterable<?>){
-            return createProperty(side, name, data, (Class<T>) data.getClass(), clazz);
-        }
-        return createProperty(side, name, data, (Class<T>)clazz, null);
+    protected <T> BlockEntityProperty<T> createProperty(BlockEntityPropertySide side, String name, T data, ResourceLocation codeHolderLocation){
+        BlockEntityCodecHolder<T> codecHolder = (BlockEntityCodecHolder<T>) ExTerraRegistries.BLOCK_ENTITY_PROPERTY_CODEC.get(codeHolderLocation);
+        return this.createProperty(side, name, data, codecHolder);
     }
 
 
-    protected <T> BlockEntityProperty<T> createProperty(BlockEntityPropertySide side, String name, T data, Class<T> dataClass, Class<?> innerClass){
-        BlockEntityProperty<T> out = new BlockEntityProperty<>(data, name, dataClass, innerClass, side);
+    protected <T> BlockEntityProperty<T> createProperty(BlockEntityPropertySide side, String name, T data, BlockEntityCodecHolder<T> codecHolder){
+        BlockEntityProperty<T> out = new BlockEntityProperty<>(data, name, codecHolder, side);
         properties.put(name, out);
         return out;
     }
@@ -78,14 +66,14 @@ public abstract class BaseBlockEntity extends BlockEntity {
     }
 
     protected void requestProperty(String name){
-        ExTerraNetworking.INSTANCE.sendToServer(new RequestUpdatePacket(this.getBlockPos(), name));
+        PacketDistributor.sendToServer(new RequestUpdatePacket(this.getBlockPos(), name));
     }
 
     void handelRequestProperty(String name, ServerPlayer player){
         if(this.properties.containsKey(name)){
             CompoundTag tag = new CompoundTag();
-            tag.put(name, this.properties.get(name).toNBT(true));
-            ExTerraNetworking.INSTANCE.send(PacketDistributor.PLAYER.with(() -> player), new BlockEntityClientBoundUpdatePacket(tag, this.getBlockPos()));
+            tag.put(name, this.properties.get(name).toTag(true));
+            PacketDistributor.sendToPlayer(player, new BlockEntityClientBoundUpdatePacket(tag, this.getBlockPos()));
         }
     }
 
@@ -95,18 +83,18 @@ public abstract class BaseBlockEntity extends BlockEntity {
         if(!this.getLevel().isClientSide()) {
             CompoundTag tag = generateUpdateTag();
             BlockEntityClientBoundUpdatePacket packet = new BlockEntityClientBoundUpdatePacket(tag, this.getBlockPos());
-            ExTerraNetworking.INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(() -> this.getLevel().getChunkAt(this.getBlockPos())), packet);
+            PacketDistributor.sendToPlayersTrackingChunk((ServerLevel) this.getLevel(), this.getLevel().getChunkAt(this.getBlockPos()).getPos(), packet);
             properties.values().forEach(BlockEntityProperty::confirmSend);
         }
     }
 
     @Override
-    public CompoundTag getUpdateTag() {
-        CompoundTag out = super.getUpdateTag();
+    public CompoundTag getUpdateTag(HolderLookup.Provider pRegistries) {
+        CompoundTag out = super.getUpdateTag(pRegistries);
         CompoundTag syncTag = new CompoundTag();
         for (BlockEntityProperty<?> current : properties.values()) {
             if (current.getSide() == BlockEntityPropertySide.Synced || current.isShouldBeUpdated())
-                out.put(current.getName(), current.toNBT(true));
+                out.put(current.getName(), current.toTag(true));
             else if (current.getSide() == BlockEntityPropertySide.Requestable)
                 syncTag.putBoolean(current.getName(), true);
             out.put("syncTag", syncTag);
@@ -114,14 +102,12 @@ public abstract class BaseBlockEntity extends BlockEntity {
         return out;
     }
 
-
-
     private CompoundTag generateUpdateTag(){
         CompoundTag out = new CompoundTag();
         CompoundTag syncTag = new CompoundTag();
         for(BlockEntityProperty<?> current : properties.values()){
             if(current.getSide() == BlockEntityPropertySide.Synced || current.isShouldBeUpdated())
-                out.put(current.getName(), current.toNBT(true));
+                out.put(current.getName(), current.toTag(true));
             else if(current.getSide() == BlockEntityPropertySide.Requestable)
                 syncTag.putBoolean(current.getName(), true);
         }
@@ -130,27 +116,14 @@ public abstract class BaseBlockEntity extends BlockEntity {
     }
 
     @Override
-    public void handleUpdateTag(CompoundTag tag) {
-        super.load(tag);
-        for(String key : tag.getAllKeys()){
-            if(properties.containsKey(key)){
-                properties.get(key).setFromTag(tag.get(key));
-            }
-        }
+    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider lookupProvider) {
+        handleUpdateTag(tag);
     }
 
-    public void handelClientUpdateTag(CompoundTag update){
-        for(String currentKey : update.getAllKeys()){
-            if(currentKey.equals("syncTag")) {
-                CompoundTag syncTag = update.getCompound("syncTag");
-                for(String syncKey : syncTag.getAllKeys()){
-                    if(this.properties.containsKey(syncKey)){
-                        this.properties.get(syncKey).outOfSync = true;
-                    }
-                }
-            }
-            else if(this.properties.containsKey(currentKey)){
-                this.properties.get(currentKey).setFromTag(update.get(currentKey));
+    public void handleUpdateTag(CompoundTag tag) {
+        for(String key : tag.getAllKeys()){
+            if(properties.containsKey(key)){
+                properties.get(key).setFromTag(tag.get(key), true);
             }
         }
     }
