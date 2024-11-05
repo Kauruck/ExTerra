@@ -95,7 +95,6 @@ public class RitualMap extends Item {
             }
 
             itemStack.set(ExTerraCore.COMPONENT_SHAPES, shapes);
-            ExTerra.LOGGER.debug("Setting shapes to {}", shapes);
             itemStack.set(ExTerraCore.COMPONENT_CURRENT_SHAPE, currentShapeIndex);
         }
 

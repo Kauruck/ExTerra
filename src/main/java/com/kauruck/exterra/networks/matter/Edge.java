@@ -112,6 +112,8 @@ public class Edge {
                         .convertWithConversion(b.getMember().pulledMatter(), network.getShapes()))
                 .filter(matter ->  a.getMember().acceptsMatter(matter.getA()))
                 .toArray(Tuple[]::new);
+
+        this.network = network;
     }
 
     public int getId() {

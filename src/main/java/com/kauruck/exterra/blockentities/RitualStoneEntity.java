@@ -48,6 +48,7 @@ public class RitualStoneEntity extends BaseBlockEntity {
         for(BlockPos pos : trackingBlock.keySet()){
             if(this.getLevel().getBlockState(pos).getBlock() != trackingBlock.get(pos)){
                 this.broken.set(true);
+                ExTerra.LOGGER.debug("Ritual Stone Broke: Multiblock");
                 this.broken.markChanged();
                 this.setChanged();
                 return;
@@ -112,13 +113,15 @@ public class RitualStoneEntity extends BaseBlockEntity {
                 if (!matterNetwork.get().isLinked()) {
                     this.matterNetwork.get().setShapeGetter(this::getShapes);
                     matterNetwork.get().link(this.getLevel());
-                    }
-                matterNetwork.get().serverTick();
-                matterNetwork.markChanged();
+                } else { // Wait for network to link
+                    matterNetwork.get().serverTick();
+                    matterNetwork.markChanged();
+                }
             }catch (RuntimeException e){
                 //Something went wrong in the network
                 this.broken.set(true);
                 this.broken.markChanged();
+                ExTerra.LOGGER.debug("Ritual Stone Block: Network Exception", e);
             }
         }
         this.setChanged();
