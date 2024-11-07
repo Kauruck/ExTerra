@@ -18,16 +18,16 @@ public class Shape implements Iterable<BlockPos>{
 
     public static final Codec<Shape> CODEC = RecordCodecBuilder.create(instance ->
         instance.group(
-                Codec.list(BlockPos.CODEC).fieldOf("positions").forGetter(Shape::getPositions),
-                ShapeData.CODEC.optionalFieldOf("shapeData", null).forGetter(Shape::getShapeData)
+                ShapeData.CODEC.fieldOf("shapeData").forGetter(Shape::getShapeData),
+                Codec.list(BlockPos.CODEC).fieldOf("positions").forGetter(Shape::getPositions)
         ).apply(instance, Shape::new)
     );
 
     public static final StreamCodec<RegistryFriendlyByteBuf, Shape> STREAM_CODEC = StreamCodec.composite(
             BlockPos.STREAM_CODEC.apply(ByteBufCodecs.list()),
             Shape::getPositions,
-            ShapeData.STREAM_CODEC.apply(ByteBufCodecs::optional),
-            Shape::getShapeDataOptional,
+            ShapeData.STREAM_CODEC,
+            Shape::getShapeData,
             Shape::new
     );
 
@@ -36,7 +36,7 @@ public class Shape implements Iterable<BlockPos>{
     private ShapeData shapeData;
 
     public Shape(){
-
+        this.shapeData = ShapeData.INCOMPLETE;
     }
 
     private List<BlockPos> getPositions() {
@@ -48,9 +48,9 @@ public class Shape implements Iterable<BlockPos>{
         this.shapeData = shapeData;
     }
 
-    private Shape(List<BlockPos> positions, Optional<ShapeData> shapeData) {
-        this.positions = positions;
-        this.shapeData = shapeData.orElse(null);
+    private Shape(ShapeData shapeData, List<BlockPos> positions) {
+        this.positions = new ArrayList<>(positions);
+        this.shapeData = shapeData;
     }
 
     public boolean end(){
@@ -75,7 +75,7 @@ public class Shape implements Iterable<BlockPos>{
 
     @Override
     public String toString() {
-        if(shapeData == null)
+        if(shapeData == null || shapeData == ShapeData.INCOMPLETE)
             return "contains: " + positions.size() + " positions";
         else
             return shapeData.getTranslationKey();

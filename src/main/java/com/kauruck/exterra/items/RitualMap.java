@@ -25,11 +25,6 @@ import java.util.List;
 
 public class RitualMap extends Item {
 
-    public static final String TAG_SELECT_MODE = "select_mode";
-    public static final String TAG_SHAPES = "shapes";
-    public static final String TAG_CURRENT_SHAPE = "current_shape";
-    public static final String TAG_CENTER = "center_block";
-
     public RitualMap() {
         super(ExTerraShared.DEFAULT_PROPERTIES_ITEM);
     }

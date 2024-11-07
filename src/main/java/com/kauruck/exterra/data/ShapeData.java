@@ -1,6 +1,7 @@
 package com.kauruck.exterra.data;
 
 import com.google.gson.*;
+import com.kauruck.exterra.ExTerra;
 import com.kauruck.exterra.api.geometry.GeometricRule;
 import com.kauruck.exterra.api.geometry.IGeometricTest;
 import com.kauruck.exterra.geometry.BlockPosHolder;
@@ -45,15 +46,7 @@ public class ShapeData {
             ByteBuf::asByteBuf
     );
 
-    /*public static StreamCodec<RegistryFriendlyByteBuf, ShapeData> STREAM_CODEC = StreamCodec.composite(
-            ResourceLocation.STREAM_CODEC,
-            ShapeData::getName,
-            ByteBufCodecs.INT,
-            ShapeData::getNumberOfPoints,
-            GeometryCodecs.STREAM_CODEC_GEOMETRIC_TEST.apply(ByteBufCodecs.list()),
-            ShapeData::getParts,
-            ShapeData::new
-    );*/
+    public static final ShapeData INCOMPLETE = new ShapeData(ExTerra.getResource("incomplete"), -1);
 
     private final ResourceLocation name;
     private final int numberOfPoints;

@@ -58,7 +58,10 @@ public class ExTerraReloadableResources implements PreparableReloadListener{
         return shapeReloadListener.shapes;
     }
 
-    public ShapeData getShape(ResourceLocation name){
+    public ShapeData getShape(ResourceLocation name) {
+        if (name.equals(ShapeData.INCOMPLETE.getName())) {
+            return ShapeData.INCOMPLETE;
+        }
         return shapeReloadListener.shapes.get(name);
     }
 
