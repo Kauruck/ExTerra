@@ -50,31 +50,25 @@ public class RenderUtil {
 
     // Copy from EntityRender.renderNameTag
     public static void renderFloatingTextOverBlock(BlockEntityRendererProvider.Context context, String pText, PoseStack pMatrixStack, MultiBufferSource pBuffer, int pPackedLight) {
-        float f2 = (float)(-FONT.width(pText) / 2);
-        float f = 0.6F;
+        float width = (float)(-FONT.width(pText) / 2);
         pMatrixStack.pushPose();
-        pMatrixStack.translate(0.5D, (double)f, 0.5D);
+        pMatrixStack.translate(0.5D, 0.6F, 0.5D);
         pMatrixStack.mulPose(context.getEntityRenderer().cameraOrientation());
-        pMatrixStack.scale(-0.025F, -0.025F, 0.025F);
+        pMatrixStack.scale(0.025F, -0.025F, 0.025F);
         Matrix4f matrix4f = pMatrixStack.last().pose();
-        float f1 = Minecraft.getInstance().options.getBackgroundOpacity(0.9F);
-        int j = (int)(f1 * 255.0F) << 24;
-        FONT.drawInBatch(pText, f2, 0f, 553648127, false, matrix4f, pBuffer, Font.DisplayMode.NORMAL, j, pPackedLight);
+        FONT.drawInBatch(pText, width, 0f, 0xFFFFFFFF, false, matrix4f, pBuffer, Font.DisplayMode.NORMAL, 0, pPackedLight);
         pMatrixStack.popPose();
     }
 
     public static void renderFloatingTextOverBlock(BlockPos offset, BlockEntityRendererProvider.Context context, String pText, PoseStack pMatrixStack, MultiBufferSource pBuffer, int pPackedLight) {
-        float f2 = (float)(-FONT.width(pText) / 2);
-        float f = 0.6F;
+        float width = (float)(-FONT.width(pText) / 2);
         pMatrixStack.pushPose();
-        pMatrixStack.translate(0.5D, (double)f, 0.5D);
+        pMatrixStack.translate(0.5D, 0.6F, 0.5D);
         pMatrixStack.translate(offset.getX(), offset.getY(), offset.getZ());
         pMatrixStack.mulPose(context.getEntityRenderer().cameraOrientation());
-        pMatrixStack.scale(-0.025F, -0.025F, 0.025F);
+        pMatrixStack.scale(0.025F, -0.025F, 0.025F);
         Matrix4f matrix4f = pMatrixStack.last().pose();
-        float f1 = Minecraft.getInstance().options.getBackgroundOpacity(0.9F);
-        int j = (int)(f1 * 255.0F) << 24;
-        FONT.drawInBatch(pText, f2, 0f, 553648127, false, matrix4f, pBuffer, Font.DisplayMode.NORMAL, j, pPackedLight);
+        FONT.drawInBatch(pText, width, 0f, 0xC0FFFFFF, false, matrix4f, pBuffer, Font.DisplayMode.NORMAL, 0, pPackedLight);
         pMatrixStack.popPose();
     }
 
