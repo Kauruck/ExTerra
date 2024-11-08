@@ -13,12 +13,11 @@ import com.kauruck.exterra.networks.matter.Grid;
 import com.kauruck.exterra.networks.matter.GridScanner;
 import com.kauruck.exterra.networks.matter.MatterNetwork;
 import com.kauruck.exterra.networks.matter.Wire;
+import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.Block;
@@ -36,8 +35,9 @@ public class RitualStoneEntity extends BaseBlockEntity {
     private final BlockEntityProperty<MatterNetwork> matterNetwork = createProperty(Requestable, "network", new MatterNetwork(), ExTerraCore.PROPERTY_MATTER_NETWORK.get());
     public static final int SIZE = 5;
     private final BlockEntityProperty<Boolean> broken = createProperty(Synced, "broken", false, NetworkInbuilt.PROPERTY_BOOLEAN.get());
-    private Map<BlockPos, Block> trackingBlock = new HashMap<>();
+    private final BlockEntityProperty<Map<BlockPos, Block>> trackingBlock = createProperty(Server, "tracking_blocks", new HashMap<>(), ExTerraCore.PROPERTY_MULTIBLOCK_ELEMENTS.get());
 
+    private int validationCooldown = 20;
 
     public RitualStoneEntity(BlockPos pWorldPosition, BlockState pBlockState) {
         super(ExTerraCore.RITUAL_STONE_ENTITY.get(), pWorldPosition, pBlockState);
@@ -45,15 +45,17 @@ public class RitualStoneEntity extends BaseBlockEntity {
 
 
     private void validateMultiblock(){
-        for(BlockPos pos : trackingBlock.keySet()){
-            if(this.getLevel().getBlockState(pos).getBlock() != trackingBlock.get(pos)){
+        for(BlockPos pos : trackingBlock.get().keySet()){
+            if(this.getLevel().getBlockState(pos).getBlock() != trackingBlock.get().get(pos)){
                 this.broken.set(true);
-                ExTerra.LOGGER.debug("Ritual Stone Broke: Multiblock");
                 this.broken.markChanged();
                 this.setChanged();
                 return;
             }
         }
+        this.broken.set(false);
+        this.broken.markChanged();
+        this.setChanged();
     }
 
     public void infoToPlayer(Player player){
@@ -107,8 +109,13 @@ public class RitualStoneEntity extends BaseBlockEntity {
     }
 
     public void serverTick(){
-        if(!broken.get()) {
+        if (validationCooldown == 0) {
             validateMultiblock();
+            validationCooldown = 20;
+        } else {
+            validationCooldown--;
+        }
+        if(!broken.get()) {
             try {
                 if (!matterNetwork.get().isLinked()) {
                     this.matterNetwork.get().setShapeGetter(this::getShapes);
@@ -131,29 +138,36 @@ public class RitualStoneEntity extends BaseBlockEntity {
         return shapes.get();
     }
 
-    public void setShapes(List<Shape> shapes){
-        if (shapes == null)
-            return;
-        this.shapes.set(shapes);
-        this.setChanged();
-    }
-
     public boolean isBroken(){
         return this.broken.get();
     }
 
+    private void addBlocksToTracking(List<BlockPos> poses) {
+        for (BlockPos current : poses) {
+            if (!this.trackingBlock.get().containsKey(current))
+                this.trackingBlock.get().put(current, level.getBlockState(current).getBlock());
+        }
+        this.trackingBlock.markChanged();
+    }
 
-    public void buildRitual(ServerPlayer player){
-        trackingBlock.clear();
+
+    public void buildRitual(List<Shape> shapes){
+        trackingBlock.get().clear();
+        this.shapes.set(shapes);
+        this.setChanged();
+        this.addBlocksToTracking(shapes.stream().flatMap(s -> s.getActualPositions(this.getBlockPos()).stream()).toList());
         Grid grid = GridScanner.ScanGrid(this.getBlockPos(), SIZE, this.getLevel());
         matterNetwork.set(new MatterNetwork());
         List<BlockPos> vertices = GridScanner.scanGridForMembers(grid);
+
+        this.addBlocksToTracking(vertices);
         try {
             matterNetwork.get().addRangeVertices(vertices, level);
         } catch (UnexpectedBehaviorException e) {
             throw new RuntimeException(e);
         }
         HashSet<Wire> wires = GridScanner.scanGridForWires(grid);
+        this.addBlocksToTracking(wires.stream().flatMap(w -> w.getPositions().stream().map(Pair::getFirst)).toList());
         ExTerra.LOGGER.info(wires);
         this.matterNetwork.get().setShapeGetter(this::getShapes);
         this.matterNetwork.get().addRangeEdge(wires);

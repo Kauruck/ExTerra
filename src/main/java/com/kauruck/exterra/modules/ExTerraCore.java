@@ -13,6 +13,7 @@ import com.kauruck.exterra.blocks.DustBlock;
 import com.kauruck.exterra.blocks.RitualStone;
 import com.kauruck.exterra.blocks.TestEmitterBlock;
 import com.kauruck.exterra.blocks.TestReceiverBlock;
+import com.kauruck.exterra.datagenenerators.BlockStates;
 import com.kauruck.exterra.geometry.Shape;
 import com.kauruck.exterra.geometry.builtin.IntersectAngle;
 import com.kauruck.exterra.geometry.builtin.ParallelLine;
@@ -21,9 +22,11 @@ import com.kauruck.exterra.ingredients.MatterIngredient;
 import com.kauruck.exterra.items.RitualLensItem;
 import com.kauruck.exterra.items.RitualMap;
 import com.kauruck.exterra.networking.BlockEntityCodecHolder;
+import com.kauruck.exterra.networking.ExTerraCodecs;
 import com.kauruck.exterra.networks.matter.MatterNetwork;
 import com.kauruck.exterra.recipes.ConversionRecipe;
 import com.kauruck.exterra.util.Colors;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
@@ -37,10 +40,13 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static com.kauruck.exterra.modules.RegistryManger.*;
 
@@ -129,7 +135,16 @@ public class ExTerraCore {
 
    // Property functions
    public static final DeferredHolder<BlockEntityCodecHolder<?>, BlockEntityCodecHolder<List<Shape>>> PROPERTY_SHAPE_LIST = BLOCK_ENTITY_PROPERTY_CODEC_REGISTRY.register("shape_list", () -> new BlockEntityCodecHolder<>(Codec.list(Shape.CODEC)));
-   public static final DeferredHolder<BlockEntityCodecHolder<?>, BlockEntityCodecHolder<MatterNetwork>> PROPERTY_MATTER_NETWORK = BLOCK_ENTITY_PROPERTY_CODEC_REGISTRY.register("matter_network", () -> new BlockEntityCodecHolder<>(MatterNetwork.CODEC, MatterNetwork.NETWORK_CODEC));
+    public static final DeferredHolder<BlockEntityCodecHolder<?>, BlockEntityCodecHolder<MatterNetwork>> PROPERTY_MATTER_NETWORK = BLOCK_ENTITY_PROPERTY_CODEC_REGISTRY.register("matter_network", () -> new BlockEntityCodecHolder<>(MatterNetwork.CODEC, MatterNetwork.NETWORK_CODEC));
+    public static final DeferredHolder<BlockEntityCodecHolder<?>, BlockEntityCodecHolder<Map<BlockPos, Block>>> PROPERTY_MULTIBLOCK_ELEMENTS = BLOCK_ENTITY_PROPERTY_CODEC_REGISTRY.register("multi_block", () -> new BlockEntityCodecHolder<>(
+            Codec.list(Codec.pair(
+                    BlockPos.CODEC.fieldOf("pos").codec(),
+                    ExTerraCodecs.BLOCK_CODEC.fieldOf("block").codec()
+            )).xmap(
+                    l -> l.stream().collect(Pair.toMap()),
+                    m -> m.keySet().stream().map(k -> Pair.of(k, m.get(k))).toList()
+            )
+    ));
 
 
    // Creative Tab

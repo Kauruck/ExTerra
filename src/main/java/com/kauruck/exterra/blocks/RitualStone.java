@@ -90,8 +90,7 @@ public class RitualStone extends RitualPlateBlock implements EntityBlock {
                 if (!pPlayer.isCrouching()) {
                     if (pPlayer.getItemInHand(pHand).getItem().getClass().equals(RitualMap.class)) {
                         List<Shape> shapes = pPlayer.getItemInHand(pHand).get(ExTerraCore.COMPONENT_SHAPES);
-                        ritualStoneEntity.setShapes(shapes);
-                        ritualStoneEntity.buildRitual((ServerPlayer) pPlayer);
+                        ritualStoneEntity.buildRitual(shapes);
                         return ItemInteractionResult.SUCCESS;
                     }
                 }

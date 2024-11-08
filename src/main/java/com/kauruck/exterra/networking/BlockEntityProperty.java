@@ -105,7 +105,7 @@ public class BlockEntityProperty<T>{
         }
 
         if (res.isError()) {
-            throw new IllegalStateException("Error converting a block entity property to a nbt");
+            throw new IllegalStateException("Error converting a block entity property to a nbt.\n " + res.error().orElse(null));
         }
         return res.result().get();
     }
