@@ -17,6 +17,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.util.RandomSource;
@@ -60,6 +61,7 @@ public class Edge {
      */
     private ConversionRecipe cachedRecipe = null;
 
+    @SuppressWarnings("unchecked")
     public Edge(Vertex a, Vertex b, int id, Wire wire, MatterNetwork network) {
         this.id = id;
         this.a = a;
@@ -69,12 +71,12 @@ public class Edge {
         this.network = network;
 
         this.transportedMatterFromA = Arrays.stream(ConversionHelper
-                        .convertWithConversion(a.getMember().pulledMatter(), network.getShapes()))
-                .filter(matter ->  b.getMember().acceptsMatter(matter.getA()))
+                        .convertWithConversion(a.getMember().pulledMatter(wire.getDirectionA()), network.getShapes()))
+                .filter(matter ->  b.getMember().acceptsMatter(matter.getA(), wire.getDirectionB()))
                 .toArray(Tuple[]::new);
         this.transportedMatterFromB = Arrays.stream(ConversionHelper
-                        .convertWithConversion(b.getMember().pulledMatter(), network.getShapes()))
-                .filter(matter ->  a.getMember().acceptsMatter(matter.getA()))
+                        .convertWithConversion(b.getMember().pulledMatter(wire.getDirectionB()), network.getShapes()))
+                .filter(matter ->  a.getMember().acceptsMatter(matter.getA(), wire.getDirectionA()))
                 .toArray(Tuple[]::new);
 
         this.wire = wire;
@@ -93,6 +95,7 @@ public class Edge {
      * This must be called after loading from tag
      * @param network The network to link against
      */
+    @SuppressWarnings("unchecked")
     public void link(MatterNetwork network){
         a = network.vertices.stream()
                 .filter(v -> v.getId() == id_a)
@@ -105,12 +108,12 @@ public class Edge {
                 .orElse(null);
 
         this.transportedMatterFromA = Arrays.stream(ConversionHelper
-                        .convertWithConversion(a.getMember().pulledMatter(), network.getShapes()))
-                .filter(matter ->  b.getMember().acceptsMatter(matter.getA()))
+                        .convertWithConversion(a.getMember().pulledMatter(wire.getDirectionA()), network.getShapes()))
+                .filter(matter ->  b.getMember().acceptsMatter(matter.getA(), wire.getDirectionB()))
                 .toArray(Tuple[]::new);
         this.transportedMatterFromB = Arrays.stream(ConversionHelper
-                        .convertWithConversion(b.getMember().pulledMatter(), network.getShapes()))
-                .filter(matter ->  a.getMember().acceptsMatter(matter.getA()))
+                        .convertWithConversion(b.getMember().pulledMatter(wire.getDirectionB()), network.getShapes()))
+                .filter(matter ->  a.getMember().acceptsMatter(matter.getA(), wire.getDirectionA()))
                 .toArray(Tuple[]::new);
 
         this.network = network;
@@ -140,12 +143,12 @@ public class Edge {
     public void serverTick(){
         wire.serverTick();
 
-        doTransfer(a, transportedMatterFromA, b);
-        doTransfer(b, transportedMatterFromB, a);
+        doTransfer(a, transportedMatterFromA, b, wire.getDirectionA(), wire.getDirectionB());
+        doTransfer(b, transportedMatterFromB, a, wire.getDirectionB(), wire.getDirectionA());
 
     }
 
-    private void doTransfer(Vertex from, Tuple<Matter, Matter[]>[] maybeTransport, Vertex to) {
+    private void doTransfer(Vertex from, Tuple<Matter, Matter[]>[] maybeTransport, Vertex to, Direction fromDirection, Direction toDirection) {
         ExTerraRecipeManager<MatterStack> conversion = ExTerraCore.CONVERSION_RECIPE_MANGER.get();
 
         List<MatterStack> remainderList = new ArrayList<>();
@@ -154,7 +157,7 @@ public class Edge {
             List<MatterStack> presentStacks = new ArrayList<>();
             boolean flagJump = false;
             for (Matter currentMatter : currentMatterTransfer.getB()) {
-                MatterStack stack = from.pullMatterStack(currentMatter);
+                MatterStack stack = from.pullMatterStack(currentMatter, fromDirection);
 
                 if(stack == null) {
                     flagJump = true;
@@ -187,7 +190,7 @@ public class Edge {
                         wire.addInfo(input.getMatter().getParticleColor(), 0.5f, from != b);
                     }
                     wire.addInfo(output.getMatter().getParticleColor(), 0.5f, from == b);
-                    MatterStack remainder = to.getMember().pushMatter(output);
+                    MatterStack remainder = to.getMember().pushMatter(output, toDirection);
                     if(remainder != null && remainder.getAmount() != 0){
                         remainderList.add(remainder);
                     }
@@ -205,7 +208,7 @@ public class Edge {
                 MatterStack stack = presentStacks.get(0);
                 wire.addInfo(stack.getMatter().getParticleColor());
 
-                MatterStack remainder = to.getMember().pushMatter(stack);
+                MatterStack remainder = to.getMember().pushMatter(stack, toDirection);
                 if(remainder != null && remainder.getAmount() != 0){
                     remainderList.add(remainder);
                 }

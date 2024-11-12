@@ -34,7 +34,9 @@ public class Wire {
                             BlockPos.CODEC.fieldOf("pos").codec(),
                             BlockState.CODEC.fieldOf("state").codec())
                     ).fieldOf("positions").forGetter(Wire::getPositions),
-                    Codec.list(WireTransferInfo.CODEC).fieldOf("infos").forGetter(Wire::getInfos)
+                    Codec.list(WireTransferInfo.CODEC).fieldOf("infos").forGetter(Wire::getInfos),
+                    Direction.CODEC.fieldOf("direction_a").forGetter(Wire::getDirectionA),
+                    Direction.CODEC.fieldOf("direction_b").forGetter(Wire::getDirectionB)
             ).apply(instance, Wire::new)
     );
 
@@ -45,13 +47,17 @@ public class Wire {
     private List<Pair<BlockPos, BlockState>> positions = new ArrayList<>();
     private BlockPos terminalA;
     private BlockPos terminalB;
+    private Direction directionA;
+    private Direction directionB;
 
     public static final Map<Direction, EnumProperty<RedstoneSide>> PROPERTY_BY_DIRECTION = Maps.newEnumMap(ImmutableMap.of(Direction.NORTH, NORTH, Direction.EAST, EAST, Direction.SOUTH, SOUTH, Direction.WEST, WEST));
     private List<WireTransferInfo> infos = new ArrayList<>();
 
-    public Wire( List<Pair<BlockPos, BlockState>> positions, List<WireTransferInfo> infos) {
+    public Wire( List<Pair<BlockPos, BlockState>> positions, List<WireTransferInfo> infos, Direction directionA, Direction directionB) {
         this.infos = infos;
         this.positions = positions;
+        this.directionA = directionA;
+        this.directionB = directionB;
     }
 
     public Wire() { }
@@ -172,6 +178,22 @@ public class Wire {
         return result;
     }
 
+    public Direction getDirectionA() {
+        return directionA;
+    }
+
+    public Direction getDirectionB() {
+        return directionB;
+    }
+
+    public void setDirectionA(Direction directionA) {
+        this.directionA = directionA;
+    }
+
+    public void setDirectionB(Direction directionB) {
+        this.directionB = directionB;
+    }
+
     public static class WireTransferInfo {
 
         public static final Codec<WireTransferInfo> CODEC = RecordCodecBuilder.create(instance ->
@@ -239,6 +261,8 @@ public class Wire {
             return Objects.equals(color, info.color);
         }
 
+
+
         @Override
         public int hashCode() {
             int result = color != null ? color.hashCode() : 0;
@@ -255,5 +279,7 @@ public class Wire {
                     ", strength=" + strength +
                     '}';
         }
+
+
     }
 }

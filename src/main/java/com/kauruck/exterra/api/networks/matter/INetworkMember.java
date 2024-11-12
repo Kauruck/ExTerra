@@ -2,6 +2,7 @@ package com.kauruck.exterra.api.networks.matter;
 
 import com.kauruck.exterra.api.matter.Matter;
 import com.kauruck.exterra.api.matter.MatterStack;
+import net.minecraft.core.Direction;
 
 /**
  * A member of a network of all "machines" in a ritual
@@ -23,7 +24,7 @@ public interface INetworkMember{
      * @return Weather it is accepted
      * @since 1.0
      */
-    boolean acceptsMatter(Matter matter);
+    boolean acceptsMatter(Matter matter, Direction direction);
 
     /**
      * Returns an array of all accepted matters.
@@ -40,7 +41,7 @@ public interface INetworkMember{
      * @return The remainder of the stack, that could not be pushed in the member
      * @since 1.0
      */
-    MatterStack pushMatter(MatterStack matterStack);
+    MatterStack pushMatter(MatterStack matterStack, Direction direction);
 
     /**
      * Returns an array of all matters that could be pulled into the network.
@@ -48,7 +49,7 @@ public interface INetworkMember{
      * @return The array.
      * @since 1.0
      */
-    Matter[] pulledMatter();
+    Matter[] pulledMatter(Direction direction);
 
     /**
      * Weather this matter could be pulled from this member.
@@ -61,10 +62,12 @@ public interface INetworkMember{
 
     /**
      * Returns all matters that should be pulled into the Network.
+     * @param matter The matter to pull
+     * @param direction The side to pull from
      * @return All matters
      * @since 1.0
      */
-    MatterStack[] pullMatter();
+    MatterStack pullMatter(Matter matter, Direction direction);
 
     /**
      * This functions handles all matters that could not handled by the network.

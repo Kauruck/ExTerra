@@ -7,6 +7,7 @@ import com.kauruck.exterra.api.networks.matter.INetworkMember;
 import com.kauruck.exterra.modules.ExTerraCore;
 import com.kauruck.exterra.modules.ExTerraRegistries;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -49,7 +50,7 @@ public class MatterEmitterEntity extends BlockEntity implements INetworkMember {
     }
 
     @Override
-    public boolean acceptsMatter(Matter matter) {
+    public boolean acceptsMatter(Matter matter, Direction direction) {
         return false;
     }
 
@@ -59,7 +60,7 @@ public class MatterEmitterEntity extends BlockEntity implements INetworkMember {
     }
 
     @Override
-    public MatterStack pushMatter(MatterStack matterStack) {
+    public MatterStack pushMatter(MatterStack matterStack, Direction direction) {
         return null;
     }
 
@@ -75,7 +76,7 @@ public class MatterEmitterEntity extends BlockEntity implements INetworkMember {
     }
 
     @Override
-    public Matter[] pulledMatter() {
+    public Matter[] pulledMatter(Direction direction) {
         Matter[] out = new Matter[2];
         out[0] =  ExTerraCore.TEST_MATTER.get();
         out[1] =  ExTerraCore.TEST_MATTER_2.get();
@@ -88,11 +89,14 @@ public class MatterEmitterEntity extends BlockEntity implements INetworkMember {
     }
 
     @Override
-    public MatterStack[] pullMatter() {
-        MatterStack[] out = new MatterStack[1];
-        out[0] =  localStack;
-        localStack = new MatterStack(transportetMatter, 0);
-        return out;
+    public MatterStack pullMatter(Matter matter, Direction direction) {
+        if(matter == this.localStack.getMatter()) {
+            MatterStack ret = localStack;
+            localStack = new MatterStack(transportetMatter, 0);
+            return ret;
+        } else {
+            return null;
+        }
     }
 
     @Override

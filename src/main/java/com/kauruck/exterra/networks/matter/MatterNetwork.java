@@ -161,9 +161,7 @@ public class MatterNetwork {
     }
 
     public void serverTick(){
-        vertices.forEach(Vertex::preServerTick);
         edges.forEach(Edge::serverTick);
-        vertices.forEach(Vertex::postServerTick);
     }
     public void animationsTick(ClientLevel level, RandomSource random){
         edges.forEach(edge -> edge.animationTick(level, random));

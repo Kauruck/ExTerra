@@ -5,11 +5,13 @@ import com.kauruck.exterra.blockentities.MatterEmitterEntity;
 import com.kauruck.exterra.blockentities.RitualStoneEntity;
 import com.kauruck.exterra.modules.ExTerraShared;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -57,4 +59,8 @@ public class TestEmitterBlock extends RitualPlateBlock implements INetworkMember
         }
     }
 
+    @Override
+    public boolean canConnectTo(Direction direction, BlockState state, LevelAccessor level) {
+        return true;
+    }
 }

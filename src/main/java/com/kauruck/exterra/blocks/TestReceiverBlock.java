@@ -6,6 +6,7 @@ import com.kauruck.exterra.blockentities.MatterEmitterEntity;
 import com.kauruck.exterra.blockentities.MatterReceiverEntity;
 import com.kauruck.exterra.modules.ExTerraShared;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -55,5 +56,10 @@ public class TestReceiverBlock extends RitualPlateBlock implements INetworkMembe
                 }
         }
         return InteractionResult.PASS;
+    }
+
+    @Override
+    public boolean canConnectTo(Direction direction, BlockState state, LevelAccessor level) {
+        return true;
     }
 }

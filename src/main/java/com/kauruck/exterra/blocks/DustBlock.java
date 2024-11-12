@@ -2,6 +2,7 @@ package com.kauruck.exterra.blocks;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import com.kauruck.exterra.api.networks.matter.INetworkMemberBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -73,7 +74,7 @@ public class DustBlock extends Block {
         return this.getConnectionState(pContext.getLevel(), this.crossState, pContext.getClickedPos());
     }
 
-    private BlockState getConnectionState(BlockGetter pLevel, BlockState pState, BlockPos pPos) {
+    private BlockState getConnectionState(LevelAccessor pLevel, BlockState pState, BlockPos pPos) {
         boolean flag = isDot(pState);
         pState = this.getMissingConnections(pLevel, this.defaultBlockState(), pPos);
         if (flag && isDot(pState)) {
@@ -105,7 +106,7 @@ public class DustBlock extends Block {
         }
     }
 
-    private BlockState getMissingConnections(BlockGetter pLevel, BlockState pState, BlockPos pPos) {
+    private BlockState getMissingConnections(LevelAccessor pLevel, BlockState pState, BlockPos pPos) {
         boolean flag = true;
 
         for(Direction direction : Direction.Plane.HORIZONTAL) {
@@ -124,6 +125,7 @@ public class DustBlock extends Block {
      * returns its solidified counterpart.
      * Note that this method should ideally consider only the specific direction passed in.
      */
+    @Override
     public BlockState updateShape(BlockState pState, Direction pFacing, BlockState pFacingState, LevelAccessor pLevel, BlockPos pCurrentPos, BlockPos pFacingPos) {
         if (pFacing == Direction.DOWN) {
             return pState;
@@ -144,16 +146,16 @@ public class DustBlock extends Block {
     }
 
 
-    private RedstoneSide getConnectingSide(BlockGetter pLevel, BlockPos pPos, Direction pFace) {
+    private RedstoneSide getConnectingSide(LevelAccessor pLevel, BlockPos pPos, Direction pFace) {
         return this.getConnectingSide(pLevel, pPos, pFace, !pLevel.getBlockState(pPos.above()).is(this));
     }
 
-    private RedstoneSide getConnectingSide(BlockGetter pLevel, BlockPos pPos, Direction pDirection, boolean pNonNormalCubeAbove) {
+    private RedstoneSide getConnectingSide(LevelAccessor pLevel, BlockPos pPos, Direction pDirection, boolean pNonNormalCubeAbove) {
         BlockPos blockpos = pPos.relative(pDirection);
         BlockState blockstate = pLevel.getBlockState(blockpos);
         if (pNonNormalCubeAbove) {
             boolean flag = this.canSurviveOn(pLevel, blockpos, blockstate);
-            if (flag && shouldConnectTo(pLevel.getBlockState(blockpos.above()))) {
+            if (flag && shouldConnectTo(pLevel.getBlockState(blockpos.above()), Direction.UP, pLevel)) {
                 if (blockstate.isFaceSturdy(pLevel, blockpos, pDirection.getOpposite())) {
                     return RedstoneSide.UP;
                 }
@@ -162,7 +164,7 @@ public class DustBlock extends Block {
             }
         }
 
-        return !shouldConnectTo(blockstate) && (blockstate.is(this) || !shouldConnectTo(pLevel.getBlockState(blockpos.below()))) ? RedstoneSide.NONE : RedstoneSide.SIDE;
+        return !shouldConnectTo(blockstate, pDirection, pLevel) && (blockstate.is(this) || !shouldConnectTo(pLevel.getBlockState(blockpos.below()), Direction.DOWN, pLevel)) ? RedstoneSide.NONE : RedstoneSide.SIDE;
     }
 
     public boolean canSurvive(BlockState pState, LevelReader pLevel, BlockPos pPos) {
@@ -243,7 +245,11 @@ public class DustBlock extends Block {
     }
 
 
-    protected boolean shouldConnectTo(BlockState pState) {
+    protected boolean shouldConnectTo(BlockState pState, Direction direction, LevelAccessor level) {
+        Block block = pState.getBlock();
+        if (block instanceof INetworkMemberBlock memberBlock) {
+            return memberBlock.canConnectTo(direction, pState, level);
+        }
         return pState.is(this);
     }
 

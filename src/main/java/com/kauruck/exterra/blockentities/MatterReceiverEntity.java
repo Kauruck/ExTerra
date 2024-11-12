@@ -11,6 +11,7 @@ import com.kauruck.exterra.modules.RegistryManger;
 import com.kauruck.exterra.networking.BaseBlockEntity;
 import com.kauruck.exterra.networking.BlockEntityProperty;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -35,7 +36,7 @@ public class MatterReceiverEntity extends BaseBlockEntity implements INetworkMem
     }
 
     @Override
-    public boolean acceptsMatter(Matter matter) {
+    public boolean acceptsMatter(Matter matter, Direction direction) {
         return matter == ExTerraCore.TEST_MATTER.get() || matter == ExTerraCore.TEST_MATTER_2.get();
     }
 
@@ -48,7 +49,7 @@ public class MatterReceiverEntity extends BaseBlockEntity implements INetworkMem
     }
 
     @Override
-    public MatterStack pushMatter(MatterStack matterStack) {
+    public MatterStack pushMatter(MatterStack matterStack, Direction direction) {
         if (ExTerraRegistries.MATTER.getKey(matterStack.getMatter()) ==  receivedMatterName.get()) {
             receivedMatter.set(receivedMatter.get() + matterStack.getAmount());
         } else {
@@ -65,7 +66,7 @@ public class MatterReceiverEntity extends BaseBlockEntity implements INetworkMem
     }
 
     @Override
-    public Matter[] pulledMatter() {
+    public Matter[] pulledMatter(Direction direction) {
         return new Matter[0];
     }
 
@@ -75,8 +76,8 @@ public class MatterReceiverEntity extends BaseBlockEntity implements INetworkMem
     }
 
     @Override
-    public MatterStack[] pullMatter() {
-        return new MatterStack[0];
+    public MatterStack pullMatter(Matter matter, Direction direction) {
+        return null;
     }
 
     @Override

@@ -14,10 +14,13 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
+import org.checkerframework.checker.units.qual.C;
 
 import java.util.*;
 
 public class BlockEntityProperty<T>{
+
+    public static final String TAG_NULL = "exterra:value_null";
 
     private T data;
 
@@ -98,6 +101,11 @@ public class BlockEntityProperty<T>{
 
     public Tag toTag(boolean isNetwork) {
         DataResult<Tag>  res;
+        if(data == null) {
+            CompoundTag nullTag = new CompoundTag();
+            nullTag.putBoolean(TAG_NULL, true);
+            return nullTag;
+        }
         if (isNetwork) {
             res = this.networkCodec.encodeStart(NbtOps.INSTANCE, this.data);
         } else {
@@ -112,6 +120,12 @@ public class BlockEntityProperty<T>{
 
     public void setFromTag(Tag tag, boolean isNetwork) {
         DataResult<Pair<T, Tag>> res;
+        if (tag instanceof CompoundTag ct) {
+            if (ct.contains(TAG_NULL) && ct.getBoolean(TAG_NULL)) {
+                this.data = null;
+                return;
+            }
+        }
         if (isNetwork) {
             res = this.networkCodec.decode(NbtOps.INSTANCE, tag);
         } else {
