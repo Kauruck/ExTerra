@@ -37,7 +37,7 @@ public class RitualStoneEntity extends BaseBlockEntity {
     private final BlockEntityProperty<Boolean> broken = createProperty(Synced, "broken", false, NetworkInbuilt.PROPERTY_BOOLEAN.get());
     private final BlockEntityProperty<Map<BlockPos, Block>> trackingBlock = createProperty(Server, "tracking_blocks", new HashMap<>(), ExTerraCore.PROPERTY_MULTIBLOCK_ELEMENTS.get());
 
-    private int validationCooldown = 20;
+    private int validationCooldown = 0;
 
     public RitualStoneEntity(BlockPos pWorldPosition, BlockState pBlockState) {
         super(ExTerraCore.RITUAL_STONE_ENTITY.get(), pWorldPosition, pBlockState);
