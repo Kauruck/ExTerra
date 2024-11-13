@@ -1,34 +1,28 @@
 package com.kauruck.exterra.networks.matter;
 
 import com.kauruck.exterra.ExTerra;
-import com.kauruck.exterra.api.exceptions.UnexpectedBehaviorException;
 import com.kauruck.exterra.api.matter.Matter;
 import com.kauruck.exterra.api.matter.MatterStack;
-import com.kauruck.exterra.api.networks.matter.INetworkMember;
 import com.kauruck.exterra.api.recipes.ExTerraRecipeManager;
-import com.kauruck.exterra.geometry.Shape;
 import com.kauruck.exterra.modules.ExTerraCore;
-import com.kauruck.exterra.modules.ExTerraReloadableResources;
 import com.kauruck.exterra.recipes.ConversionContainer;
 import com.kauruck.exterra.recipes.ConversionHelper;
 import com.kauruck.exterra.recipes.ConversionRecipe;
-import com.kauruck.exterra.util.NBTUtil;
+import com.kauruck.exterra.util.OptionalEither;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.Tuple;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Edge {
+
+    public static final int CACHE_SIZE = 20;
 
     public static final Codec<Edge> CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
@@ -60,6 +54,12 @@ public class Edge {
      * last used recipe.
      */
     private ConversionRecipe cachedRecipe = null;
+    private Map<Matter[], OptionalEither<Matter, ConversionRecipe>> cachedTransport = new LinkedHashMap<>(CACHE_SIZE+1, .75f, true) {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<Matter[], OptionalEither<Matter, ConversionRecipe>> eldest) {
+            return size() > CACHE_SIZE;
+        }
+    };
 
     @SuppressWarnings("unchecked")
     public Edge(Vertex a, Vertex b, int id, Wire wire, MatterNetwork network) {
@@ -152,68 +152,112 @@ public class Edge {
         ExTerraRecipeManager<MatterStack> conversion = ExTerraCore.CONVERSION_RECIPE_MANGER.get();
 
         List<MatterStack> remainderList = new ArrayList<>();
+        boolean hadFlagMiss = false;
+        boolean transportedMatter = false;
         //Move from a
         for(Tuple<Matter, Matter[]> currentMatterTransfer : maybeTransport) {
-            List<MatterStack> presentStacks = new ArrayList<>();
-            boolean flagJump = false;
-            for (Matter currentMatter : currentMatterTransfer.getB()) {
-                MatterStack stack = from.pullMatterStack(currentMatter, fromDirection);
+            boolean flagCacheHit = false;
+            if (cachedTransport.containsKey(currentMatterTransfer.getB())) {
+                OptionalEither<Matter, ConversionRecipe> cacheEntry = cachedTransport.get(currentMatterTransfer.getB());
+                if (cacheEntry.isPresent()) {
+                    if (cacheEntry.isRightPresent()) {
+                        Matter toPull = cacheEntry.getRight();
+                        MatterStack stack = from.pullMatterStack(toPull, fromDirection);
+                        if (stack != null) {
+                            wire.addInfo(stack.getMatter().getParticleColor());
 
-                if(stack == null) {
-                    flagJump = true;
-                    break;
+                            MatterStack remainder = to.getMember().pushMatter(stack, toDirection);
+                            if (remainder != null && remainder.getAmount() != 0) {
+                                remainderList.add(remainder);
+                            }
+                            flagCacheHit = true;
+                        }
+                    } else { // Left must be present
+                        Set<MatterStack> presentStacks = Arrays.stream(currentMatterTransfer.getB())
+                                .map(m -> from.pullMatterStack(m, fromDirection))
+                                .filter(Objects::nonNull)
+                                .filter(m -> m.getAmount() > 0)
+                                .collect(Collectors.toSet());
+                        ConversionContainer container = new ConversionContainer(presentStacks, new HashSet<>(network.getShapes()));
+                        ConversionRecipe recipe = cacheEntry.getLeft();
+                        if (recipe.matches(container, network.getLevel())) {
+                            MatterStack output = recipe.assembleAsMuchAsPossible(container);
+
+                            for (MatterStack input : presentStacks) {
+                                wire.addInfo(input.getMatter().getParticleColor(), 0.5f, from != b);
+                            }
+                            wire.addInfo(output.getMatter().getParticleColor(), 0.5f, from == b);
+                            MatterStack remainder = to.getMember().pushMatter(output, toDirection);
+                            if (remainder != null && remainder.getAmount() != 0) {
+                                remainderList.add(remainder);
+                            }
+
+                            remainderList.addAll(container.getAll());
+                            flagCacheHit = true;
+                        }
+                    }
+                }
+            }
+            if (!flagCacheHit) {
+                hadFlagMiss = true;
+                List<MatterStack> presentStacks = new ArrayList<>();
+                boolean flagJump = false;
+                for (Matter currentMatter : currentMatterTransfer.getB()) {
+                    MatterStack stack = from.pullMatterStack(currentMatter, fromDirection);
+                    if (stack == null) {
+                        flagJump = true;
+                        break;
+                    }
+
+                    presentStacks.add(stack);
                 }
 
-                presentStacks.add(stack);
-            }
+                if (flagJump || presentStacks.isEmpty()) {
+                    continue;
+                }
 
-            if (flagJump || presentStacks.isEmpty()) {
-                continue;
-            }
+                boolean flagFoundRecipe = false;
+                ConversionContainer container = new ConversionContainer(new HashSet<>(presentStacks), new HashSet<>(network.getShapes()));
+                Optional<ConversionRecipe> recipeOptional = conversion.getRecipeFor(ExTerraCore.CONVERSION_RECIPE_TYPE.get(), container, network.getLevel());
+                if (recipeOptional.isPresent()) {
+                    ConversionRecipe recipe = recipeOptional.get();
+                    if (recipe.matches(container, network.getLevel())) {
+                        MatterStack output = recipe.assembleAsMuchAsPossible(container);
+                        for (MatterStack input : presentStacks) {
+                            wire.addInfo(input.getMatter().getParticleColor(), 0.5f, from != b);
+                        }
+                        wire.addInfo(output.getMatter().getParticleColor(), 0.5f, from == b);
+                        MatterStack remainder = to.getMember().pushMatter(output, toDirection);
+                        if (remainder != null && remainder.getAmount() != 0) {
+                            remainderList.add(remainder);
+                        }
 
-            boolean flagFoundRecipe = false;
-            ConversionContainer container = new ConversionContainer(new HashSet<>(presentStacks), new HashSet<>(network.getShapes()));
-            Optional<ConversionRecipe> recipeOptional;
-            if (cachedRecipe != null && cachedRecipe.matches(container, network.getLevel())) {
-                recipeOptional = Optional.of(cachedRecipe);
-            } else {
-                recipeOptional = conversion.getRecipeFor(ExTerraCore.CONVERSION_RECIPE_TYPE.get(), container, network.getLevel());
-            }
-
-            if (recipeOptional.isPresent()) {
-                ConversionRecipe recipe = recipeOptional.get();
-                cachedRecipe = recipe;
-                if(recipe.matches(container, network.getLevel())) {
-                    MatterStack output = recipe.assembleAsMuchAsPossible(container);
-
-                    for (MatterStack input : presentStacks) {
-                        wire.addInfo(input.getMatter().getParticleColor(), 0.5f, from != b);
+                        remainderList.addAll(container.getAll());
+                        flagFoundRecipe = true;
+                        transportedMatter = true;
+                        cachedTransport.put(currentMatterTransfer.getB(), OptionalEither.left(recipe));
                     }
-                    wire.addInfo(output.getMatter().getParticleColor(), 0.5f, from == b);
-                    MatterStack remainder = to.getMember().pushMatter(output, toDirection);
-                    if(remainder != null && remainder.getAmount() != 0){
+
+                }
+
+
+                // Transport without conversion
+                if (!flagFoundRecipe && presentStacks.size() == 1 && presentStacks.get(0).getMatter() == currentMatterTransfer.getA()) {
+                    MatterStack stack = presentStacks.get(0);
+                    wire.addInfo(stack.getMatter().getParticleColor());
+
+                    MatterStack remainder = to.getMember().pushMatter(stack, toDirection);
+                    transportedMatter = true;
+                    cachedTransport.put(currentMatterTransfer.getB(), OptionalEither.right(stack.getMatter()));
+                    if (remainder != null && remainder.getAmount() != 0) {
                         remainderList.add(remainder);
                     }
-
-                    remainderList.addAll(container.getAll());
-                    flagFoundRecipe = true;
                 }
 
             }
-
-
-
-            // Transport without conversion
-            if (!flagFoundRecipe && presentStacks.size() == 1 && presentStacks.get(0).getMatter() == currentMatterTransfer.getA()) {
-                MatterStack stack = presentStacks.get(0);
-                wire.addInfo(stack.getMatter().getParticleColor());
-
-                MatterStack remainder = to.getMember().pushMatter(stack, toDirection);
-                if(remainder != null && remainder.getAmount() != 0){
-                    remainderList.add(remainder);
-                }
-            }
-
+        }
+        if (hadFlagMiss && transportedMatter) {
+            ExTerra.LOGGER.info("Cache Miss");
         }
         from.applyBackpressure(remainderList);
     }
