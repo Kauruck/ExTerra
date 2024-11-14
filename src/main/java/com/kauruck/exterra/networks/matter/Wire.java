@@ -84,18 +84,30 @@ public class Wire {
 
     public void animationTick(ClientLevel pLevel, RandomSource pRandom){
         float stepSize = 1f/ positions.size();
-        for(int index = 0; index < positions.size(); index++){
-            float percentage = index * stepSize;
-            Vec3 color = new Vec3(0,0,0);
-            for(WireTransferInfo info : infos){
-                if(!info.flip && percentage <= info.percentage)
-                    color = color.add(info.color.scale(info.strength));
-                else if(info.flip && percentage >= info.percentage)
-                    color = color.add(info.color.scale(info.strength));
+        for(WireTransferInfo info : infos) {
+            for(int index = 0; index < positions.size(); index++){
+                float percentage = index * stepSize;
+                Vec3 color = new Vec3(0,0,0);
+                    if(!info.flip) {
+                        if (percentage <= info.percentage)
+                            color = color.add(info.color.scale(info.strength));
+                        else
+                            color = color.add(info.color.scale(info.strength).scale(easeOutValue(percentage - info.percentage)));
+                    }
+                    else{
+                            if (percentage >= info.percentage)
+                                color = color.add(info.color.scale(info.strength));
+                            else
+                                color = color.add(info.color.scale(info.strength).scale(easeOutValue(info.percentage - percentage)));
+                    }
+                if(!Colors.isZero(color))
+                    this.emitParticles(color, pLevel, pRandom, positions.get(index).getFirst(), positions.get(index).getSecond());
             }
-            if(!Colors.isZero(color))
-                this.emitParticles(color, pLevel, pRandom, positions.get(index).getFirst(), positions.get(index).getSecond());
         }
+    }
+
+    private float easeOutValue(float percentageOver) {
+        return (float) Math.max(0, - Math.exp(3.5f * percentageOver) + 2);
     }
 
     public List<Pair<BlockPos, BlockState>> getPositions() {
@@ -109,7 +121,7 @@ public class Wire {
     public void serverTick(){
         //Fade out the color over time
         infos = infos.stream()
-                .peek(info -> info.strength -= 0.1f)
+                .peek(info -> info.strength -= 0.01f)
                 .filter(info -> info.strength > 0)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
