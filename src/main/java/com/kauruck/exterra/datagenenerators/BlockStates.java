@@ -1,6 +1,7 @@
 package com.kauruck.exterra.datagenenerators;
 
 import com.kauruck.exterra.ExTerra;
+import com.kauruck.exterra.blocks.CommonBlockstates;
 import com.kauruck.exterra.client.model.ConnectedTextureLoader;
 import com.kauruck.exterra.modules.ExTerraCore;
 import net.minecraft.core.Direction;
@@ -8,23 +9,24 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.RedstoneSide;
-import net.neoforged.neoforge.client.model.generators.BlockModelBuilder;
-import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
-import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.client.model.generators.*;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
+
 import java.util.function.Function;
 
 
 public class BlockStates extends BlockStateProvider {
 
+    private final ExistingFileHelper existingFileHelper;
     public BlockStates(PackOutput output, ExistingFileHelper existingFileHelper) {
         super(output, ExTerra.MOD_ID, existingFileHelper);
+        this.existingFileHelper = existingFileHelper;
     }
 
     @Override
@@ -35,11 +37,24 @@ public class BlockStates extends BlockStateProvider {
         this.connectedTextureGlass(ExTerraCore.COMPOUND_FRAMED_GLASS.get(), ExTerra.getResource("block/compound_framed_glass"));
         this.dustBlock(ExTerraCore.CALCITE_DUST.get(), ResourceLocation.withDefaultNamespace("block/redstone_dust_dot"),ResourceLocation.withDefaultNamespace("block/redstone_dust_line0"),
                 ResourceLocation.withDefaultNamespace("block/redstone_dust_line1"),ResourceLocation.withDefaultNamespace("block/redstone_dust_overlay"));
-        this.plateBlock(ExTerraCore.RITUAL_STONE.get(), ExTerra.getResource("block/ritual_slab_top"), ResourceLocation.withDefaultNamespace("block/smooth_stone"));
+        this.activeRotationBlock(ExTerraCore.RITUAL_STONE.get(),
+                new ModelFile.ExistingModelFile(ExTerra.getResource("block/ritual_stone_on"), existingFileHelper),
+                new ModelFile.ExistingModelFile(ExTerra.getResource("block/ritual_stone_off"), existingFileHelper));
+        // this.plateBlock(ExTerraCore.RITUAL_STONE.get(), ExTerra.getResource("block/ritual_slab_top"), ResourceLocation.withDefaultNamespace("block/smooth_stone"));
         this.plateBlock(ExTerraCore.RECEIVER_BLOCK.get(), ExTerra.getResource("block/receiver_slab_top"), ResourceLocation.withDefaultNamespace("block/smooth_stone"));
         this.plateBlock(ExTerraCore.EMITTER_BLOCK.get(), ExTerra.getResource("block/emitter_slab_top"), ResourceLocation.withDefaultNamespace("block/smooth_stone"));
     }
 
+    private void activeRotationBlock(Block block, ModelFile on, ModelFile off) {
+        this.orientedBlockHorizontal(block, blockState -> {
+            if(blockState.getValue(CommonBlockstates.PROPERTY_ACTIVE)) {
+                return on;
+            } else {
+                return off;
+            }
+        });
+
+    }
 
     private void plateBlock(Block block, ResourceLocation topTexture, ResourceLocation slabTexture){
         BlockModelBuilder builder = this.models()
@@ -82,6 +97,18 @@ public class BlockStates extends BlockStateProvider {
         getVariantBuilder(block)
                 .forAllStates(state -> {
                     Direction dir = state.getValue(BlockStateProperties.FACING);
+                    return ConfiguredModel.builder()
+                            .modelFile(modelFunc.apply(state))
+                            .rotationX(dir.getAxis() == Direction.Axis.Y ?  dir.getAxisDirection().getStep() * -90 : 0)
+                            .rotationY(dir.getAxis() != Direction.Axis.Y ? ((dir.get2DDataValue() + 2) % 4) * 90 : 0)
+                            .build();
+                });
+    }
+
+    private void orientedBlockHorizontal(Block block, Function<BlockState, ModelFile> modelFunc) {
+        getVariantBuilder(block)
+                .forAllStates(state -> {
+                    Direction dir = state.getValue(HorizontalDirectionalBlock.FACING);
                     return ConfiguredModel.builder()
                             .modelFile(modelFunc.apply(state))
                             .rotationX(dir.getAxis() == Direction.Axis.Y ?  dir.getAxisDirection().getStep() * -90 : 0)

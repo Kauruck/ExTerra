@@ -1,7 +1,34 @@
 {
   "variants": {
-    "": {
-      "model": "exterra:block/ritual_stone"
+    "active=false,facing=east": {
+      "model": "exterra:block/ritual_stone_off",
+      "y": 90
+    },
+    "active=false,facing=north": {
+      "model": "exterra:block/ritual_stone_off"
+    },
+    "active=false,facing=south": {
+      "model": "exterra:block/ritual_stone_off",
+      "y": 180
+    },
+    "active=false,facing=west": {
+      "model": "exterra:block/ritual_stone_off",
+      "y": 270
+    },
+    "active=true,facing=east": {
+      "model": "exterra:block/ritual_stone_on",
+      "y": 90
+    },
+    "active=true,facing=north": {
+      "model": "exterra:block/ritual_stone_on"
+    },
+    "active=true,facing=south": {
+      "model": "exterra:block/ritual_stone_on",
+      "y": 180
+    },
+    "active=true,facing=west": {
+      "model": "exterra:block/ritual_stone_on",
+      "y": 270
     }
   }
 }

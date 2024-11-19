@@ -6,22 +6,27 @@ import com.kauruck.exterra.items.RitualMap;
 import com.kauruck.exterra.modules.ExTerraCore;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
@@ -29,11 +34,30 @@ import java.util.List;
 
 public class RitualStone extends RitualPlateBlock implements EntityBlock {
 
+    public static final BooleanProperty PROPERTY_ACTIVE = CommonBlockstates.PROPERTY_ACTIVE;
+    public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+
     public RitualStone() {
         super(BlockBehaviour.Properties.of().
                 sound(SoundType.STONE)
                 .strength(2.0f)
                 .requiresCorrectToolForDrops());
+
+        this.registerDefaultState(stateDefinition.any()
+                .setValue(PROPERTY_ACTIVE, true)
+                .setValue(FACING, Direction.NORTH));
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> pBuilder) {
+        pBuilder.add(PROPERTY_ACTIVE, FACING);
+    }
+
+    @Override
+    public @org.jetbrains.annotations.Nullable BlockState getStateForPlacement(BlockPlaceContext pContext) {
+        Direction direction = pContext.getHorizontalDirection().getOpposite();
+        return this.defaultBlockState()
+                .setValue(FACING, direction);
     }
 
     @Nullable
